@@ -1,0 +1,9 @@
+Extraido del manual de TeXiS:
+
+[...]
+Los ficheros de TeXiS disponibles de pueden categorizar en tres grupos distintos: los ficheros de la plantilla, los scripts que ayudan en la construcción del PDF final y el propio manual. Cada grupo de ficheros tiene una licencia distinta:
+
+La plantilla (ficheros en el directorio TeXiS) se distribuye bajo la LaTeX Project Public License (Licencia Pública del Proyecto LaTeX), que te permite utilizar los ficheros en tus propios documentos.
+Los ficheros Makefile y scripts de apoyo a la generación del documento, se distribuyen bajo licencia GPLv3.
+El manual de TeXiS se distribuye con una licencia Creative Commons (CC-BY-SA).
+[...]
