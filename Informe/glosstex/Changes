@@ -1,0 +1,72 @@
+$Id: Changes,v 1.6 1997/12/03 18:05:40 volkan Exp $
+
+* 0.3 to 0.4
+
+- glosstex.mst is now called glosstex.ist.
+
+- The .glx-file is automatically included \AtBeginDocument to make it
+  possible to use all commands without actually producing a list.
+
+- GlossTeX now uses 2 passes to process the .gdf-files. Cross
+  references should work now properly.
+
+- Fixed some minor layout problems in the typeset lists.
+
+- These commands have extended functionality: 
+
+      \ac,lparen,rparen,<form>(list)[pageref-mode]{item}
+      \acf,lparen,rparen,<form>(list)[pageref-mode]{item}
+
+- new options itemfirst, longfirst, text, footnote, roundparen and
+  squareparen 
+
+- \AtEndOfDocument, the user is told wether there were undefined terms.
+
+- There is a new sh-wrapper around glosstex.bin which provides some
+  kpathsea functionlity
+
+- The output files .gxg and .gxs are removed if the .gdf-files are
+  missing.
+
+- Documentation updated, moving most of the information out of the
+  READMEs into the .dvi-file.
+
+- Removed various harmless bugs.
+
+* 0.2 to 0.3
+
+- GlossTeX now supports $n$ independent lists. Default is a glossary
+  and a list of acronyms. \glosstex{*} and \acronym{*} insert all
+  terms from the given .gdf-files into the according list, just like
+  BibTeX's \nocite{*}. Cross references are really usable now, use
+  \glxref and \glxref* instead of \glosstexxref. GlossTeX is much more
+  configurable.
+
+- .gdf-file syntax slightly changed: `%' at BEGINNING OF LINE is
+  recognized as comment character. A term consists of label, item,
+  long-form and text which can be accessed within the document in
+  several ways, just like acronym.sty.
+
+- now the .aux-file is used instead of the .glo-file. Also, no
+  \makeglossary is necessary any more. Also works with \include'd
+  .aux-files caused by \include{foo.tex}
+
+- package is documented using the `docstrip' utility, LaTeX-source
+  cleaned up and documentation updated
+
+- Makefile is now more standard and should also work with non-GNU make
+
+* 0.1 to 0.2
+
+- GlossTeX now works together with nomencl: glosstex.gst is now named
+  glosstex.ist, \printglosstex includes \glosstexname to produce
+  glossary heading, \printglosstex uses \jobname.glx instead of
+  \jobname.gls
+
+- Documentation updated
+
+
+;;; Local Variables:
+;;; mode: indented-text
+;;; mode: outline-minor
+;;; End:

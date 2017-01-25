@@ -1,0 +1,8 @@
+database.o: database.c glosstex.h config.h error.h list.h database.h \
+ labels.h
+error.o: error.c glosstex.h config.h error.h list.h
+labels.o: labels.c glosstex.h config.h error.h list.h labels.h
+list.o: list.c list.h
+main.o: main.c glosstex.h config.h error.h list.h database.h labels.h \
+ version.h
+version.o: version.c

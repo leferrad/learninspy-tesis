@@ -1,0 +1,178 @@
+%---------------------------------------------------------------------
+%
+%                          Capítulo 1
+%
+%---------------------------------------------------------------------
+
+\chapter{Introducción}
+
+\begin{FraseCelebre}
+	\begin{Frase}
+		Es increíble la cantidad de energía que se tiene en cuanto hay un plan.
+	\end{Frase}
+	\begin{Fuente}
+		Daniel Handler
+	\end{Fuente}
+\end{FraseCelebre}
+
+
+\begin{resumen}
+En este capítulo se detallan los elementos que dan origen a este proyecto y componen la especificación del mismo. Se hace una reseña de los antecedentes identificados y cómo se justifica el trabajo realizado, aclarando los objetivos planteados para ello y las restricciones tenidas en cuenta para el alcance y las tecnologías utilizadas. Por último, se mencionan los posibles pasos que puede tener en un futuro el software desarrollado en este trabajo.
+\end{resumen}
+
+
+%-------------------------------------------------------------------
+\section{Antecedentes}
+%-------------------------------------------------------------------
+\label{cap1:sec:background}
+
+El aprendizaje profundo se presentó como una mejora del enfoque tradicional que comprendía el aprendizaje maquinal, y en su surgimiento ha alcanzado hitos mejorando el estado del arte en tareas particulares. Se listan algunos logros destacados de los últimos años:
+\begin{itemize}
+	\item  Hinton y su grupo de trabajo mejoraron la tecnología de reconocimiento de la voz en un 30\% utilizando aprendizaje profundo \cite{hinton2012deep}.
+	
+	\item Google utilizó el poder computacional de 16.000 procesadores para obtener una red neuronal profunda que logró reconocer con buena precisión tanto rostros y cuerpos humanos como también  gatos en videos de YouTube, lo cual se obtuvo de forma no supervisada sin utilizar información de clases (es decir, nunca se le daba información de lo que estaba aprendiendo) \cite{le2013building}. 
+	
+	\item El sistema DeepFace de Facebook alcanzó una precisión de 97.35\% con redes neuronales profundas sobre el conjunto de datos \textit{Labeled Faces in the Wild} (LFW), reduciendo el error del actual estado del arte en más de un 27\% y acercándose a la precisión de un humano en reconocimiento de rostros (que es de aproximadamente un 97.53\%) \cite{taigman2014deepface}
+	
+	\item Google DeepMind creó un programa llamado \textit{AlphaGo} que utiliza aprendizaje profundo y aprendizaje por refuerzo para aprender el juego de mesa ``Go'' \cite{silver2016mastering}, el cual en 2016 le ganó una competencia de 5 juegos a Lee Sodol, uno de los mejores jugadores de Go en el mundo.
+	
+\end{itemize}
+
+Dado que comprende una técnica popular y muy estudiada en los últimos años, actualmente existen varias herramientas que proveen utilidades para desarrollar algoritmos con aprendizaje profundo. Algunos de las más conocidos (y utilizados también por el autor de este proyecto) que además ofrecen paralelización del cómputo son: Caffe, Deeplearning4j, H2O, TensorFlow, Neon. Más adelante se mencionan características de los mismos, y es preciso destacar que debido a la dificultad presentada en personalizar estas herramientas durante su uso (principalmente las primeras tres mencionadas) fue que surgió la idea de originar el framework creado en este proyecto.
+
+
+%\begin{itemize} 
+%	\item Quizás acá iría el análisis de algunos frameworks actuales que son similares a Learninspy (H2O, Deeplearning4j, Caffe, OpenDeep, TensorFlow). Acá sirve mucho este muy buen review \cite{bahrampour2015comparative}.
+%\end{itemize}
+
+
+
+%-------------------------------------------------------------------
+\section{Justificación}
+%-------------------------------------------------------------------
+\label{cap1:sec:justificacion}
+
+Lo que se busca en este proyecto es lograr un producto de software que facilite implementar el paradigma profundo del aprendizaje maquinal en el tratamiento de problemas con alta complejidad sin demandar mucho esfuerzo para ello. Dicha facilitación se medirá respecto a dos ejes:
+
+\begin{enumerate}[a)]
+	\item La simplicidad en la estructuración del software para su prestación a ser reutilizable y útil para cualquier tipo de desarrollador.
+
+	\item La potencia de cómputo adquirida en el trabajo de forma distribuida.
+\end{enumerate}
+
+Con estas propiedades, el producto obtenido aportaría a la comunidad una plataforma para utilizar las herramientas más populares que ofrece el aprendizaje profundo y que explota todos los recursos computacionales disponibles para realizar el modelado. Esta ventaja computacional a su vez será transparente al usuario para que el software abstraiga lo mayor posible su complejidad, de modo que puedan utilizarse con poco esfuerzo todas las herramientas ofrecidas.
+
+
+Dado que el software obtenido pretende tener utilidad en resolución de
+problemáticas, se definen casos de aplicación para analizar su desempeño y potencialidad. Por lo tanto se incluye en el alcance de este proyecto el tratamiento de problemas de clasificación sobre señales de electroencefalografía. Dicha aplicación específica es un tema de amplio estudio debido, entre otras cosas, a su utilidad en construcción de sistemas de interfaz cerebro-computadora (\acs{ICC}). Estos últimos se encargan de traducir la actividad cerebral en comandos para una computadora o dispositivo, lo cual podría implicar una importante utilidad para personas con discapacidades en la comunicación \cite{hoffmann2008efficient}. Un objetivo muy perseguido (y difícil de alcanzar) en ICC es conseguir comunicación confiable utilizando épocas únicas (del inglés
+\textit{single-trial}), con el fin de maximizar la tasa de transferencia de información entre el usuario y el dispositivo o computadora a utilizar \cite{blankertz2002classifying}. Diversos fenómenos fisiológicos pueden ser utilizados para generar la actividad cerebral que la ICC debe reconocer, los cuales
+determinan distintas problemáticas a tratar. 
+
+En el proyecto se planea hacer una elección de algunas de las problemáticas disponibles a tratar. A priori, una de las problemáticas más relevantes en la actualidad es la del habla imaginada, en la cual en la señal de EEG se busca detectar los efectos producidos debido a la imaginación de pronunciar palabras o vocales sin realizar movimientos. Es un fenómeno fisiológico estudiado en la actualidad con enfoque de aprendizaje maquinal pero no profundo, por lo cual este proyecto podría establecer una tendencia para el análisis del estado del arte.
+
+%-------------------------------------------------------------------
+\section{Objetivos}
+%-------------------------------------------------------------------
+\label{cap1:sec:objetivos}
+Para desarrollar este proyecto, se plantearon los siguientes objetivos:
+
+\subsection{Objetivos generales}
+\begin{itemize}
+	\item Desarrollar un framework con algoritmos de aprendizaje profundo para entrenamiento y validación de redes neuronales, con posibilidad de distribuir el trabajo computacional sobre una computadora y/o una red de ellas.
+	\item Aplicar la implementación obtenida en problemas de clasificación sobre datos de señales cerebrales, de manera de analizar la potencialidad de las herramientas desarrolladas.
+\end{itemize}
+
+\subsection{Objetivos específicos}
+\begin{itemize}
+	\item Definir las funcionalidades y herramientas que ofrecería el framework.
+	\item Investigar e implementar un motor de procesamiento distribuido para lograr el paralelismo computacional escalable a clústeres.
+	\item Lograr la concurrencia para el entrenamiento de distintas redes neuronales a través de los nodos de un clúster.
+	\item Lograr un software con un código suficientemente documentado en todas sus funcionalidades.
+	\item Conseguir una interfaz para posibilitar al usuario la abstracción del cómputo paralelo implicado en el software.
+	\item Desarrollar un protocolo de experimentación sobre el caso de aplicación, definido en base a las funcionalidades implementadas.
+	\item Llevar adelante las pruebas definidas en el protocolo de experimentación.
+	\item Obtener resultados mejores que el azar sobre los datos tratados.
+\end{itemize}
+
+%-------------------------------------------------------------------
+\section{Alcance}
+%-------------------------------------------------------------------
+\label{cap1:sec:alcance}
+Se definen las siguientes cuestiones para el alcance de este proyecto:
+\begin{itemize}
+	\item Se implementarán algoritmos de aprendizaje profundo con el enfoque de autocodificadores para el pre-entrenamiento de las redes neuronales.
+	\item El framework será pensado para ser reutilizado por desarrolladores, por lo que se prioriza su estructuración simple y fácil legibilidad en el código. A raíz de ello, se
+	decide utilizar Python como lenguaje de programación.
+	\item La plataforma desarrollada se basará en el motor de procesamiento distribuido Apache Spark, una tecnología de código abierto que combina un gran poder de cómputo paralelo como su relativa facilidad de uso.
+	\item Se debe tener la posibilidad de realizar el trabajo de cómputo distribuido, tanto a
+	nivel clúster como a nivel local (sobre los hilos de ejecución de una sola computadora).
+	\item Las señales cerebrales utilizadas para los casos de aplicación se consideran ya pre-procesadas de forma adecuada para ser utilizadas en las redes neuronales, por lo que el proyecto no contempla una investigación exhaustiva de las problemáticas involucradas en dichos casos.
+	\item Las bases de datos a utilizar serán obtenidas exclusivamente de forma gratuita.
+\end{itemize}
+
+%-------------------------------------------------------------------
+\section{Tecnologías utilizadas}
+%-------------------------------------------------------------------
+\label{cap1:sec:tecnologias}
+%-------------------------------------------------------------------
+\subsection{Restricciones}
+%-------------------------------------------------------------------
+\label{cap1:subsec:restricciones}
+
+Se realizó la documentación de la Especificación de Requisitos del Software (ERS) siguiendo el estándar IEEE 830-1998 (ver Anexo), y en la misma se encuentra la especificación completa de las tecnologías utilizadas. No obstante, se listan a continuación:
+\begin{itemize}
+	\item \textbf{Sistema operativo}: Linux Debian/Ubuntu
+	\item \textbf{JVM}: versión 1.7.0/1.8.0
+	\item \textbf{Hardware}: Recomendado por \spark \footnote{\url{http://spark.apache.org/docs/latest/hardware-provisioning.html}} 
+	\item \textbf{Lenguaje de programación}: Python 2.7
+	\item \textbf{Paradigmas de programación}: 
+	\begin{itemize}
+		\item Orientado a objetos
+		\item Funcional
+		\item Imperativo
+	\end{itemize}
+	%\item \textbf{IDE}: PyCharm 4.5
+	\item \textbf{Dependencias externas}:
+	\begin{itemize}
+		\item Ecosistema de SciPy:
+		\begin{itemize}
+			\item NumPy v1.8.2
+			%\item SciPy v0.14.0
+			\item Matplotlib v1.4.2
+			%\item IPython v2.3.0
+		\end{itemize}
+		\item \spark v1.4+/2.0.1
+	\end{itemize}
+	\item \textbf{Interfaz de usuario (opcional)}: Jupyter 4.0.4
+	\item \textbf{Testeo e integración continua}: Nose, Coveralls, Travis CI.
+	\item \textbf{Control de versiones}: Git v2.1.4
+	\item \textbf{Documentación}: Sphinx v1.2.3
+\end{itemize}
+
+%-------------------------------------------------------------------
+\subsection{Evolución previsible}
+%-------------------------------------------------------------------
+\label{cap1:subsec:evolucion}
+
+Se prevén las siguientes cuestiones tecnológicas a mejorar o integrar en el futuro del producto:
+\begin{itemize}
+	\item Elección semi-automática de híper-parámetros en el modelado de redes neuronales mediante computación evolutiva (e.g. algoritmos genéticos, BSO, etc.).
+	\item Administración de trabajos o \textit{scheduler} para automatizar la ejecución de experimentos en el modelado.
+	\item Interfaz gráfica con mejor experiencia de usuario (por ejemplo, con CherryPy y/o Apache Zeppelin).
+	\item Integración con tecnologías referidas a administración de clúster (como Apache Mesos y YARN).
+	\item Integración con tecnologías referidas a almacenamiento de datos (como Apache Cassandra y HDFS).
+	\item Adaptación a una imagen en Docker para despliegue del framework en entornos virtualizados.
+	\item Incorporación de otras técnicas complementarias de aprendizaje maquinal (e.g. K-means, DBN, redes recurrentes, etc.).
+	\item Mejora de los módulos que realizan cálculos algebraicos, integrando nuevas soluciones que paralelicen dicho cómputo (e.g. librerías eficientes a nivel CPU, módulos que realicen cómputos en GPU).
+\end{itemize}
+
+% TODO!!! Anexar el anteproyecto entregado.
+% Usar el export en PDF de read the docs para adjuntar la documentación
+
+% Variable local para emacs, para  que encuentre el fichero maestro de
+% compilación y funcionen mejor algunas teclas rápidas de AucTeX
+%%%
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: "../Tesis.tex"
+%%% End:

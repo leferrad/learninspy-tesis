@@ -1,0 +1,42 @@
+%---------------------------------------------------------------------
+%
+%                      resumen.tex
+%
+%---------------------------------------------------------------------
+%
+% Contiene el capítulo del resumen.
+%
+% Se crea como un capítulo sin numeración.
+%
+%---------------------------------------------------------------------
+
+\chapter{Resumen}
+\cabeceraEspecial{Resumen}
+
+\begin{FraseCelebre}
+\begin{Frase}
+No basta tener un buen ingenio, lo principal es aplicarlo bien.
+\end{Frase}
+\begin{Fuente}
+René Descartes
+\end{Fuente}
+\end{FraseCelebre}
+
+El aprendizaje profundo (conocido en inglés como \textit{deep learning}) es una rama de la inteligencia artificial que, debido al éxito de su utilización en problemas de gran complejidad, se ha vuelto popular y ampliamente desarrollado tanto a nivel empresarial como en el campo de la investigación. Se basa en el diseño de redes neuronales capaces de aprender a extraer características sobre los datos presentados, para así lograr con mayor precisión tareas de clasificación o regresión. La profundidad mencionada en su denominación se debe a que las arquitecturas implementadas suelen componerse de numerosos niveles, con el fin de obtener representaciones de los datos que sean adecuadas para el objetivo planteado sobre la red.
+
+El problema que presenta implementar esta técnica es el elevado costo
+computacional comprendido en la construcción de la arquitectura profunda, que ocurre especialmente cuando se trata con cantidades masivas de datos. Además, el hecho de manejar una gran cantidad de hiper-parámetros y sus posibles combinaciones incrementa la dificultad de encontrar de forma rápida una red neuronal adecuada para el problema tratado.
+
+En este proyecto se plantea como objetivo general el desarrollo de un framework que ofrezca la posibilidad de entrenar redes neuronales mediante los algoritmos y funcionalidades más populares del aprendizaje profundo, y reducir el esfuerzo de diseño y modelado utilizando herramientas de cómputo en paralelo. Esto último implica poder distribuir el trabajo computacional tanto a nivel local sobre los núcleos de un procesador, como también sobre los nodos que componen un clúster. Además se define como un objetivo específico evaluar la potencialidad del software desarrollado mediante su aplicación en tareas de alta complejidad, particularmente en problemas de clasificación sobre datos de electroencefalografía.
+
+\smallskip
+\noindent \textbf{Palabras claves:} red neuronal, aprendizaje profundo, autocodificador, cómputo distribuido, electroencefalografía.
+
+\endinput
+% Variable local para emacs, para  que encuentre el fichero maestro de
+% compilación y funcionen mejor algunas teclas rápidas de AucTeX
+%%%
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: "../Tesis.tex"
+%%% End:

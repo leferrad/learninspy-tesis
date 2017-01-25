@@ -1,0 +1,291 @@
+$Id: TODO,v 1.66 1997/12/03 18:08:22 volkan Exp $
+
+* BUGS
+
+** the .gdf-files to be used should be designated within the document
+   and so put into the .aux-file, not designated on the commandline.
+   The same way as it is done with BibTeX and \bibliography{foo,
+   bar}. Problem: this would break the UI.
+
+* `FEATURES'
+
+** A Makeindex input line cannot exceed 1024 characters on one side,
+   but an argument cannot span more than one line. Seems as though we
+   should have a look at xindy. Another way around this is to change
+   the makeindex sources (#define ARGUMENT_MAX in mkind.h) and
+   recompile. This should be noted in the documentation of glosstex.
+
+** while scanning the input (.aux)-files, glosstex is limited to an
+   arbitrary number of characters per entry (constant argument to
+   sscanf). this can be circumvented by using the GNU version of
+   sscanf, which automatically malloc's the needed memory.
+
+** LaTeX produces a nasty error `! LaTeX Error: Something's
+   wrong--perhaps a missing \item.' when the .glx-file is empty.
+
+* TODO
+
+** \GLX@output@short and \GLX@output@long both should get called with
+   <paren> and <form> to allow for greater flexibility. Or
+   alternatively, provide \GLX@output@short@lt, lf, it, if. That way,
+   we wouldn't need to parse the <form>-stuff. Just pass <paren>.
+
+** document all the `.' and `o' that are output.
+
+** An "Die TeXnische Komödie" article about GlossTeX would be nice.
+
+** add support for xindy
+
+* MAYBE
+
+** include functionality of nomencl, à la include references produced
+   by \ref and not only \pageref, or eq-ref. problem: too much
+   features. it's not easy to deterimine the environment we're
+   currently in. Also, nomencl and glosstex complement each other
+   well, don't they?
+
+** include a test-suite with files foo.glx.expect to be able to test
+   each version during development whether it's still fully
+   functional. that'd be hard to do, since we expect DVI-files, don't
+   we? we may produce some expected GXS or GLX files.
+
+** each list should be able to produce independent lists on
+   part/chapter/section-level. problem: hard to implement, featurism,
+   not really necessary.
+
+** it should be possible to make a list with the terms sorted in order
+   of appearance. We wouldn't need MakeIndex in this case. This may
+   lead to a future release which doesn't rely on MakeIndex
+   anymore. Something like BibTeX which has it's own language for it's
+   .bst-files. Or reimplement GlossTeX using a .bst for BibTeX.
+
+* DONE
+
+** make sure that the following lines don't appear in glosstex.mst
+   (which btw should really be called glosstex.ist)
+
+   \def\filename{glosstex}
+   \def\fileversion{0.4a}
+   \def\filedate{1997/06/12}
+   \let\docdate=\filedate
+
+** TDS: glosstex.mst should be called glosstex.ist (which is more
+   common in the TeX world) and moved to texmf/makeindex
+
+** Damit die Acronym-expansion funktionieren kann, muß die .glx-Datei
+   mindestens einmal abgearbeitet werden, auch wenn gar keine Liste
+   erwünscht ist. Abhilfe: \printglosstex(foo) oder neuen Befehl
+   \printglosstex* einführen, der keine Ausgabe erzeugt.
+
+   Put something into \AtEndOfPackage{\printglosstex{foobarkazong}} or
+   better, with \AtBeginDocument
+
+** use README.m4 as source for README and LICENSE
+
+** ist ein begriff explizit in irgendeiner liste explizit angefordert,
+   wird dieser aber per "*" etwa in einer anderen liste auch
+   angefordert, taucht er dort nicht auf. möglichkeit: wildcards
+   werden in einem 2. pass eingetragen, da explizite referenzen
+   priorität haben. 1.37 ist halbwegs korrekte version, bei der dieser
+   bug noch auftritt.
+
+** the endmark \glosstexpage := \hfill\page doesn't work reliably. see
+   thmmarks.sty (I can't seem to find it) and ntheorem.sty for a
+   better solution. Or avoid this problem at all. There are also some
+   minor layout problems due to formatting the output.
+
+** was genau passiert, wenn irgendwelche einträge mit "*" angefordert
+   werden, dieselben einträge aber auch explizit? in welchen listen
+   tauchen die ganzen einträge dann auf? Das sollte genauestens
+   Dokumentiert werden, auch im Source!
+
+   Die Sache ist erledigt. Alles läuft jetzt in 2 passes! Änderungen
+   v.a. in database.c
+
+
+** (from sad@utk.edu) Die Fu"snotenidee mag ich. Die Package option
+   auch, aber vielleicht w"urde ich es dennoch als zwei getrennt
+   erreichbare Versionen implementieren, also z.B.
+
+ \acf        (entweder als ' (<item>) <long-form>' oder als
+             '<long-form> (<item>)', je nach package option, und
+	     entweder im text oder als footnote, je nach package option)
+ \acft       (entweder als ' (<item>) <long-form>' oder 
+             '<long-form> (<item>)', je nach package option, aber im
+	     text)
+ \acftl      (immer als '<long-form> (<item>)' aber im text)
+ \acfti      (immer als '(<item>) <long-form>' aber im text)
+ \acff       (wie \acft{} aber als footnote)
+ \acffl      (wie oben, aber als footnote)
+ \acffi      (wie oben, aber als footnote)
+
+
+Das gibt die gr"o"ste Freiheit f"ur's Formatieren, denn manchmal klingt,
+vor allem im Deutschen mit diesen W"ortern, die zwei Kapitel spannen und
+immer noch dreizeilige Acronyme produzieren, '<long-form> (<item>)'
+einfach traurig, vor allem, wenn 'long-form' irgendwelche grammatischen
+Schn"orkel  beinhaltet. Hm, Beispiel, an den Haaren herbeigezogen:
+
+ Wir waren in  'Die nordamerikanische Tomatenschlacht' (DNATS)
+
+klingt trauriger als das meiner Meinung nach bessere jedoch 
+sich dem glosstex Ansatz entziehende
+
+ Wir waren in  der 'nordamerikanischen Tomatenschlacht' (DNATS)
+
+w"ahrend 
+
+ Wir waren in  DNATS ('Die nordamerikanische Tomatenschlacht')
+
+das umgeht ohne den Filmtitel zu ver"andern.
+
+Da f"allt dann noch eine andere M"oglichkeit f"ur optionen a la
+Makeindex auf: Wahlweise 'open quote' 'close quote' Symbole um die
+Langform, sagen wir mal per default als blanks wenn vorangestellt und
+als '(' und ')' wenn hinten an, aber einstellbar als alles m"ogliche,
+z.~B. als  die folgenden Paare (einzeln ansprechbar)
+
+  ' '
+  " "
+  ` `
+  ` '
+  `` ''
+  ( )
+  [ ]
+  \{ \}
+  -- --
+  --- ---
+  , ,
+
+oder auch beliebige andere folgen, wie 
+
+ (' ')
+ --- oder ausf"uhrlicher geschreiben,    , selbst wenn sich das ziemlich
+ beschissen liest ---
+
+
+usw. :-) Dann vielleicht noch ein bi"schen Feinkontrolle "uber's
+Erscheinungsbild des Textes (sagen wir mal, \textbf{}. \textsc{}.
+\text{tt} usw) getrennt f"ur beide Teile, und alle interessanten
+M"oglichkeiten sollten ersch"opft sein. Ich f"ande das ganz sch"on, auch
+wenn man das nat"urlich schon itzo per Hand mit ein paar Macros machen
+kann. (Nat"urlich sollte glosstex dann tcp/ip enabled sein und einen
+report per sendmail zu Dir schicken, falls irgendwer au"ser mir
+diese Schn"orkel wirklich benutzt :->).
+
+** in \GLX@do@acf die Klammern () durch Macros ersetzen, abhängig von
+   <list>
+
+** removed little bug in database.c that caused failure while parsing
+   a <long-form> containing a ``,``.
+
+** there's a strange bug in the Makefile that causes on recursive
+   invocation of $(MAKE) Makefile.os2 and Makefile.unx to be read
+   additionally to Makefile. dev only. This should be worth a
+   bug-report, but first construct this bug on a minimal makefile.
+
+   Oh man, I am so stupid. MAKEFILES is a special variable in
+   make. RTFM!
+
+   Have a look at the Makefile from doc++ in /usr/local/lib/doc++/src,
+   especially the "release" target.
+
+** write a kpathsea sh-wrapper around glosstex.bin to be used with
+   teTeX
+
+   or
+
+   call MakeIndex from within GlossTeX with exec(). Should also work
+   with DOS (process.h instead of unistd.h in UNIX). name of MakeIndex
+   binary should be configureable. in DOS, it's called makeindx,
+   AFAIK.
+
+   or
+
+   some path searching functionality to find .gdf-files and .mst files
+   (in combination with the above). maybe a sh-kpathsea-wrapper like
+   makeindex and makeindex.bin in teTeX? Drawback: only functional
+   under Unix (so what!). Another solution: combine this with the
+   kpathsea sh-wrapper, something similar to texi2dvi, which also
+   calls makeindex and so forth.
+
+   note: kpse is some kind of black magic to me (at least at the
+   moment), so the instructions below may be complete nonsense,
+   nonstandard and absolutely ridiculous. but they work for me.
+
+      check wether "kpsetool -v -n glosstex '$GDFINPUTS'" or "kpsetool
+      -v -n tex '$GDFINPUTS'" do what you want, i.e. their output
+      should be equal. These won't find your teTeX texmf tree (where
+      your texmf.cnf file lives) if glosstex is not in something like
+      teTeX/bin or "teTeX/bin/foo-bar". in these cases, replace
+      "TETEXDIR = $SELFAUTOPARENT" in texmf.cnf with something like
+      "TETEXDIR = /usr/local/lib/teTeX". this makes sure that the
+      proper texmf tree is found, even if glosstex is not in the teTeX
+      texmf tree but in your local TeX tree.
+
+      You also need symbolic links from
+      /usr/local/lib/localTeX/texmf.cnf to your teTeX texmf.cnf. This
+      is because kpatsea looks for texmf.cnf in the tree where the
+      binary was found.
+
+** when glosstex is called with non-existant files, the output files
+   .gxg and gxs are created nevertheless. Maybe we should unlink them
+   before exiting?
+
+** do some stuff with autoconf and automake to automatically generate
+   glosstex-i486-unknown-linux binaries for distrib.
+
+   done this with uname -something.
+
+** parenl und parenr auch auf item-ebene festlegen. done using
+   \ac,lparen,rparen,<form>(list)[pageref-mode]{item}
+
+** \newcommand{\glosstexgroup} for use with lethead_prefix in
+   MakeIndex, similar to \nomgroup. not really necessary. what is this
+   good for, anyhow?
+
+   This wont work, since glosstex produces list_item, to embed all
+   items from all lists into one list for makeindex. makeindex would
+   only recognize a new group based on the first letter or the list,
+   which is not what we want.
+
+** some macros have to be declared \long (\newcommand*) to be able to
+   accept whole paragraphs as arguments. Especially those who define
+   the begin environment stuff
+
+** update documentation. new user-level commands:
+
+   options: itemfirst, longfirst, text, footnote, roundparen,
+   squareparen
+
+   <i> : item/short-form first oder <l>: long-form first
+   <t> : inline in text oder <g>: as footnote
+
+   new commands: 
+       \ac<form>(list)[pageref-mode]{item}
+       \acf<form>(list)[pageref-mode]{item}
+       
+       glxitemorderdefault[list]{i|l}, glxitemplacementdefault[list]{t|f},
+       glxparendefault[list]{left}{right}
+
+** clean up the documentation:
+
+   use more logical markup in documentation instead of visual. also
+   make the documentation and source more consistent with respect to
+   terminology ** check that at EOL, there is always a % in .dtx
+
+   document each macro in dtx, especially the arguments
+
+** move most of the info from the READMES into the main
+   documentation. The README should only contain the most basic idea
+   on what glosstex is.
+
+** \AtEndOfDocument tell user, that there were undefined terms and
+   that she should run glosstex.
+
+** contact the maintainer of the latex catalogue
+
+;;; Local Variables:
+;;; mode: indented-text
+;;; mode: outline-minor
+;;; End:

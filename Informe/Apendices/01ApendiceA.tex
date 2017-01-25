@@ -1,0 +1,62 @@
+%---------------------------------------------------------------------
+%
+%                          Apéndice 1
+%
+%---------------------------------------------------------------------
+
+\chapter{Algoritmos}
+\label{ap1:algoritmos}
+
+
+\begin{algorithm}
+	\caption{Algoritmo de retropropagación para redes neuronales}\label{alg:backpropagation}
+	\begin{algorithmic}
+		\Require Matrices de pesos sinápticos $W$, vectores de bias $b$, n\textordmasculine de capas $L$.
+		\Function{backpropagation}{$x$, $y$} \Comment{\textit{Parámetros}: Patrón de entrada $x$; salida deseada $y$.}
+		\State \textbf{1) Entrada}: 
+		\State $a^{(1)} = f(x) $ \Comment{Calcular la activación para la capa de entrada }
+		\State \textbf{2) Paso hacia adelante}: 
+		\For{$l = 2, 3, \dots, L$}
+		\State $z^{(l)} = W^{(l)}a^{(l-1)} + b^{(l)}$ \Comment{Salida lineal de la capa.}
+		\State $a^{(l)} = f(z^{(l)})$ \Comment{Salida activada de la capa.}
+		\EndFor
+		\State \textbf{3) Error en salida} 
+		\State \( \phantom{\nabla_a J} \mathllap{J} = loss(a^{(L)}, y)  \) \Comment{Aplicar función de costo}
+		\State \(\nabla_a J = d\_loss(a^{(L)}, y)\) \Comment{Gradiente del costo respecto a la activación.}
+		\State \(\phantom{\nabla_a J} \mathllap{\delta^L} = \nabla_a J \odot f'(z^{(l)})\)
+		\Comment{Computar el vector derivada de la salida}
+		\State \textbf{4) Retropropagar el error y computar gradientes}:
+		\For{$l = L-1, L-2, \dots, 2$}
+		\State \( \phantom{\nabla_{W^{(l)}} J} \mathllap{ \delta^{(l)}}= (W^{(l+1)})^{\top} \delta^{(l+1)} \odot f'(z^{(l)}) \)
+		\State \( \nabla_{W^{(l)}} J = \delta^{(l+1)} (a^{(l)})^\top \) \Comment{Respecto al parámetro $W$ de la capa $l$} 
+		\State \( \phantom{\nabla_{W^{(l)}} J} \mathllap{\nabla_{b^{(l)}} J} = \delta^{(l+1)} \) \Comment{Respecto al parámetro $b$ de la capa $l$} 
+		\EndFor
+		\State \Return $J, \nabla_{W} J, \nabla_{b} J  $ \Comment{Devuelve el costo de la red y los gradientes}
+		\EndFunction
+	\end{algorithmic}
+\end{algorithm}
+
+
+\begin{algorithm}
+	\caption{Salida de una capa de neuronas a la que se le aplica Dropout}\label{alg:dropout}
+	\begin{algorithmic}
+		\Require Capa de neuronas $l_{W,b}$.
+		\Function{dropoutput}{$x$, $p$} \Comment{\textit{Parámetros}: patrón de entrada $x$; probabilidad de activación $p \in (0, 1)$.}
+		\State \text{$a = output(l_{W,b}$, $x$) }  \Comment{Computar salida de capa $l_{W,b}$ ante la entrada $x$.}
+		\State \text{$v = random(size(a$))} \Comment{Generar vector del mismo tamaño que $a$, con valores aleatorios entre 0 y 1.}
+		\State \text{$m = v > p$} \Comment{Calcular máscara binaria del vector $v$, donde se asigna 1 a los valores de $v$ mayores a $p$ y 0 al resto.}
+		\State \text{$d = (a \odot m) / p$} \Comment{Aplicar máscara binaria sobre el vector de activaciones, escalando a $p$.}
+		\State \Return{$d, m$} \Comment{Devuelve la salida de la red con Dropout aplicado, y la máscara binaria correspondiente.}
+		\EndFunction
+	\end{algorithmic}
+\end{algorithm}
+
+
+
+% Variable local para emacs, para  que encuentre el fichero maestro de
+% compilación y funcionen mejor algunas teclas rápidas de AucTeX
+%%%
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: "../Tesis.tex"
+%%% End:

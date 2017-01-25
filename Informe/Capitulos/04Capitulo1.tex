@@ -1,0 +1,126 @@
+%---------------------------------------------------------------------
+%
+%                          Capítulo 9
+%
+%---------------------------------------------------------------------
+
+\chapter{Conclusiones generales}
+
+\begin{FraseCelebre}
+\begin{Frase}
+El final de una obra debe hacer recordar siempre el comienzo.
+\end{Frase}
+\begin{Fuente}
+Joseph Joubert
+\end{Fuente}
+\end{FraseCelebre}
+
+\begin{resumen}
+Este capítulo está destinado a plasmar conclusiones finales de todo el trabajo realizado. Las mismas se refieren al valor que se obtiene de este proyecto, así como las fortalezas y debilidades identificadas de la metodología seguida. Aquí se validan los logros del trabajo respecto a lo planificado, y se discuten futuros trabajos posibles a realizar sobre el sistema generado.
+\end{resumen}
+
+
+%-------------------------------------------------------------------
+\section{Corolarios del proyecto}
+%-------------------------------------------------------------------
+\label{cap9:sec:corolarios}
+
+En este proyecto se pretendía lograr un producto de software que sirva como herramienta para modelar soluciones sobre problemáticas complejas, utilizando para ello ciertos algoritmos de aprendizaje profundo que puedan distribuir su cómputo en la infraestructura que se disponga. 
+
+Un valor importante a destacar respecto al desarrollo de este trabajo es el aprendizaje de nuevas tecnologías que involucró: desde las herramientas de software utilizadas para construir y validar el framework (e.g. Apache Spark, ecosistema SciPy, herramientas de testeo e integración continua) hasta los algoritmos de aprendizaje maquinal y \textit{deep learning} implementados, cubriendo todos los aspectos necesarios para proveer un framework completo (e.g. pre-procesamiento de datos, configuración de modelos, optimización, etc.). Esto mismo se conglomera en un sistema que puede apreciarse no sólo a nivel personal, sino también por las comunidades respectivas a las tecnologías abarcadas (disponiendo de una nueva herramienta gratuita que ofrece soluciones modernas), y a la institución \textit{sinc(i)} que avala este proyecto ya que el mismo se relaciona con las disciplinas que actualmente trabajan allí (e.g. aprendizaje maquinal y sistemas BCI).
+
+
+\begin{figure}
+	\centering
+	\begin{tikzpicture}
+	\pie[text=legend, radius=2.5]{30/Programación, 15/Software, 30/Aplicación, 25/Matemáticas}
+	\end{tikzpicture}
+	
+	\caption{Gráfico de torta con las contribuciones de cada área curricular hacia el proyecto desarrollado.}
+	\label{fig:pie-plot-asignaturas}
+\end{figure}
+
+
+
+Para entender la concepción de Learninspy como un auténtico proyecto de Ingeniería en Informática, se visualiza en la Figura \ref{fig:pie-plot-asignaturas} las contribución de cada área de asignaturas dictadas en la carrera hacia la ejecución del presente proyecto, las cuales son calculadas de forma subjetiva por el autor. Cada una de estas áreas se justifican de la siguiente forma:
+
+\begin{enumerate}
+	\item \textbf{Programación:} Para implementar cada componente del sistema, combinando distintas tecnologías y paradigmas de programación. Las asignaturas destacadas de este área son: Tecnologías de la Programación, Algoritmos y Estructuras de Datos, Programación Orientada a Objetos y Fundamentos de Programación.
+	
+	\item \textbf{Software:} Para gestionar el proyecto, desde el diseño hasta la ejecución, así como también aplicar buenas prácticas para el control de calidad. Aquí se consideran las contribuciones de las siguientes asignaturas: Ingeniería en Software I y II, y Administración de Proyectos de Software.
+	
+	\item \textbf{Aplicación:} Para entender conceptos fundamentales en los que se basa el diseño del framework y sus funcionalidades, así como también saber aprovecharlos de forma correcta a la hora de definir la experimentación. Se destacan en dicha área estas materias: Inteligencia Computacional y Procesamiento Digital de Señales.
+	
+	\item \textbf{Matemáticas:} Para entender a bajo nivel la teoría subyacente en las funcionalidades desarrolladas, lo cual es necesario conocer para poder implementarlas correctamente. Algunas de las asignaturas más importantes son: Álgebra lineal, Cálculo I, Estadística y Matemática Básica.
+\end{enumerate}
+
+
+Respecto a los objetivos definidos en la Sección \ref{cap1:sec:objetivos}, se considera que se pudo cumplir con lo planificado ya que el framework desarrollado tiene la capacidad para distribuir su cómputo en forma local y a nivel clúster, y a su vez fue aplicado en las problemáticas de electroencefalografía definidas de manera correcta. Específicamente, esto se manifiesta de la siguiente forma:
+
+\begin{itemize}
+	\item Se logró implementar el motor Apache Spark para que el sistema pueda distribuir su cómputo en sus principales funcionalidades, y esto fue validado tanto de forma local como a nivel clúster en los experimentos explicados en la Sección \ref{cap5:sec:experimentos}.
+	
+	\item Mediante una validación efectuada en usuarios (tanto los directores de este proyecto como otros colegas), se pudo determinar que las interfaces para interactuar con el framework son adecuadas y están suficientemente documentadas como para utilizar y/o modificar dicho sistema sin inconvenientes. Dichos usuarios no contaban con experiencia en cómputo paralelo ni Apache Spark, por lo cual se corrobora que el sistema abstrae correctamente esta propiedad para su uso tal como se pretendía.
+	
+	% MÉTRICAS?
+	\item En ambas problemáticas de electroencefalografía definidas, se pudo ejecutar la experimentación planteada y se logró en ambos casos obtener un buen desempeño respecto al azar e incluso en comparación a los trabajos de referencia. En base a esto, y la experimentación realizada en la Sección \ref{cap5:sec:experimentos} sobre otros corpus de datos, se puede validar la potencialidad de Learninspy como utilidad para resolver problemáticas complejas.
+	
+	\item Cumplimiento de todos los requisitos con prioridad deseada o esencial que fueron especificados en la ERS del proyecto, quedando sin cumplir únicamente los siguientes dos requisitos con baja prioridad: RF009 y  RF011.
+	
+	
+\end{itemize}
+
+%-------------------------------------------------------------------
+\section{Trabajos futuros}
+%-------------------------------------------------------------------
+\label{cap9:sec:futuro}
+
+A partir de todo el trabajo realizado, también se concluye que el software desarrollado tiene diversos aspectos a perfeccionar en términos de desempeño y utilidad. Específicamente, se consideran las siguientes cuestiones a mejorar en un futuro:
+
+\begin{itemize}
+	\item Incorporación de nuevas características y tecnologías al framework mencionadas en la Sección \ref{cap1:subsec:evolucion}.
+
+	\item En base a la deficiencia explicada en la Sección \ref{cap5:sec:experimentos}, se concluye que es necesario mejorar las capacidades para realizar cálculos algebraicos en forma eficiente. Esto resulta crucial para que la herramienta tenga buen desempeño en problemáticas que involucran procesamiento de datos con alta dimensionalidad.
+	
+	\item Explorar e investigar más acerca de la propuesta de entrenamiento distribuido, desde la validación del concepto de función de consenso hasta los grados de libertad que comprenden dicho esquema.
+	
+	  
+\end{itemize}
+
+Por otro lado, es preciso destacar la aplicación de Learninspy fuera del contexto de este proyecto para una aplicación de seguridad informática, en la cual se utilizaron autocodificadores para modelar una línea base del tráfico generado por un sensor de seguridad y en base a ello poder filtrar eventos de dicho tráfico \cite{ferrado2016filtering}. En dicha aplicación se obtuvieron buenos resultados sobre una base de datos públicas, y se pretende evolucionar el enfoque para ser aplicable sobre datos reales generados en organizaciones de gran magnitud.
+
+Dado que las tecnologías comprendidas por el framework se siguen desarrollando y mejorando cada vez más, logrando con ello diversas aplicaciones de forma exitosa, se puede concluir finalmente que Learninspy provee las bases para desarollar de forma escalable distintos algoritmos de \textit{deep learning} y puede seguir mejorando sus capacidades para ser una herramienta flexible de personalizar y simple de utilizar en tareas complejas.
+
+\iffalse
+\textbf{COMPLETAR:}
+
+\begin{itemize}
+	\item En cuanto a los resultados obtenidos en los casos de aplicación, mencionar que son algo pobres pero que no se esperaba mucho más ya que, obviando que no estaba en el alcance obtener precisión alta, hay pocos datos y deep learning (sobre todo no supervisado) requiere de muchos datos (especialmente pq se tratan dimensiones grandes y por ello muchos parámetros que ajustar a pocos datos).
+	
+	Esto se corresponde con el problema de ``maldición de la dimensionalidad'' o ``efecto Hughes'', que se introdujo en la Sección \ref{cap2:subsec:ajuste-parametros} \cite{donoho2000high}.
+	
+	Ver esto..
+	In machine learning problems that involve learning a "state-of-nature" (maybe an infinite distribution) from a finite number of data samples in a high-dimensional feature space with each feature having a number of possible values, an enormous amount of training data are required to ensure that there are several samples with each combination of values. With a fixed number of training samples, the predictive power reduces as the dimensionality increases, and this is known as the Hughes effect[3] or Hughes phenomenon (named after Gordon F. Hughes). 
+	
+	
+	
+	On the mean accuracy of statistical pattern recognizers
+	
+	
+	2 reflexiones sobre los resultados
+	- sobre efecto hughes
+	- no free lunch: no se puede pretender mandar datos crudos y que la red se encargue de todo, pero bueno era el desafío de ver el potencial de deep learning en este tipo de problemas.
+
+
+	
+\end{itemize}
+
+\fi
+
+% Variable local para emacs, para  que encuentre el fichero maestro de
+% compilación y funcionen mejor algunas teclas rápidas de AucTeX
+%%%
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: "../Tesis.tex"
+%%% End:

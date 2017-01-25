@@ -1,0 +1,123 @@
+
+database.c,227
+enum e_pass e_pass37,1129
+  PASS_1 38,1143
+  PASS_1 = 0, PASS_2 38,1143
+static unsigned int lineno 41,1172
+read_databases 54,1634
+process_file 76,2187
+process_line 131,3489
+write_line 220,5825
+glo_parse_item 255,7464
+
+error.c,58
+#define BUFSIZE 33,1045
+error 36,1072
+printlog 61,1527
+
+labels.c,155
+#define KEYWORDSIZE 36,1087
+#define INPUTWORDSIZE 37,1128
+read_labels 44,1298
+find_label 165,4962
+show_unresolved_labels 184,5564
+get_label 204,6052
+
+list.c,17
+list_add 31,991
+
+main.c,689
+enum e_loglevel loglevel 38,1146
+s_list labels;40,1184
+s_list databases;41,1232
+char *progname 43,1280
+char *inname 45,1339
+char *outname 46,1395
+char *logname 47,1441
+FILE *outfile;49,1484
+FILE *logfile;50,1499
+unsigned int count_label_parsing 52,1515
+unsigned int count_label_defined 53,1574
+unsigned int count_label_override 54,1640
+unsigned int count_label_success 55,1702
+unsigned int count_label_unresolved 56,1754
+unsigned int count_gdf_parsing;58,1820
+unsigned int count_gdf_defined;59,1873
+unsigned int count_gdf_success;60,1932
+char usage[62,1979
+main 70,2266
+parse_commandline 119,3512
+open_files 151,4384
+check_extension 171,4791
+build_filename 189,5180
+
+version.c,21
+char version[27,928
+
+config.h,99
+#define __CONFIG_H27,945
+#define __USE_FIXED_PROTOTYPES__30,1030
+#define _HAVE_STRERROR_33,1135
+
+database.h,28
+#define __DATABASE_H27,950
+
+error.h,411
+#define __ERROR_H27,942
+enum e_loglevel e_loglevel29,961
+  ERROR 30,979
+  ERROR = 0, WARNING,30,979
+  ERROR = 0, WARNING, PROGRESS,30,979
+  ERROR = 0, WARNING, PROGRESS, INFORMATION,30,979
+  ERROR = 0, WARNING, PROGRESS, INFORMATION, VERBOSE,30,979
+  ERROR = 0, WARNING, PROGRESS, INFORMATION, VERBOSE, DEBUG30,979
+enum e_output_to e_output_to32,1042
+  STDOUT 33,1061
+  STDOUT = 1, LOGFILE 33,1061
+
+glosstex.h,761
+#define __GLOSSTEX_H28,951
+#define EXIT_FAILURE 36,1071
+#define LINESIZE 39,1102
+#define WORDSIZE 40,1124
+extern enum e_loglevel loglevel;42,1146
+extern s_list labels;44,1180
+extern s_list databases;45,1202
+extern char *inname;47,1228
+extern char *outname;48,1249
+extern char *logname;49,1271
+extern FILE *infile;51,1294
+extern FILE *outfile;52,1315
+extern FILE *logfile;53,1337
+extern char *progname;55,1360
+extern unsigned int count_label_parsing;57,1384
+extern unsigned int count_label_defined;58,1425
+extern unsigned int count_label_override;59,1466
+extern unsigned int count_label_success;60,1508
+extern unsigned int count_gdf_parsing;61,1549
+extern unsigned int count_gdf_defined;62,1588
+extern unsigned int count_gdf_success;63,1627
+
+labels.h,286
+#define __LABELS_H27,946
+enum e_label_flag e_label_flag33,1033
+  UNRESOLVED 34,1053
+  UNRESOLVED = 0, RESOLVED34,1053
+enum e_find_mode e_find_mode36,1083
+  FIND_FIRST,37,1102
+  FIND_FIRST, FIND_NEXT37,1102
+typedef struct s_label_s s_label_s40,1130
+} s_label;s_label47,1267
+
+list.h,260
+#define __LIST_H27,942
+typedef struct s_node_s s_node_s29,960
+} s_node;s_node32,1024
+typedef struct s_list_s s_list_s34,1035
+} s_list;s_list37,1092
+typedef struct s_list_iterator_s s_list_iterator_s39,1103
+} s_list_iterator;s_list_iterator42,1173
+
+version.h,55
+#define __VERSION_H27,946
+extern char version[29,967

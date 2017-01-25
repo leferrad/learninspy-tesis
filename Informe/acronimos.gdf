@@ -1,0 +1,70 @@
+% Fichero con acrónimos para su uso con GlossTeX
+%
+% El listado de acrónimos funciona de manera similar a las referencias
+% bibliográficas. Este  fichero es equivalente por tanto  al .bib, con
+% el listado de  los acrónimos disponibles. A lo  largo del documento,
+% cuando se  utilice alguno  de ellos, se  referencia para  indicar al
+% sistema que queremos que dicho  acrónimo aparezca en el glosario. En
+% contra de  lo que ocurre con  la bibliografía, el  texto original no
+% sufre ninguna modificación.
+%
+% Las entradas son:
+% @entry{<etiqueta>[,<item>[,<forma larga>]]} [<texto>]
+%
+% La etiqueta es el  nombre del acrónimo (equivalente a la etiqueta en
+% BibTeX) que luego se utiliza para "referenciarlo" en el texto.
+
+% Para  que  la  generación   en  Release  con  el  Makefile  funcione
+% correctamente, necesitarás  al menos tener  referenciado un acrónimo
+% dentro del  texto.  Si  no quieres usar  acrónimos, o de  momento no
+% tienes ninguno  referenciado, basta con que no  definas la constante
+% \acronimosEnRelease en config.tex
+
+@entry{DOO, ,\emph{Diseño Orientado a Objetos}}
+
+@entry{EEG, ,\emph{Electroencefalografía}}
+
+@entry{MSE, ,\emph{Mean Squared Error}}
+
+@entry{MAE, ,\emph{Mean Absolute Error}}
+
+@entry{GD, ,\emph{Gradiente Descendiente}}
+
+@entry{SGD, ,\emph{Stochastic Gradient Descent}}
+
+@entry{NAG, ,\emph{Nesterov Accelerated Gradient}}
+
+@entry{ACC, ,\emph{Accuracy}}
+
+@entry{BCI, ,\emph{Brain-Computer Interface}}
+
+@entry{ERP, ,\emph{Event-Related Potential}}
+
+@entry{SNR, ,\emph{Signal to Noise Ratio}}
+
+@entry{ICC, ,\emph{Interfaz Cerebro-Computadora}}
+
+@entry{SGD, ,\emph{Stochastic Gradient Descent}}
+
+@entry{RNA, ,\emph{Red Neuronal Artificial}}
+
+@entry{DNN, ,\emph{Deep Neural Network}}
+
+@entry{AE, ,\emph{AutoEncoder}}
+
+@entry{MLP, ,\emph{Multi Layer Perceptron}}
+
+@entry{SAE, ,\emph{Stacked AutoEncoder}}
+
+@entry{ReLU, ,\emph{Rectifier Linear Unit}}
+
+@entry{OCC, ,\emph{One-Class Classification}}
+
+@entry{PCA, ,\emph{Principal Component Analysis}}
+
+@entry{RDD, ,\emph{Resilient Distributed Dataset}}
+
+
+
+
+

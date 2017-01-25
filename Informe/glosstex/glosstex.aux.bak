@@ -1,0 +1,73 @@
+\relax 
+\GLX@newterm{ASCII}{ASCII}{American Standard Code for Information Interchange}
+\GLX@newterm{EBCDIC}{EBCDIC}{Extended Binary Coded Decimals Interchange Code}
+\GLX@newterm{gdf-file}{\texttt  {.gdf}-file}{}
+\GLX@newterm{glg-file}{\texttt  {.glg}-file}{}
+\GLX@newterm{glx-file}{\texttt  {.glx}-file}{}
+\GLX@newterm{gxg-file}{\texttt  {.gxg}-file}{}
+\GLX@newterm{gxs-file}{\texttt  {.gxs}-file}{}
+\GLX@newterm{ist-file}{\texttt  {.ist}-file}{}
+\GLX@newterm{ASCII}{ASCII}{American Standard Code for Information Interchange}
+\GLX@entry{EBCDIC}{n}{acr}{a}{2}
+\GLX@newterm{EBCDIC}{EBCDIC}{Extended Binary Coded Decimals Interchange Code}
+\GLX@entry{ASCII}{n}{acr}{a}{2}
+\@writefile{toc}{\contentsline {section}{\numberline {1}Introduction}{2}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {1.1}Purpose}{2}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {1.2}History}{2}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {1.3}Legalise}{3}}
+\@writefile{toc}{\contentsline {section}{\numberline {2}Building and Installation}{3}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.1}A Goodie for \textrm  {te}T\kern -.1667em\lower .5ex\hbox {E}\kern -.125emX\spacefactor \@m {} User}{3}}
+\@writefile{toc}{\contentsline {section}{\numberline {3}Usage}{4}}
+\@writefile{lot}{\contentsline {table}{\numberline {1}{\ignorespaces Package options.}}{4}}
+\newlabel{tab:options}{{1}{4}}
+\@writefile{lot}{\contentsline {table}{\numberline {2}{\ignorespaces Overview of the different sets of commands.}}{5}}
+\newlabel{tab:commands}{{2}{5}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.1}The Glossary Definition File}{5}}
+\GLX@entry{gdf-file}{p}{glo}{a}{5}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.2}Invocation}{6}}
+\GLX@entry{gxs-file}{p}{glo}{a}{7}
+\GLX@entry{gxg-file}{p}{glo}{a}{7}
+\GLX@entry{glx-file}{p}{glo}{a}{7}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.3}Page References}{7}}
+\newlabel{sec:page_references}{{3.3}{7}}
+\@writefile{lot}{\contentsline {table}{\numberline {3}{\ignorespaces Options controlling the appearance of page references.}}{8}}
+\newlabel{tab:references}{{3}{8}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.4}The Appearance of \meta {full}}{8}}
+\newlabel{sec:format}{{3.4}{8}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {3.4.1}The \meta {order} of \meta {item}s}{8}}
+\newlabel{sec:order}{{3.4.1}{8}}
+\@writefile{lot}{\contentsline {table}{\numberline {4}{\ignorespaces Options controlling \meta {item-order}.}}{8}}
+\newlabel{tab:item-order}{{4}{8}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {3.4.2}Placement of footnotes and \meta {form}}{8}}
+\newlabel{sec:footnotes}{{3.4.2}{8}}
+\@writefile{lot}{\contentsline {table}{\numberline {5}{\ignorespaces Options controlling \meta {item-placement}.}}{9}}
+\newlabel{tab:item-placement}{{5}{9}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {3.4.3}Encapsulation}{9}}
+\newlabel{sec:parentheses}{{3.4.3}{9}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.5}Cross-References}{9}}
+\GLX@entry{ASCII}{n}{acr}{a}{9}
+\GLX@entry{EBCDIC}{n}{acr}{n}{9}
+\GLX@entry{ASCII}{n}{acr}{a}{9}
+\GLX@entry{EBCDIC}{n}{acr}{n}{9}
+\GLX@entry{ASCII}{n}{acr}{a}{9}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.6}GlossT\kern -.1667em\lower .5ex\hbox {E}\kern -.125emX\spacefactor \@m {} and \textsf  {nomencl}}{9}}
+\@writefile{toc}{\contentsline {section}{\numberline {4}Customizing}{10}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.1}Global}{10}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.2}Local}{11}}
+\newlabel{sec:customizing_local}{{4.2}{11}}
+\@writefile{toc}{\contentsline {section}{\numberline {5}Some Details}{12}}
+\@writefile{toc}{\contentsline {section}{\numberline {6}Acknowledgments}{12}}
+\@writefile{toc}{\contentsline {section}{\numberline {7}The Implementation}{12}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {7.1}The Package \textsf  {glosstex.sty}}{12}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {7.2}The \textsc  {MakeIndex}{} Style-File \texttt  {glosstex.ist}}{25}}
+\GLX@entry{ist-file}{p}{glo}{a}{25}
+\GLX@newterm{ASCII}{ASCII}{American Standard Code for Information Interchange}
+\GLX@newterm{EBCDIC}{EBCDIC}{Extended Binary Coded Decimals Interchange Code}
+\GLX@newterm{gdf-file}{\texttt  {.gdf}-file}{}
+\GLX@newterm{glg-file}{\texttt  {.glg}-file}{}
+\GLX@entry{gxg-file}{n}{glo}{a}{26}
+\GLX@newterm{glx-file}{\texttt  {.glx}-file}{}
+\GLX@newterm{gxg-file}{\texttt  {.gxg}-file}{}
+\GLX@entry{glg-file}{n}{glo}{a}{26}
+\GLX@newterm{gxs-file}{\texttt  {.gxs}-file}{}
+\GLX@newterm{ist-file}{\texttt  {.ist}-file}{}

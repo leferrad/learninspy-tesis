@@ -1,0 +1,401 @@
+%--------------------------------------------------------------------
+%
+%                          Capítulo 8
+%
+%---------------------------------------------------------------------
+
+\chapter{Habla imaginada}
+
+\begin{FraseCelebre}
+	\begin{Frase}
+		Todo lo que una persona puede imaginar, otras podrán hacerlo realidad.
+	\end{Frase}
+	\begin{Fuente}
+		Julio Verne
+	\end{Fuente}
+\end{FraseCelebre}
+
+\begin{resumen}
+	En este capítulo se estudia la problemática del habla imaginada y las investigaciones realizadas para lograr su reconocimiento en señales electroencefalográficas. Luego, se define el corpus de datos utilizado en este proyecto y se explica el tratamiento realizado con la aplicación del framework implementado.
+\end{resumen}
+
+El segundo caso de aplicación es referido al reconocimiento del habla imaginada, el cual supone un área de investigación relativamente novedoso dentro de la neurociencia, sobre todo en sistemas BCI debido a la naturaleza que supone expresar los comandos respecto a técnicas con P300. En particular la base de datos utilizada es reciente, por lo cual con esta aplicación se ve una oportunidad de incorporar sobre ella un nuevo tratamiento mediante aprendizaje profundo.
+
+%-------------------------------------------------------------------
+\section{Antecedentes}
+%-------------------------------------------------------------------
+\label{cap8:sec:antecedentes}
+El concepto de ``habla imaginada'' (también referido como de ``habla no pronunciada'') consiste en la imaginación de pronunciar palabras o vocales sin producir ningún sonido ni movimiento mandibular, y en los últimos años se ha estado trabajando para lograr su detección en señales de EEG. Dicho reconocimiento está adquiriendo mayor atención debido a su importancia en diversos campos: desde la ayuda a personas con algún tipo de discapacidad motriz o en su comunicación, como en aplicaciones donde es crucial la privacidad de un discurso, y hasta en el control de dispositivos computarizados y videojuegos.
+
+Uno de los primeros trabajos acerca del habla imaginada fue el realizado por Suppes en 1997, quien utilizó los registros de EEG y magnetoencefalografía (MEG) para la clasificación de 7 palabras del idioma inglés: \textit{first}, \textit{second}, \textit{third}, \textit{yes}, \textit{no}, \textit{right} y \textit{left} \cite{suppes1997brain}. Para el registro de EEG de 7 sujetos empleó 16 canales y analizó las contribuciones de cada uno a la tasa de detección. Se obtuvieron 100 registros por cada una de las 7 palabras y se alcanzó una tasa de acierto del 52\% al emplear prototipos basados en la transformada de Fourier sobre la señal promedio de cada clase.
+
+D'Zmura \cite{d2009toward} se basó en registros de EEG que captaban la imaginación de las sílabas /ba/ y /ku/ utilizando 128 canales de registro. En la etapa clasificación, se usaron filtros adaptativos logrando tasas de detección del 62\% al 87\%.
+
+Un enfoque orientado al análisis de vocales imaginadas es el presentado por DaSalla \cite{dasalla2009single}, en el cual se registró la señal de EEG de tres sujetos para tres estados: al imaginar la pronunciación de las vocales /a/ y /u/ en forma sostenida, y durante un estado de control (sin imaginación). En este caso, como método de extracción de características se emplearon patrones espaciales comunes o CSP y como clasificador se usaron máquinas de soporte vectorial (en inglés, \textit{Support Vector Machines} o SVM) con kernel no lineal y basados en agrupar clasificaciones binarias para obtener un clasificador multi-clase. Finalmente, se obtuvo un porcentaje de detección máximo de 78\% para la clasificación binaria producida por la SVM.
+
+
+% ====================== BORRADOR =============================
+\iffalse
+Cuatro tesis han versado sobre el habla imaginada cuyo objetivo era la identi-
+
+ficaci ?on de palabras del idioma ingl ?es. La primera de ellas fue la de Wester \cite{wester2006unspoken}, quien
+capt ?o la se ?
+nal de EEG de 6 sujetos bajo 5 modalidades de pronunciaci ?on, entre las
+que se encontraba el discurso normal y el imaginado. El protocolo consist ??a en la pre-
+sentaci ?on de la palabra durante 1 segundo, seguido de otro intervalo de igual duraci ?on
+para que el individuo inspirara y exhalara. Posteriormente se mostraba una pantalla
+negra por 2 segundos, per ??odo en el cual el sujeto deb ??a expresar la palabra seg ?
+un
+la modalidad seleccionada. Utilizando la STFT para la extracci ?on de caracter ??sticas
+y modelos ocultos de Markov como clasificador, Wester obtuvo un 21.8 % de acierto
+para 10 clases.
+Tanto la tesis de Wand [77] como la de Calliess [78], definen un protocolo de
+adquisici ?on muy parecido, en el cual las palabras a imaginar son las primeras cinco
+letras del alfabeto radiof ?onico y que se presentan en bloque, de manera secuencial
+o en forma aleatoria. Si bien existen diferencias en el procesamiento, los resultados
+obtenidos para la modalidad aleatoria apenas superan al azar, mientras que durante
+la presentaci ?on en bloques la tasa de detecci ?on fue dos veces mayor. Debido a esta
+discrepancia, Porbadnikg \cite{porbadnigk2008eeg} intent ?o determinar si el porcentaje de acierto se deb ??a a
+
+artefactos temporales, utilizando un protocolo que contaba con la presentaci ?on de las
+mismas palabras con las mismas modalidades, pero registradas de manera intercalada
+en una misma sesi ?on. Los resultados a los que arribo muestran una elevada influencia
+del orden en el cual se presentan las palabras en relaci ?on a la tasa de detecci ?on; siendo
+siempre superior en el caso de la presentaci ?on en bloques.
+El u
+? nico trabajo orientado a la imaginaci ?on de palabras del idioma espa ?
+nol es el
+propuesto por Torres Garc ??a \cite{torres2013analisis}. En este se seleccion ?o un diccionario compuesto por las
+palabras: arriba, abajo, derecha, izquierda y seleccionar. Se realiz ?o el registro de EEG
+a 27 individuos y el protocolo se bas ?o en permitir que el sujeto indique, mediante clics
+del rat ?on, la ventana de tiempo en la cual imaginaba. La cantidad de repeticiones por
+palabra fue de 33, realizadas en forma de bloque. En dicha investigaci ?on se utilizaron
+para el registro 16 electrodos y se analiz ?o la contribuci ?on de 4 posicionados en las  ?areas
+funcionales definidas en el modelo de Geschwind- Wernicke. Para la caracterizaci ?on de
+la se ?
+nal se emple ?o la DWT y se form ?o un vector con las energ ??as relativas Wavelet en
+cada nivel de descomposici ?on. En cuanto a la clasificaci ?on, se usaron tres clasificadores
+de los cuales el que mejor exactitud tuvo fue el algoritmo Random Forest, alcanzando una tasa promedio de 44 \%.
+
+\fi
+% ===============================================================
+%-------------------------------------------------------------------
+\section{Corpus de datos}
+%-------------------------------------------------------------------
+\label{cap8:sec:datos}
+
+Para este caso de aplicación, se adquirió de forma gratuita una base de datos cuyos registros fueron realizados en las oficinas del Laboratorio de Ingeniería en Rehabilitación e Investigaciones Neuromusculares y Sensoriales (LIRINS), perteneciente a la Facultad de Ingeniería de la Universidad Nacional de Entre Ríos (FIUNER). El corpus se encuentra almacenado en formato MATLAB y fue creado en 2016 para una tesis de bioingeniería en la facultad mencionada \cite{coretto2016imaginada}.
+
+
+%-------------------------------------------------------------------
+\subsection{Registro}
+%-------------------------------------------------------------------
+\label{cap8:subsec:registro}
+
+Las señales continuas de \ac{EEG} fueron registradas usando un sistema compuesto por un amplificador Grass 8-18-36 en conjunto con una placa conversora analógico-digital DT9816 de marca DataTranslation. El mismo constaba de 8 electrodos superficiales de Ag-AgCl y recubiertos en oro, ubicados en base al sistema internacional 10-20, siendo seis usados como canales activos, uno como referencia y el restante como tierra. Además se utilizó una frecuencia de muestreo de 1024 Hz para cumplir con el criterio de Nyquist ya que la señal de interés tiene 40 hz como frecuencia máxima \cite{coretto2016imaginada}. Los registros se realizaron sobre 15 sujetos (8 masculinos y 7 femeninos) de entre 20 y 30 años de edad, y ninguno poseía algún problema significante de salud.
+
+En el protocolo de registro, la secuencia que se utilizó para la estimulación y repetición del vocabulario propuesto se ilustra en la Figura \ref{fig:protocolo-imgspeech}. Esta comenzaba con la presentación de una imagen de concentración durante dos segundos, seguido por un lapso de igual duración donde se indicaba la palabra objetivo. Posteriormente, se mostraba la modalidad que debía utilizar por un espacio de cuatro segundos. Si el diccionario estaba compuesto por las vocales, las debían pensar de manera sostenida durante el largo del intervalo, mientras que para el caso de los comandos se emitieron una sucesión de clics y la palabra tenía que ser repetida cada vez que lo escuchaban. Por último, el sujeto tenía 4 segundos en los cuales descansar hasta la aparición de una nueva imagen de concentración, donde estaba permitido volver a ponerse cómodo.
+
+El formato de cada observación está dado por un vector que contiene la señal registrada por los canales F3, F4, C3, C4, P3 y P4 de 4 segundos cada una, concatenadas en dicho orden, determinando la longitud de dicho vector en 24579 muestras. Las etiquetas de cada registro de habla imaginada indican la clase correspondiente a la palabra imaginada, y también la presencia o no de artefactos oculares. Finalmente se contó con una cantidad de entre 90 y 230 ejemplos por sujeto aproximadamente, las cuales se encontraban relativamente balanceadas por clases con lo cual resultaba una cantidad en promedio de entre 15 y 40 ejemplos por clase aproximadamente para cada sujeto.
+
+
+\begin{figure}[t]
+	\begin{center}
+		\includegraphics[width=0.8\textwidth]%
+		{Imagenes/Bitmap/ImgSpeech/protocolo-imgspeech}
+		\caption{Secuencia presentada en pantalla para la adquisición de registros del habla imaginada}
+		\label{fig:protocolo-imgspeech}
+	\end{center}
+\end{figure}
+
+%-------------------------------------------------------------------
+\subsection{Procesamiento de datos}
+%-------------------------------------------------------------------
+\label{cap8:subsec:procesamiento}
+
+El siguiente procedimiento fue aplicado sobre los datos registrados, por lo cual se parte de este resultado para realizar los experimentos:
+
+\begin{enumerate}
+	\item \textit{Referencia:} Como referencia se utilizó un electrodo en la apófisis mastoides izquierda, mientras que el electrodo de la mastoides derecha se utilizó como tierra para el equipo de adquisición.
+	
+	\item \textit{Filtrado:} Las señales fueron pre-procesadas con filtros FIR, fijando una frecuencia de paso inferior en 2Hz para el filtro pasabajo de orden 372 y una superior en 40Hz para el filtro pasaalto de orden 1024.
+	
+	\item \textit{Submuestreo:} Se realizó un procedimiento de decimación para reducir la frecuencia de muestreo de 1024Hz a 128Hz.
+	
+	%\item \textit{Extracción de single trial:}  ??Se extrajeron los ejemplos de 1000 ms que comenzaban con la intensificación de una imagen. Debido al intervalo de 400 ms entre cada estímulo, se permitió un solapamiento de 600 ms entre estímulos contiguos.
+	
+	\item \textit{Selección de electrodos:} Se utilizaron los 6 canales disponibles para los 8 electrodos del sistema de adquisición.
+	
+	\item \textit{Construcción del vector de características:} Se concatenaron las muestras de cada electrodo consecutivamente para formar un vector de características unidimensional. 
+	
+\end{enumerate}
+
+A partir de ese resultado, se dispuso lo siguiente:
+
+\begin{itemize}
+	\item \textit{Remoción de artefactos:} Dado que el corpus indica explícitamente cuáles son los ejemplos con artefactos oculares presentes, para este trabajo se procedió a ignorarlos de forma que sólo se utilicen aquellos que no estén contaminados con dichos artefactos.
+		
+	\item \textit{Escalado:} Cada una de estos vectores se escaló al intervalo $[-1, 1]$. 
+	
+	\item Se optó por utilizar sólo aquellos ejemplos relativos a palabras en lugar de vocales, abarcando 6 clases (\textit{arriba}, \textit{abajo}, \textit{izquierda}, \textit{derecha}, \textit{adelante} y \textit{atrás}) que además se relacionan con comandos para sistemas BCI.
+	
+	\item Por cada uno de los 15 sujetos tratados, se dividieron los datos en conjuntos de entrenamiento (50\% del total), validación (20\%) y prueba (30\% restante). Dado que la cantidad de ejemplos es escasa, se priorizó una proporción mayor en el conjunto de prueba para que la evaluación tenga el mayor respaldo posible en términos de muestras.
+	
+	
+\end{itemize}
+
+%-------------------------------------------------------------------
+\section{Experimentos}
+%-------------------------------------------------------------------
+\label{cap8:sec:experimentos}
+
+
+%\textbf{Dimensión de reducciones y extraccion de caracteristicas mediante PCA y AE}
+
+Como se mencionó en el trabajo original de referencia, aún reduciendo bastante la dimensionalidad de los datos crudos mediante decimación (en un 87,5\% aproximadamente) subsiste el problema de lidiar con datos de alta dimensión, lo cual dificulta el tratamiento en términos computacionales. Es por eso que resulta deseable que, a la hora de modelar un clasificador, se utilicen datos en menor dimensión conservando características que permitan desempeñar lo mejor posible la tarea de clasificación. 
+
+Tal como fue mencionado en la Sección \ref{cap2:subsec:autoencoder}, el método PCA es uno de los más utilizados para realizar reducción de dimensiones en un conjunto de datos, pero también los autocodificadores mostraron utilidad en esa tarea y hasta superando el desempeño de PCA en diversos casos. Por lo tanto en este trabajo se propuso comparar ambos métodos para lograr una dimensionalidad menor sobre los datos de habla imaginada, y que además el resultado sea una buena base de características para modelar un clasificador sobre las 6 clases elegidas. En base a esto, para la experimentación se dispuso lo siguiente:
+
+\begin{itemize}
+	\item Para elegir la dimensión objetivo en la reducción, se utilizaron dos criterios: a) la proporción acumulada de la variación explicada por las componentes elegidas del PCA (ver detalles en la Sección \ref{cap2:subsec:autoencoder}), para tener una noción de cuánta información se retiene del conjunto original de datos; b) el porcentaje de reducción, para tener idea del grado de compresión logrado. Por lo tanto, se escogieron las siguientes configuraciones en las pruebas:
+	\begin{enumerate}[a)]
+		\item \textbf{99\% de variación}: 70.64\% de reducción a 902 dimensiones.
+		\item \textbf{95\% de variación}: 82.71\% de reducción a 531 dimensiones.
+		\item \textbf{90\% de variación}: 88.21\% de reducción a 362 dimensiones.
+		\item \textbf{80\% de variación}: 93.13\% de reducción a 211 dimensiones.
+		\item \textbf{70\% de variación}: 95.60\% de reducción a 135 dimensiones.
+	\end{enumerate}
+	
+	Por lo tanto, para el método PCA se eligió en cada caso un $k$ igual a la cantidad de dimensiones a reducir, y para modelar los autocodificadores se disponía que la capa oculta tenga la correspondiente $k$ cantidad de unidades. Notar que se decidió abarcar configuraciones hasta alcanzar un 95\% de reducción como grado de compresión suficiente.
+	
+	\item Para cada uno de los casos anteriores se escogió como clasificador una regresión logística multi-clase o \textit{softmax}, de forma que se valide la calidad de las características preservadas en los datos reducidos en términos de poder realizar una clasificación sobre ellos. 
+	
+	\item En términos de regularización del autocodificador, se eligió una mayor penalización de la red mediante la norma L1 que tiende a lograr mayor raleza en las representaciones codificadas, lo cual se ha estudiado que es favorable para la extracción de características \cite{bengio2009learning}. Por lo tanto, se utilizó un $\lambda_1$ igual a 0.001 y un $\lambda_2$ de 0.0003.
+	
+	\item La activación utilizada para la codificación fue una ReLU, mientras que para la decodificación se utilizó como función la tangente hiperbólica dado que su imagen cae en el rango $[-1,1]$ al igual que los datos de EEG usados.
+	
+	
+	\item Por otro lado, a partir de la menor dimensionalidad obtenida, se construyó un clasificador más sotisficado mediante una red neuronal cuya arquitectura estaba compuesta de las siguientes dimensiones: 135, 200, 100, 50, 6. Además, en su configuración se estableció como activación una ReLU y se utilizó el algoritmo DropOut con un ratio de 0.2 en la entrada y 0.5 en todas las capas ocultas.
+	
+	\item La optimización de todos estos modelos se realizó mediante el algoritmo Adadelta, siguiendo como criterio de corte un máximo de 20 iteraciones en forma local y de 100 iteraciones en forma global. La función de consenso para la mezcla de modelos en el entrenamiento distribuido sigue una ponderación lineal (denominada ``w\_avg'' en Learninspy) sobre los valores obtenidos en la función de costo.
+	
+	\item Se utilizó el algoritmo PCA implementado en el módulo \textit{utils.feature} de Learninspy, aplicando \textit{whitening} y estandarización a los datos (lo cual suele denominarse ZCA, como se explicó en la Sección \ref{cap2:subsec:autoencoder}).
+	
+\end{itemize}
+
+ 
+ 
+%-------------------------------------------------------------------
+\section{Resultados}
+%-------------------------------------------------------------------
+\label{cap8:sec:resultados}
+
+En este caso de aplicación se planteó conseguir una reducción de dimensiones en los datos lo suficientemente buena como para lograr que la clasificación de las palabras imaginadas sea lo mejor posible. Para medir el desempeño de esta última tarea, se utilizaron las métricas de clasificación multi-clase explicadas en la Sección \ref{cap2:subsec:metricas}, y se usaron métricas de regresión para conocer el ajuste de los autocodificadores sobre los datos a comprimir.
+
+Respecto al ajuste de cada AE, se observó que el valor de $R^2$ obtenido para los conjuntos de validación variaba entre 0.45 y 0.6 aproximadamente. Esto indica que la reconstrucción de las entradas no resultaba suficientemente buena, aunque tampoco podía mejorar significativamente al prolongar la optimización ya que la evolución del ajuste era casi logarítmica, como puede verse en la Figura \ref{fig:fitting-ae211} para uno de los AEs.
+
+\begin{figure}[t]
+	\begin{center}
+		\includegraphics[width=0.8\textwidth]%
+		{Imagenes/Bitmap/ImgSpeech/fitting-ae211}
+		\caption{Ajuste del AE-211 sobre los datos de todos los sujetos durante el entrenamiento, en términos del coeficiente $R^2$.}
+		\label{fig:fitting-ae211}
+	\end{center}
+\end{figure}
+
+
+Es propicio aclarar que en el trabajo original, partiendo de los datos con decimación, se realizó una extracción de características mediante la trasformada de Wavelet discreta (DWT) para obtener un vector de 6 características por cada entrada. A partir de ello se obtuvo la mejor clasificación usando un modelo RandomForest con 200 árboles que elegían 5 características al azar, el cual era ajustado sobre los 3 primeros sujetos y luego evaluado con los 12 restantes. La exactitud obtenida en dicha clasificación fue de $0.1832 \pm 0.0155$, lo cual supera al azar o chance que es de $1/6 \approx 0.1666$ \cite{coretto2016imaginada}.
+
+
+\begin{table}[h!]
+	\begin{center}
+		\centering
+		\caption{Resultados de clasificación, en promedio de todos los sujetos, obtenidos de modelar una regresión softmax sobre los datos en distintas dimensionalidas logradas por PCA y AE}
+		\label{tab:pca-vs-ae}
+		\scalebox{0.75}{
+			\begin{tabular}{|c|c|c|c|c|c|c|c|c|c|c|}
+				\hline
+				&
+				%\begin{tabular}{@{}c@{}} Modelo \\ 19-10 \end{tabular} &
+				\multicolumn{2}{c|}{\textbf{902 dim}}& 
+				\multicolumn{2}{c|}{\textbf{531 dim}}& 
+				\multicolumn{2}{c|}{\textbf{362 dim}}& 
+				\multicolumn{2}{c|}{\textbf{211 dim}}&
+				\multicolumn{2}{c|}{\textbf{135 dim}} 
+				
+				\\
+				
+				&
+				PCA & AE & 
+				PCA & AE & 
+				PCA & AE & 
+				PCA & AE &
+				PCA & AE  
+				\\
+				\hline
+				
+				\textbf{$P_{avg}$} &
+				% -- 902 dim -- 
+				0.1805 & 0.1852 & 
+				% -- 531 dim -- 
+				0.1452 & 0.1737 & 
+				% -- 362 dim -- 
+				0.1280 & 0.1587 & 
+				% -- 211  dim -- 
+				0.1496 & 0.1521 &
+				% -- 135 dim
+				0.1587 & 0.1793
+				
+				\\
+				\hline
+				\textbf{$R_{avg}$} & 
+				% -- 902 dim -- 
+				0.1676 & 0.1802 & 
+				% -- 531 dim -- 
+				0.1416 & 0.1687 & 
+				% -- 362 dim -- 
+				0.1381 & 0.1414 & 
+				% -- 211  dim -- 
+				0.1433 & 0.1516 &
+				% -- 135 dim
+				0.1570 & 0.1615
+				
+				\\
+				\hline
+				\textbf{$F1_{avg}$} & 
+				% -- 902 dim -- 
+				0.1676 & 0.1822 & 
+				% -- 531 dim -- 
+				0.1403 & 0.1690 & 
+				% -- 362 dim -- 
+				0.1323 & 0.1437 & 
+				% -- 211  dim -- 
+				0.1460 & 0.1508 &
+				% -- 135 dim
+				0.1527 & 0.1687
+				
+				\\
+				\hline
+				\textbf{$Acc_{avg}$} & 
+				% -- 902 dim -- 
+				0.1641 & \textbf{0.1827} & 
+				% -- 531 dim -- 
+				0.1445 & \textbf{0.1733} & 
+				% -- 362 dim -- 
+				0.1403 & 0.1428 & 
+				% -- 211  dim -- 
+				0.1453 & 0.1554 &
+				% -- 135 dim
+				0.1520 & 0.1640
+				
+				\\
+				\hline
+			\end{tabular}
+		}
+	\end{center}
+\end{table}
+
+\iffalse
+% ------ RESULTADOS VIEJOS ------- %
+\begin{table}[h!]
+	\centering
+	\caption{Resultados de clasificación, promediando por sujetos, obtenidos por la red neuronal a partir de los datos reducidos a 135 dimensiones con un AE}
+	\label{tab:resultados_avg-dnn_old}
+	\begin{tabular} {|c|c|}
+		\hline
+		\bfseries
+		\textbf{Métrica} &  \textbf{Total en sujetos}
+		\\
+		\hline
+		
+		Precision  &  $0.3454 \pm 0.1472$	
+		
+		\\
+		\hline
+		Recall & $0.1926 \pm 0.0634$
+		
+		\\
+		\hline
+		F1-Score & $0.2357 \pm 0.0715$
+		
+		\\
+		\hline
+		Accuracy & $0.2005 \pm 0.0666$
+		
+		\\
+		\hline
+		
+	\end{tabular}
+\end{table}
+% ------------------------ %
+\fi
+
+\begin{table}[h!]
+	\centering
+	\caption{Resultados de clasificación, promediando por sujetos, obtenidos por la red neuronal a partir de los datos reducidos a 135 dimensiones con un AE}
+	\label{tab:resultados_avg-dnn}
+	\scalebox{0.9}{
+	\begin{tabular} {|c|c|}
+		\hline
+		\bfseries
+		\textbf{Métrica} &  \textbf{Total en sujetos}
+		\\
+		\hline
+		
+		Precision  &  $0.2820 \pm 0.1400$	
+		
+		\\
+		\hline
+		Recall & $0.1898 \pm 0.0335$
+		
+		
+		\\
+		\hline
+		F1-Score & $0.2160 \pm 0.0588$
+		
+		\\
+		\hline
+		Accuracy & $0.1905 \pm 0.0373$
+		
+		\\
+		\hline
+		
+	\end{tabular}
+}
+\end{table}
+
+
+\begin{figure}[t]
+	\begin{center}
+		\includegraphics[width=0.75\textwidth]%
+		{Imagenes/Bitmap/ImgSpeech/imgspeech-dnn-boxplot}
+		\caption{Diagramas de caja y bigotes para cada métrica de clasificación utilizada, construidos en base a todos los resultados de modelar redes neuronales por cada sujeto sobre los datos con mayor reducción de dimensionalidad.}
+		\label{fig:boxplot-dnn}
+	\end{center}
+\end{figure}
+
+
+En la Tabla \ref{tab:pca-vs-ae} se realiza la comparación de los métodos usados para reducir dimensiones sobre los datos, por cada una de las configuraciones elegidas, en términos de las distintas medidas para evaluar el mismo tipo de clasificador. En todos los casos, se obtiene en promedio mejores resultados de cualquier métrica sobre los datos obtenidos por la reducción de dimensiones logradas por un AE respecto a los de un PCA. Además, la exactitud o \textit{accuracy} promedio que logra supera a la chance o azar en dos de cinco experimentos.
+
+Finalmente, partiendo de los datos con menor dimensionalidad lograda se entrenó una red neuronal profunda sobre todos los sujetos. En la Tabla \ref{tab:resultados_avg-dnn} se presentan los resultados de clasificación, los cuales también se representan de otra forma en la Figura \ref{fig:boxplot-dnn} para dar mayor detalle. Se puede apreciar que este último clasificador mejora bastante los resultados de la regresión softmax, otorgando una exactitud que supera al azar en promedio sobre todos los sujetos y que es levemente mejor que la reportada en el trabajo original (aproximadamente un $2\%$ mayor, aunque sin utilizar el mismo conjunto de prueba). 
+
+
+%-------------------------------------------------------------------
+\section{Conclusiones}
+%-------------------------------------------------------------------
+\label{cap8:sec:conclusiones}
+
+
+En base al resultado de la experimentación explicada para este segudo caso de aplicación tratado, se refuerzan las afirmaciones expresadas en otros trabajos acerca de que los autocodificadores pueden obtener mejores representaciones de los datos que el método PCA en tareas de compresión. Si bien el ajuste obtenido sobre los datos no era bueno, se puede ver que los conjuntos reducidos por cada AE parecían tener mejores características respecto a PCA que permitían lograr un mejor desempeño de clasificación para una simple regresión \textit{softmax}. 
+
+Aunque los mejores resultados de clasificación alcanzados no se consideran buenos, se puede apreciar que se comparan con el estado del arte en la base de datos usada sin comprender una metodología complicada para obtenerlos. A partir de ello, se puede ver viable el enfoque de extraer características mediante aprendizaje profundo para la clasificación del habla imaginada.
+
+
+
+% Variable local para emacs, para  que encuentre el fichero maestro de
+% compilación y funcionen mejor algunas teclas rápidas de AucTeX
+%%%
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: "../Tesis.tex"
+%%% End:

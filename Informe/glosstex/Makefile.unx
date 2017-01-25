@@ -1,0 +1,60 @@
+# -*- Makefile -*-
+# automatically generated from Makefile.m4
+
+# ======================================================================
+# you may need to set some of these
+# ======================================================================
+
+
+
+CFLAGS += -Wall -ansi -pedantic
+
+
+CC = cc
+SHELL = /bin/bash
+THISDIR = ./
+
+
+
+LATEXENV = TEXINPUTS=.:
+LATEX = $(LATEXENV) latex
+
+
+
+# ======================================================================
+# you shouldn't need to touch anything below
+# ======================================================================
+
+TEXAUX = *.aux *.lof *.lot *.log *.toc *.glo 
+GLOSSTEXAUX = *.gxs *.gxg
+MAKEINDEXAUX = *.glg *.glx *.ilg *.ind
+
+
+O=\
+	database.o\
+	error.o\
+	labels.o\
+	list.o\
+	main.o\
+	version.o
+
+DTX=\
+	glosstex.sty\
+	glosstex.std\
+	glosstex.ist\
+	glosstex.gdf
+
+C=$(O:%.o=%.c)
+
+all: glosstex$(EXE) $(DTX)
+
+glosstex: $(O)
+	$(CC) $(LDFLAGS) $(O) $(LOADLIBS) -o $@
+
+
+
+$(DTX): glosstex.dtx glosstex.ins
+	$(LATEX) glosstex.ins
+
+
+

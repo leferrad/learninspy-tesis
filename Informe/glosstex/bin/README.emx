@@ -1,0 +1,64 @@
+This is the readme file for the OS/2 binary of Volkan Yavuz's glosstex.
+The latest distribution with the sources, makefile (also for OS/2) and
+documentation can always be found at the CTAN site near you, for
+instance:
+
+	ftp.tex.ac.uk	and	ftp.dante.de
+
+and a boatload of mirrors out there like wcarchive.cdrom.com etc.
+
+The binary was built using gcc version 2.7.1 from the emx09c development
+package by Eberhard Mattes. The used installation is at emxfix level 2.
+So, in order to run the code you will need at least the emx runtime
+library contained in emxrt.zip. 
+
+You may well have that already when you have Eberhard Mattes excellent
+emTeX implementation installed. Otherwise get the file emxrt.zip for
+instance from ftp-os2.nmsu.edu (hobbes) or ftp-os2.cdrom.com (walnut
+creek archive) or ftp.leo.org (LEO archive in Munich, Germany) and
+install it according to its readme.
+
+There are two executables in the bin directory, simply rename the one
+you are going to use to glosstex.exe and move it in a directory in your
+PATH:
+
+-rwxa--    65540 Feb  6 00:40 bin/glossteu-i386-os2-4.0.exe*
+-rwxa--    44127 Feb  6 00:40 bin/glosstex-i386-os2-4.0.exe*
+
+The first one is already stripped to reduce its size and runs fine on
+OS/2 Warp 3 and Warp 4 and has a good chance to work on OS/2 2.x as
+well. It should even work on DOS and, using the rsx DOS extender,
+probably even on Windoze (3.1/95/NT). I haven't tested those though and
+frankly, I don't really care. It doesn't on CP/M either. 
+
+The second binary has been compressed using LXLite version 1.14 which
+saves about 20 kB of its size, while keeping all of its functionality.
+This is the one I use here. However, it will probably not run on OS/2
+2.x (since support for executable compression was introduced in Warp 3)
+and it is almost certain that it won't run on Mickey$oft DOG nor on
+Micro$loth Winbloats anymore, even when using the rsx extender. I don't
+think that that will matter much since bloated software fits the mindset
+of M$ and its customers better anyway.
+
+So, have fun, and just in case: The copyright and disclaimers of the
+original glosstx distribution apply, you use this at your own risk and
+no warranties, explicit or implied are given. 
+
+Have fun!   Stefan A. Deutscher (sad@utk.edu)          06-Feb-1998
+
+----------------
+
+Note that glossteu.exe (rename it to glosstex.exe) will also run under
+vanilla DOG and in OS/2 and a M$ DOG-box using rsx and emxrt,
+respectively. They can be found on CTAN, too:
+
+	tex/systems/msdos/dpmigcc/rsx...zip	for DOG-boxes
+	tex/systems/msdos/emtex/emxrsx.zip	for DOG-boxes
+	tex/systems/os2/web2c-6.1/binary/emxrt	for OS/2 and vanilla DOG
+
+Happy TeXing, Volkan Yavuz <yavuzv@rumms.uni-mannheim.de> 1997/06/11
+
+;;; Local Variables:
+;;; mode: indented-text
+;;; mode: outline-minor
+;;; End:

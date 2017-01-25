@@ -1,0 +1,1769 @@
+% \iffalse -*- latex -*-
+%
+% $Id: glosstex.dtx,v 1.57 1997/12/24 18:48:47 volkan Exp $
+%
+%   GlossTeX, a tool for the automatic preparation of glossaries.
+%   Copyright (C) 1997 Volkan Yavuz
+%
+%   This program is free software; you can redistribute it and/or
+%   modify it under the terms of the GNU General Public License
+%   as published by the Free Software Foundation; either version 2
+%   of the License, or (at your option) any later version.
+%
+%   This program is distributed in the hope that it will be useful,
+%   but WITHOUT ANY WARRANTY; without even the implied warranty of
+%   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+%   GNU General Public License for more details.
+%
+%   You should have received a copy of the GNU General Public License
+%   along with this program; if not, write to the Free Software
+%   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+%
+%   Volkan Yavuz, yavuzv@rumms.uni-mannheim.de
+%
+%% \CharacterTable
+%%  {Upper-case    \A\B\C\D\E\F\G\H\I\J\K\L\M\N\O\P\Q\R\S\T\U\V\W\X\Y\Z
+%%   Lower-case    \a\b\c\d\e\f\g\h\i\j\k\l\m\n\o\p\q\r\s\t\u\v\w\x\y\z
+%%   Digits        \0\1\2\3\4\5\6\7\8\9
+%%   Exclamation   \!     Double quote  \"     Hash (number) \#
+%%   Dollar        \$     Percent       \%     Ampersand     \&
+%%   Acute accent  \'     Left paren    \(     Right paren   \)
+%%   Asterisk      \*     Plus          \+     Comma         \,
+%%   Minus         \-     Point         \.     Solidus       \/
+%%   Colon         \:     Semicolon     \;     Less than     \<
+%%   Equals        \=     Greater than  \>     Question mark \?
+%%   Commercial at \@     Left bracket  \[     Backslash     \\
+%%   Right bracket \]     Circumflex    \^     Underscore    \_
+%%   Grave accent  \`     Left brace    \{     Vertical bar  \|
+%%   Right brace   \}     Tilde         \~}
+%%
+%<*!ist>
+\def\filename{glosstex}
+\def\fileversion{0.4}
+\def\filedate{1997/12/13}
+\let\docdate=\filedate
+%</!ist>
+%<*driver>
+\documentclass{ltxdoc}
+\usepackage{array}
+\usepackage{glosstex}
+
+\OnlyDescription
+\CodelineIndex
+%\EnableCrossrefs
+
+\setlength{\arrayrulewidth}{0.4pt}
+\setlength{\doublerulesep}{0pt}
+
+\newcommand{\GloTeX}{Glo\TeX}
+\newcommand{\MakeIndex}{\textsc{MakeIndex}}
+\newcommand{\unix}{\textsc{Unix}}
+\newcommand{\package}[1]{\textsf{#1}}
+\newcommand{\file}[1]{\texttt{#1}}
+\newcommand{\opt}[1]{$[$#1$]$}
+\newcommand{\teTeX}{\textrm{te}\TeX}
+
+\newenvironment{definition}{\begin{quote}}{\end{quote}}
+\newenvironment{example}{\begin{quote}}{\end{quote}}
+
+\begin{document}
+\DocInput{glosstex.dtx}
+%\PrintIndex
+\end{document}
+%</driver>
+%
+% \fi
+%
+% \CheckSum{1369}
+%
+% \title{\GlossTeX{} \fileversion}
+% \author{\scshape Volkan Yavuz\footnote{e-mail: yavuzv@rumms.uni-mannheim.de}}
+% \date{\filedate}
+% \maketitle
+%
+% \begin{abstract}
+%  \GlossTeX{} is a tool for the preparation of glossaries, lists of
+%  acronyms or sorted lists in general. It greatly
+%  simplifies this task. One or more glossary-definition files serve as
+%  databases which contain descriptions of terms. These terms are
+%  identified through labels. Based upon labels set into the
+%  \TeX{}-source, \GlossTeX{} determines which entries have to appear in
+%  the typeset list. \GlossTeX{} uses \MakeIndex{} for the sorting of the
+%  lists. References to the place where a term appears in the text
+%  can be set in the list. A term consists of a label which is
+%  used to identify it, an optional item describing the typeset
+%  output, an optional long-form and the actual text representing
+%  it. There are many ways to access each of these fields within
+%  the document. It is also possible to generate cross-references 
+%  to another term. \GlossTeX{} is well customizable in respect to
+%  the produced output.
+% \end{abstract}
+%
+% \tableofcontents
+% \listoftables
+% \printglosstex(acr)
+%
+% \section{Introduction}
+% \subsection{Purpose}
+% \GlossTeX{} is a tool for the automatic preparation of glossaries,
+% lists of acronyms, nomenclature and sorted lists in general. Based
+% upon the labels set into the \TeX{}-source, \GlossTeX{} determines
+% which entries from a glossary-definition file have to be processed
+% to generate the list. \GlossTeX{} then creates an intermediate file
+% that has to be processed by \MakeIndex{} for sorting. The output of
+% \MakeIndex{} is then included into the \TeX{}-source for
+% typesetting. With each term associated is an item representing the
+% typeset output, an optional long-form if it's an acronym and an
+% optional descriptive text. These elements can all be accessed within
+% the document in many ways.
+%
+% \subsection{History}
+% I created \GlossTeX{} because there were no tools for the
+% preparation of glossaries that fit my needs. \GlossTeX{} is mainly a
+% combination of the features of the packages \package{acronym},
+% \package{nomencl} and \GloTeX{}. The commands starting with |\ac|
+% are taken more or less directly from \package{acronym} and the way
+% \GlossTeX{} handles page references is almost identical to the way
+% \package{nomencl} does. The use of glossary databases is inspired by
+% \GloTeX{}.
+%
+% \subsection{Legalise}
+% \GlossTeX{} is provided ``as is'' and comes with absolutely no
+% warranty. It is covered by the GNU General Public License (see the
+% file |COPYING| that comes with this package).
+%
+% \begin{center}
+%   \noindent\copyright\ Volkan Yavuz, 1997
+% \end{center}
+%
+% \section{Building and Installation}
+% First, you need to build glosstex from its C sources. Note that you
+% need an ANSI C compiler. If you have
+% MAKE and a decent OS (speak \unix{}), typing |make| from the shell
+% should build the binary (have a 
+% look at the various makefiles, namely |Makefile| (which is my rather
+% complex development version that may not run on your system setup),
+% |Makefile.unx| (which is the most generic one) and
+% |Makefile.os2|). Also have a look at the start of the makefiles
+% where you will find some variables to be customized. The most
+% important ones may be |CC| and |SHELL|. You may also want to have a
+% look at |config.h|.
+%
+% If you don't
+% have MAKE get it right now or just issue 
+% these commands: 
+%
+% \begin{example}
+%   |cc -c database.c -o database.o|\\
+%   |cc -c error.c -o error.o|\\
+%   |cc -c labels.c -o labels.o|\\
+%   |cc -c list.c -o list.o|\\
+%   |cc -c main.c -o main.o|\\
+%   |cc -c version.c -o version.o|\\
+%   |cc database.o error.o labels.o list.o main.o version.o -o glosstex|
+% \end{example}
+%
+% Now just move the resulting binary to a directory where your other
+% binaries live. After that you need to unpack |glosstex.dtx|. Do this
+% by invoking
+% \begin{example}
+%   |latex glosstex.ins|
+% \end{example}
+%
+% which will produce some more files. You will have to move them
+% to their proper places according to your particular
+% \TeX{}-installation. The instructions that will appear on the
+% screen should give you a good start.
+%
+% \subsection{A Goodie for \teTeX{} User}
+% If you are using \textsc{Thomas Esser}'s fantastic \teTeX{} system,
+% \GlossTeX\ has some good news for you. \GlossTeX\ comes with a
+% kpathsea shell-wrapper which supports path searching. For this to
+% work, rename |glosstex| to |glosstex.bin| and |glosstex.sh| to
+% |glosstex|. Put them somewhere convenient. Now add a line of the
+% form
+% \begin{example}
+% |GDFINPUTS = $KPSE_DOT:$TEXMFS/glosstex//|
+% \end{example}
+% in you |texmf.cnf| file. That's it!
+%
+% If you get problems, the following notes may help you. 
+% First check whether
+% \begin{example}
+%  |kpsetool -v -n glosstex '$GDFINPUTS'|
+% \end{example}
+% and 
+% \begin{example}
+%  |kpsetool -v -n tex '$GDFINPUTS'| 
+% \end{example}
+%
+% do what you want, i.e.\ their output
+% should be equal. These won't find your \teTeX{} |texmf| tree (where
+% your |texmf.cnf| file lives) if |glosstex| is not in something like
+% |teTeX/bin| or |teTeX/bin/i386-linux|. In these cases, replace
+% \begin{example}
+% |TETEXDIR = $SELFAUTOPARENT| 
+% \end{example}
+% in |texmf.cnf| with something like
+% \begin{example}
+% |TETEXDIR = /usr/local/lib/teTeX|.
+% \end{example}
+%  This makes sure that the proper |texmf| tree is found, even if
+%  |glosstex| is not in the \teTeX{} 
+% |texmf| tree but in your local |texmf| tree.
+% 
+% You also need symbolic links from e.\,g.\ 
+% |/usr/local/lib/localTeX/texmf.cnf| to your \teTeX{} |texmf.cnf|. This
+% is because kpathsea looks for |texmf.cnf| in the tree where the
+% binary was found.
+%
+% These instructions should apply to \teTeX{} version 0.4 or newer.
+%
+% \section{Usage}
+% The \LaTeX{}-macros needed by \GlossTeX{} have to be included into
+% the source using
+%
+% \begin{example}
+%   |\usepackage|\opt{|[|\meta{options}|]|}|{glosstex}|
+% \end{example}
+%
+% Valid \meta{options} are listed in table \ref{tab:options}.
+%
+% \begin{table}[htbp]
+% \begin{center}
+% \begin{tabular}{>{\ttfamily}ll}
+% \hline\hline
+% \rmfamily Option & Discussed in section\\
+% \hline
+% refpage, \textit{norefpage} &\ref{sec:page_references}\\
+% \textit{itemfirst}, longfirst &\ref{sec:order}\\
+% \textit{text}, footnote &\ref{sec:footnotes}\\
+% \textit{roundparen}, squareparen&\ref{sec:parentheses}\\
+% \hline\hline
+% \end{tabular}
+% \caption[Package options.]{Package options. Defaults are set in
+% \textit{italics}.}
+% \label{tab:options}
+% \end{center}
+% \end{table}
+%
+% Whenever you want a term to appear in the glossary, you insert
+% \DescribeMacro{\glosstex}
+% \begin{definition}
+%   |\glosstex|\opt{|(|\meta{list}|)|}\opt{|[|\meta{pageref-mode}|]|}|{|\meta{label}|}|
+% \end{definition}
+%
+% into the text. \meta{label} references the entry and the optional
+% arguments \meta{pageref-mode} and \meta{list} determine the mode for
+% page references\footnote{Page references are described in section
+% \ref{sec:page_references}. \meta{pageref-mode} works in conjunction
+% with the optional arguments |refpage| and |norefpage| to the package
+% and defaults to |p|. \meta{list} defaults to |glo|.} and the list
+% the referenced term should appear in.
+%
+% But you can create $n$ independent lists and make each \meta{label}
+% appear in any \meta{list}, each appearance independent of the other
+% ones. To facilitate the creation of multiple \meta{list}s and
+% especially make it easy to achieve the most likely usage, there are
+% actually two sets of commands. One set starting with |\gl| defaults
+% to \meta{list} |glo| (which stands for glossary) and
+% \meta{pageref-mode} |p|, the other set starting with |\ac| defaults
+% to \meta{list} |acr| (list of acronyms) and \meta{pageref-mode}
+% |n|. The following is the equivalent to |\glosstex| for acronyms:
+%
+% \DescribeMacro{\acronym}
+% \begin{definition}
+%   |\acronym|\opt{|(|\meta{list}|)|}\opt{|[|\meta{pageref-mode}|]|}|{|\meta{label}|}| 
+% \end{definition}
+%
+% These two commands can also be called as |\glosstex{*}| and
+% |\acronym{*}| to include all terms found in the |.gdf|-files into
+% the corresponding \meta{list}. This is similar to the command
+% |\nocite{*}| in \BibTeX{} and is primarily meant for debugging
+% purposes. But do \emph{not} use something like |\gls{*}| (see
+% below).
+%
+% There is another set of commands that produce both an entry in the
+% list (this is optional) and typeset output. 
+%
+% \DescribeMacro{\gls}
+% \DescribeMacro{\gls*}
+% \begin{definition}
+%   |\gls|\opt{|*|}\opt{|(|\meta{list}|)|}\opt{|[|\meta{pageref-mode}|]|}|{|\meta{label}|}|
+% \end{definition}
+%
+% |\gls| typesets \meta{item} and produces a list entry (\meta{list}
+% defaults to |glo|).  The starred version |\gls*| just produces
+% typeset output without a list-entry.\footnote{To be honest, a
+% list-entry is produced, but it never appears in the output. The
+% starred version implicitly produces entries with \meta{list-mode}
+% |n| (never appear in typeset \meta{list}) while the unstarred
+% versions set \meta{list-mode} to |a| (always appear). There is no
+% other way of specifying the \meta{list-mode} of an \meta{label}.}
+%
+% \DescribeMacro{\ac}
+% \DescribeMacro{\ac*}
+% \DescribeMacro{\acs}
+% \DescribeMacro{\acs*}
+% \DescribeMacro{\acl}
+% \DescribeMacro{\acl*}
+% \DescribeMacro{\acf}
+% \DescribeMacro{\acf*}
+% \begin{definition}
+%   |\ac|\opt{|*|}\opt{|,|\meta{lparen}|,|\meta{rparen}|,|}\opt{|<|\meta{form}|>|}\opt{|(|\meta{list}|)|}\opt{|[|\meta{pageref-mode}|]|}|{|\meta{label}|}|\\
+%   |\acs|\opt{|*|}\opt{|(|\meta{list}|)|}\opt{|[|\meta{pageref-mode}|]|}|{|\meta{label}|}|\\
+%   |\acl|\opt{|*|}\opt{|(|\meta{list}|)|}\opt{|[|\meta{pageref-mode}|]|}|{|\meta{label}|}|\\
+%   |\acf|\opt{|*|}\opt{|,|\meta{lparen}|,|\meta{rparen}|,|}\opt{|<|\meta{form}|>|}\opt{|(|\meta{list}|)|}\opt{|[|\meta{pageref-mode}|]|}|{|\meta{label}|}|
+% \end{definition}
+%
+% These all produce typeset output. |\acs| typesets \meta{item},
+% |\acl| typesets \meta{long-form} and |\acf| typesets \meta{full}
+% (see section \ref{sec:format}). |\ac| works like |\acf| at it's first
+% invocation and like |\acs| on all subsequent ones. Using |\ac| you
+% can make sure that an acronym is always spelled out at least once in
+% your document while safely using the short form whenever
+% possible. Note that the use of |\acf| has no effect on subsequent
+% invocations of |\ac|. The starred versions |\ac*|, |\acs*|, |\acl*|
+% and |\acf*| 
+% just produce typeset output. Table~\ref{tab:commands} gives an
+% overview of all this.
+%
+% \begin{table}[htbp]
+%  \begin{center}
+%    \begin{tabular}{rllll}
+%      \hline\hline
+%      defaults & list & list and text & text & output\\
+%      \hline
+%      |(glo)[p]| & |\glosstex| & |\gls| & |\gls*| & \meta{item}\\
+%      |(acr)[n]| & |\acronym| & |\ac| & |\ac*| 
+% & \meta{item} or \meta{full}\\
+%      |(acr)[n]| & & |\acs| & |\acs*| & \meta{item}\\
+%      |(acr)[n]| & & |\acl| & |\acl*| & \meta{long-form}\\
+%      |(acr)[n]| & & |\acf| & |\acf*| & \meta{full}\\
+%      \hline\hline
+%    \end{tabular}
+%    \caption{Overview of the different sets of commands.}
+%    \label{tab:commands}
+%  \end{center}
+% \end{table}
+%
+% In the most simple case, \meta{full} will look like ``\meta{item}
+% |(|\meta{long-form}|)|''. You can switch the order of \meta{item}
+% and \meta{long-form} by using the options |itemfirst| and
+% |longfirst|. If you rather like either in a footnote, try the option
+% |footnote| instead of the default |text|. If you don't like the
+% round parentheses, just use the optional arguments \meta{lparen},
+% \meta{rparen} which are also described in section \ref{sec:format}.
+%
+% \subsection{The Glossary Definition File}
+% A glossary-definition file\glosstex{gdf-file} (suffix |.gdf|) is
+% needed which serves as a database for \GlossTeX{}, holding the
+% actual descriptions of all terms. You can have $m$ |.gdf|-files that
+% contain the definitions to the \meta{label}s you reference in your
+% documents. Entries have the form
+% \begin{definition}
+%   |@entry{|\meta{label}\opt{|,|\meta{item}\opt{|,|\meta{long-form}}}|}| \opt{\meta{text}}
+% \end{definition}
+%
+% where \meta{label} is used to identify the entry and \meta{text} may
+% contain any amount of \TeX{}-source, being the actual definition of
+% the item. You should know that \meta{label} is used to construct
+% \TeX{}-macros, so it shouldn't contain funny characters or you will
+% most likely get funny errors.  The optional argument \meta{item}
+% describes the appearance of the item in the produced list. If
+% omitted, it defaults to \meta{label}. It can be used when some
+% special form of typesetting is wanted. \meta{item} can contain any
+% \TeX{}-construct, as long as each ``|{|'' has a corresponding
+% ``|}|'' or \GlossTeX{} will get confused. The same applies
+% to \meta{long-form}, except that it defaults into an empty string if
+% not specified.
+%
+% Following is the |.gdf|-file used for this documentation. Note the use of
+% ``|~|'' as the quote-character. Also note that all lines
+% until the first line starting with |@entry{| are
+% ignored. Additionally, all lines starting with ``|%|'' are ignored,
+% too. Thus they
+% can serve as comments.
+%    \begin{macrocode}
+%<*gdf>
+% -*- latex -*-
+
+This is a database file for GlossTeX.
+
+@entry{ist-file, \texttt{.ist}-file} Style file for \MakeIndex{},
+describing the input and output format of read and written files.
+
+@entry{gdf-file, \texttt{.gdf}-file} This file is the database file
+containing definitions for Gloss\TeX{}.
+
+@entry{gxs-file, \texttt{.gxs}-file} Intermediate file produced by
+\GlossTeX{} to be processed by \MakeIndex{}.
+
+@entry{glx-file, \texttt{.glx}-file} This file contains the sorted
+lists, ready to be read by \LaTeX{}.
+
+@entry{gxg-file, \texttt{.gxg}-file} This is the log-file produced by
+the \GlossTeX{}-run. See also \glxref{glg-file}.
+
+@entry{glg-file, \texttt{.glg}-file} This is the log-file produced by
+the \MakeIndex{}-run. See also \glxref{gxg-file}.
+
+@entry{ASCII, ASCII, American Standard Code for Information Interchange} 
+A character encoding. See also \glxref{EBCDIC}.
+
+@entry{EBCDIC, EBCDIC, Extended Binary Coded Decimals Interchange Code} 
+A character encoding exclusively used on mainframes. See also
+\glxref{ASCII}.
+%</gdf>
+%    \end{macrocode}
+%
+% \subsection{Invocation}
+% After the first run of \LaTeX{}, the |.aux|-file contains all
+% necessary information for the preparation of the glossary. \GlossTeX\
+% is then invoked to read one or more |.gdf|-files and outputs all
+% definitions that are referenced in the |.aux|-file. The output of
+% \GlossTeX{} is then processed by \MakeIndex{} for sorting.
+%
+% \GlossTeX{} is invoked in a \unix{}-like environment using the
+% following command
+%
+%\begin{example}
+%  |glosstex |\meta{aux-file}| |\meta{gdf-file}| |\opt{\meta{gdf-file}\opt{...}}| |\opt{|-v|\opt{|0|\ldots|5|}} 
+% \end{example}
+%
+% This produces 2 files as output, one \gls{gxs-file} to be input into
+% \MakeIndex{} and a log-file with extension |.gxg|\glosstex{gxg-file}
+% which contains more detailed information. The |-v| option selects
+% how verbose \GlossTeX{} should be when writing the log-file. |-v| is
+% equal to |-v4| and |-v2| is the default. |-v0| makes \GlossTeX{}
+% shut his mouth and only report errors and |-v5| makes \GlossTeX{}
+% really talkative.
+%
+% \MakeIndex{}  has to be invoked in this way
+%
+% \begin{example}
+%   |makeindex |\meta{gxs-file}| -o |\meta{glx-file}| -s |glosstex.ist| |\opt{|-t |\meta{glg-file}}
+% \end{example}
+%
+% The commands
+%
+% \begin{example}
+% |glosstex thesis thesis.gdf master.gdf|\\
+% |makeindex thesis.gxs -o thesis.glx -s glosstex.ist|
+% \end{example}
+%
+% produce the final \gls{glx-file} which is then included by
+% \DescribeMacro{\printglosstex}
+% \begin{definition}
+%  |\printglosstex|\opt{|(|\meta{list}|)|}\opt{|[|\meta{pageref-mode}|]|}
+% \end{definition}
+% during the next \LaTeX{}-run. The argument \meta{pageref-mode}
+% supersedes the one given to the entries individually for each
+% \meta{list} and defaults to |p|. You can turn on page references
+% unconditionally for each \meta{list} individually by using
+% \meta{pageref-mode} |a| and turn it off by using
+% \meta{pageref-mode} |n| as argument to |\printglosstex|. See also
+% table~\ref{tab:references} for an overview of these options.
+% 
+% Note that, no matter of how many \meta{list}s you produce, there is
+% always exactly \emph{one} |.glx|-file which contains the entries of
+% \emph{all} produced lists. 
+%
+% Depending on whether you use \meta{item}
+% or \meta{long-form} in your text or you have cross-references, it
+% may be necessary to run \LaTeX{} and \GlossTeX{} up to 4 times until
+% all references are resolved. Watch out for warnings from
+% \package{glosstex} during a \LaTeX{} run. Messages about unresolved
+% \meta{label}s from \GlossTeX{} are caused by missing definitions in
+% the |.gdf|-files.
+%
+% \subsection{Page References}
+% \label{sec:page_references}
+% You may want a reference in the list to the place where the term
+% first appears in the text. This can be done using the optional
+% argument \meta{pageref-mode} on \meta{item}-level and
+% \meta{list}-level. These arguments in combination with the option to
+% |\usepackage| control page references. Table \ref{tab:references}
+% gives an overview of all possible combinations of these 3
+% arguments.
+%
+% \begin{table}[htbp]
+% \begin{center}
+%  \begin{tabular}{l|ccc|ccc}
+%    \hline\hline
+%    \hfill list & & |refpage| & & & |norefpage|\\
+%    entry & |a| & |p| & |n| & |a| & |p| & |n|\\
+%    \hline
+%    |a| & $\times$ & $\times$ & $-$ & $\times$ & $\times$ & $-$\\
+%    |p| & $\times$ & $\times$ & $-$ & $\times$ & $-$ & $-$\\
+%    |n| & $\times$ & $-$ & $-$ & $\times$ & $-$ & $-$\\
+%    \hline\hline
+%  \end{tabular}
+%  \caption[Options controlling the appearance of page
+%    references.]{Options controlling the appearance of page
+%    references. A ``$\times$'' indicates that a reference is
+%    produced.}
+%  \label{tab:references}
+% \end{center}
+% \end{table}
+%
+% One possible usage of this feature: while debugging a document, turn
+% on page references by using the option |refpage| to the
+% package. Every entry included with the modes |a| (always) or the
+% default |p| (package) will contain a reference. After debugging,
+% remove the option |refpage| and only those entries that were
+% included with mode |a| will still have a reference.
+%
+% \subsection{The Appearance of \protect\meta{full}}
+% \label{sec:format}
+% \meta{full} stands for the appearance of the typeset term in the
+% text. The appearance of \meta{full} is controlled through the
+% optional arguments \meta{lparen}, \meta{rparen} and \meta{form} to
+% |\ac| and |\acf|. Additionally, these arguments work together with
+% defaults set forth on \meta{list}-level and package level. The
+% following sections shall shed some light on this topic.
+%
+% \subsubsection{The \protect\meta{order} of \protect\meta{item}s}
+% \label{sec:order} 
+% \DescribeMacro{\glxitemorderdefault}
+% The options |itemfirst| and |longfirst| control which one of
+% \meta{item} and \meta{long-form} should be typeset first. On
+% \meta{list}-level, \meta{item-order} can be set using
+% \begin{definition}
+% |\glxitemorderdefault||{|\meta{list}|}||{|\meta{item-order}|}|
+% \end{definition}
+% \meta{item-order} may be either ``|i|'',
+% ``|l|'' or empty. |i| first typesets \meta{item}, |l| first typesets
+% \meta{long-form}. Omitting \meta{item-order} lets the defaults take
+% effect. Table \ref{tab:item-order} gives an overview over each
+% combination of the options for \meta{item-order}.
+%
+% \begin{table}[htbp]
+% \begin{center}
+%  \begin{tabular}{l|ccc|ccc}
+%    \hline\hline
+%    \hfill list & & |itemfirst| & & & |longfirst|\\
+%    entry & |i| & $-$& |l| & |i| & $-$ & |l|\\
+%    \hline
+%    |i| & |i| & |i| & |l| & |i| & |i| & |l|\\
+%    $-$ & |i| & |i| & |l| & |i| & |l| & |l|\\
+%    |l| & |i| & |l| & |l| & |i| & |l| & |l|\\
+%    \hline\hline
+%  \end{tabular}
+%  \caption{Options controlling \protect\meta{item-order}.}
+%  \label{tab:item-order}
+% \end{center}
+% \end{table}
+%
+% \subsubsection{Placement of footnotes and \protect\meta{form}}
+% \label{sec:footnotes}
+% \DescribeMacro{\glxitemplacementdefault}
+% The options |text| and |footnote| control where the second typeset
+% output should go, either into the text or into a footnote.
+% \begin{definition}
+% |\glxitemplacementdefault||{|\meta{list}|}||{|\meta{item-placement}|}|
+% \end{definition}
+% sets this option on \meta{list}-level. \meta{item-placement} may be
+% either |t|, |f| or empty. |t| typesets both parts into the text, |f|
+% puts one part into a footnote. Omitting \meta{item-placement} lets
+% the defaults for \meta{item-placement} take effect. See also table
+% \ref{tab:item-placement} for an overview of all possible
+% combinations.
+%
+% \begin{table}[htbp]
+% \begin{center}
+%  \begin{tabular}{l|ccc|ccc}
+%    \hline\hline
+%    \hfill list & & |text| & & & |footnote|\\
+%    entry & |t| & $-$& |f| & |t| & $-$ & |f|\\
+%    \hline
+%    |t| & |t| & |t| & |f| & |t| & |t| & |f|\\
+%    $-$ & |t| & |t| & |f| & |t| & |f| & |f|\\
+%    |f| & |t| & |f| & |f| & |t| & |f| & |f|\\
+%    \hline\hline
+%  \end{tabular}
+%  \caption{Options controlling \protect\meta{item-placement}.}
+%  \label{tab:item-placement}
+% \end{center}
+% \end{table}
+%
+% The aforementioned \meta{form} is built by simply concatenating
+% \meta{item-order} and \meta{item-placement}. You supply the
+% \meta{form} argument to |\ac| and |\acf| by enclosing it in angle
+% brackets, just like |\ac<if>{foo}| or |\ac<t>{bar}|. Please note that
+% \meta{item-order} is specified \emph{before} \meta{item-placement}.
+%
+% \subsubsection{Encapsulation} \label{sec:parentheses} 
+% \DescribeMacro{\glxparendefault}
+% \DescribeMacro{\glxparenlistdefault}
+% When using |t| for \meta{item-placement}, the second part is
+% encapsulated within \meta{lparen} on the left and \meta{rparen} on
+% the right. 
+% \begin{definition}
+% |\glxparendefault{|\meta{list}|}{|\meta{lparen}|}{|\meta{rparen}|}|
+% \end{definition} 
+% sets this option on package level. The options |roundparen| and
+% |squareparen| may be used as well.
+% \begin{definition}
+% |\glxparenlistdefault{|\meta{list}|}{|\meta{lparen}|}{|\meta{rparen}|}|
+% \end{definition}
+% sets this option on \meta{list}-level. On \meta{item}-level these
+% are supplied to |\ac| and |\acf| just like |\ac,(,),{foo}| or
+% |\acf,--,--,<lt>{bar}|. It may look strange, but I was out of
+% parentheses.
+%
+% \subsection{Cross-References}
+% \DescribeMacro{\glxref}
+% \DescribeMacro{\glxref*}
+% \begin{definition}
+% |\glxref|\opt{|*|}|{|\meta{item}|}|
+% \end{definition}
+% It may be useful to use cross-references in entries. Assume
+% you have referenced |\glosstex{ascii}| which describes the term
+% \ac{ASCII}. You may also want to include \ac*{EBCDIC} as an
+% example for another character encoding. To achieve this, write this
+% into the definition of \ac{ASCII}
+%
+% \begin{example}
+% |See also \glxref{ebcdic}.|
+% \end{example}
+%
+% and \GlossTeX{} then produces ``See also EBCDIC'' and also includes
+% the definition for \ac*{EBCDIC} into the same list \ac{ASCII}
+% appears in. Note 
+% that |\glxref| is only available within the \meta{text} argument in
+% the |.gdf|-file since it only makes sense within a
+% \meta{list}. There is also a starred version |\glxref*| that doesn't
+% produce typeset output.
+%
+% \subsection{\GlossTeX{} and \package{nomencl}}
+% It is possible to use \package{nomencl} and \GlossTeX{} in one
+% document without problems. The following commands show how to deal with documents using both
+% \GlossTeX{} and \textsf{nomencl}.
+% \begin{example}
+% |latex thesis|\\
+% |glosstex thesis thesis.gdf |\\
+% |makeindex thesis.gxs -o thesis.glx -s glosstex.ist|\\
+% |makeindex thesis.glo -o thesis.gls -s nomencl.ist|\\
+% |latex thesis|
+% \end{example}
+%
+% \section{Customizing}
+% \subsection{Global}
+% \GlossTeX{} can be customized by using the file |glosstex.cfg| which
+% is automatically loaded if it is present. The file |glosstex.std| is
+% the default configuration file that is absolutely mandatory to
+% \GlossTeX{}'s proper working. It
+% shows all aspects that are meant to be customized, so let's discuss
+% it now.
+%
+% Each term that gets typeset either goes through |\GLX@output@short|
+% or |\GLX@output@long|, depending whether it's the \meta{item} or
+% \meta{long-form}. These macros each take 3 arguments and get called
+% this way:
+% \begin{definition}
+%   |\GLX@output@short{|\meta{label}|}{|\meta{list}|}{|\meta{item}|}|\\
+%   |\GLX@output@long{|\meta{label}|}{|\meta{list}|}{|\meta{long-form}|}|
+% \end{definition}
+%
+% \begin{macro}{\GLX@output@short}
+% \begin{macro}{\GLX@output@long}
+% We just output \meta{item} as it is. See section
+% \ref{sec:customizing_local} for some more elaborate implementation
+% of this macro.
+%    \begin{macrocode}
+%<*std>
+\newcommand{\GLX@output@short}[3]{#3}
+\newcommand{\GLX@output@long}[3]{#3}
+%    \end{macrocode}
+% \end{macro}
+% \end{macro}
+%
+% \begin{macro}{\glosstexpage}
+% This is used to typeset the page at the end of a definition. It uses
+% |\pagename| so that should be defined elsewhere.
+%    \begin{macrocode}
+\newcommand{\glosstexpage}[1]{\nobreak{\itshape\pagename~#1}\nobreak}
+%    \end{macrocode}
+% \end{macro}
+%
+% \DescribeMacro{\glxgldefault}
+% \DescribeMacro{\glxacdefault}
+% These macros set the defaults for \meta{list} and
+% \meta{pageref-mode} which the commands starting with |\gl| (except for
+% |\glxref|, of course) and |\ac| are
+% using.
+%    \begin{macrocode}
+\glxgldefault{glo}{p}
+\glxacdefault{acr}{n}
+%    \end{macrocode}
+%
+% \DescribeMacro{\glxitemorderdefault}
+% \DescribeMacro{\glxitemplacementdefault}
+% These macros set the defaults concerning \meta{item-placement} and
+% \meta{item-order} in \meta{list}. We specify no default on
+% \meta{list}-level.
+%    \begin{macrocode}
+\glxitemorderdefault{glo}{}
+\glxitemplacementdefault{glo}{}
+\glxitemorderdefault{acr}{}
+\glxitemplacementdefault{acr}{}
+%    \end{macrocode}
+%
+% \DescribeMacro{\glxparendefault}
+% \DescribeMacro{\glxparenlistdefault}
+% These macros set the defaults concerning \meta{lparen} and
+% \meta{rparen} on package and \meta{list}-level, respectively. To set
+% \meta{paren} on package level, you may as well use the options
+% |roundparen| and |squareparen|. Because |roundparen| is the default
+% option, this command is not used. As long as there is no
+% \meta{paren}-default on \meta{list}-level, the default on
+% package-level is used. So therefor, |\glxparenlistdefault| is not
+% used here as well.
+%    \begin{macrocode}
+%\glxparendefault{(}{)}
+%\glxparenlistdefault{glo}{-*}{*-}
+%    \end{macrocode}
+%
+% \begin{macro}{\GLX@benv@glo}
+% \begin{macro}{\GLX@eenv@glo}
+% \begin{macro}{\GLX@item@glo}
+% \begin{macro}{\GLX@benv@acr}
+% \begin{macro}{\GLX@eenv@acr}
+% \begin{macro}{\GLX@item@acr}
+% Each \meta{list} gets embedded into |\GLX@benv@|\meta{list} and
+% |\GLX@eenv@|\meta{list}, so these macros should provide a reasonable
+% environment. Each line itself is typeset using
+% |\GLX@item@|\meta{list} which gets called with 7 arguments.
+% \begin{definition}
+% |\GLX@item@|\meta{list}|{|\meta{label}|}||{|\meta{list}|}||{|\meta{long-form}|}||{|\meta{text}|}||{|\meta{list}|}||{|\meta{list-mode}|}||{|\meta{page-stuff}|}|
+% \end{definition}
+%    \begin{macrocode}
+\newcommand{\GLX@benv@glo}{\begin{description}}
+\newcommand{\GLX@eenv@glo}{\end{description}}
+\newcommand{\GLX@item@glo}[7]{%
+  \item[#2]\ifx#3\empty\else\emph{#3}\space\fi#4\space#7}
+\newcommand{\GLX@item@acr@label}[1]{\mbox{#1}\dotfill}
+\newcommand{\GLX@benv@acr}{
+  \begin{list}{}{%
+      \renewcommand{\makelabel}{\GLX@item@acr@label}%
+      \setlength{\labelwidth}{7em}%
+      \leftmargin\labelwidth \advance\leftmargin by \labelsep}}
+\newcommand{\GLX@eenv@acr}{\end{list}}
+\newcommand{\GLX@item@acr}[7]{%
+  \item[\textsc{#2}]%
+    \ifx#3\empty\else#3\quad\fi\ifx#4\empty\else#4\space\fi#7}
+%    \end{macrocode}
+% \end{macro}
+% \end{macro}
+% \end{macro}
+% \end{macro}
+% \end{macro}
+% \end{macro}
+%
+% \begin{macro}{\glossaryname}
+% \begin{macro}{\listacronymname}
+% \begin{macro}{\pagename}
+% These are defined to contain some default strings if they're not
+% already defined (|\pagename| e.g.\ is defined trough \package{babel}).
+%    \begin{macrocode}
+\ifx\glossaryname\@undefined
+  \def\glossaryname{Glossary}
+\fi
+\ifx\listacronymname\@undefined
+  \def\listacronymname{List of Acronyms}
+\fi
+\ifx\pagename\@undefined
+  \def\pagename{page}
+\fi
+%    \end{macrocode}
+% \end{macro}
+% \end{macro}
+% \end{macro}
+%
+% \DescribeMacro{\glxheading}
+% Each \meta{list} starts with an appropriate heading which is defined
+% by 
+% \begin{definition}
+%   |\glxheading[|\meta{list}|]{|\meta{definition}|}|.
+% \end{definition}
+%    \begin{macrocode}
+\ifx\chapter\@undefined
+  \glxheading{glo}{\section*{\glossaryname}}
+  \glxheading{acr}{\section*{\listacronymname}}
+\else
+  \glxheading{glo}{\chapter*{\glossaryname}}
+  \glxheading{acr}{\chapter*{\listacronymname}}
+\fi
+%</std>
+%    \end{macrocode}
+%
+% \subsection{Local}
+% \label{sec:customizing_local}
+% Now we need a local configuration file for this document. This is
+% done by using a file named |glosstex.cfg|. 
+% In |\GLX@output@short| we test whether we are in the list of acronyms
+% (|GLX@acdef@list|) and typeset \meta{item} with caps and small caps
+% if we are. Otherwise, just typeset \meta{item}.
+% We also define a call
+%  to |\index| in |\GLX@output@short|. As sort-key, we use
+% \meta{label}. Instead of the usual |@| we use |=| for designating
+% the appearance part of the index entry.
+%    \begin{macrocode}
+%<*cfg>
+\renewcommand{\GLX@output@short}[3]{%
+  \ifthenelse{\equal{#2}{\GLX@acdef@list}}{%
+    \textsc{#3}}{#3}\index{#1=#3}}
+%</cfg>
+%    \end{macrocode}
+%
+% \section{Some Details}
+% While reading the |.aux|-file, \GlossTeX{} only considers the first
+% appearance of one \meta{item} for each \meta{list}. All subsequent
+%  entries are silently ignored. 
+% (Almost silently, because the |.gxg|-file will contain detailed
+% information about this, and more.) But if the first entry says 
+% not to produce a page reference and a following one says to do so, then
+% the latter will supersede the former. The same applies if a
+% term is referenced without the option not to generate a list-entry
+% (all commands containing a |*|, e.g.\ |\gl*|), but a following tells
+% to do so.
+%
+% While reading one or more |.gdf|-files, only the first definition is
+% used, all other entries are ignored. This fact can be utilised
+% in some way. Assume you have a |master.gdf| which contains general
+% terms and a file |thesis.gdf| which only contains terms that are
+% intended for use in your thesis. Whenever an entry is present in both
+% |.gdf|-files, the one from |thesis.gdf| should be taken. To achieve
+% this, specify |thesis.gdf| \emph{before} |master.gdf|.
+%
+% Additionally, see the file |TODO| in this package for
+% known bugs (also called features) and not yet implemented features
+% (also called bugs).
+%
+% \section{Acknowledgments}
+% I would like to thank these people who have contributed to the
+%  development of \GlossTeX{}: 
+%
+% {\scshape
+% Daniel Courjon, Stefan A.~Deutscher, Michael Friendly, Olaf Michelsson 
+% }
+%
+% \StopEventually{\printglosstex[a]}
+% 
+% \section{The Implementation}
+% \subsection{The Package \package{glosstex.sty}}
+%
+% First, we identify ourselves.
+%    \begin{macrocode}
+%<*package>
+\NeedsTeXFormat{LaTeX2e}[1996/12/01] \ProvidesPackage{glosstex}
+[\filedate\space\fileversion\space GlossTeX package]
+%    \end{macrocode}
+%
+% The \package{ifthen} package is needed for some |\ifthenelse|-constructs.
+%    \begin{macrocode}
+\RequirePackage{ifthen}
+\newif\if@GLX@pagerefmode
+\newif\if@GLX@itemfirst
+\newif\if@GLX@footnote
+\newif\if@GLX@roundparen
+\newif\if@GLX@squareparen
+%    \end{macrocode}
+%
+% \begin{macro}{\GlossTeX}
+% This is used to typeset a nice logo for this package, which looks
+% like ``\GlossTeX{}''.
+%    \begin{macrocode}
+\newcommand{\GlossTeX}{Gloss\TeX}
+%    \end{macrocode}
+% \end{macro}
+%
+% First, we make sure that the |.glx|-file is input in all cases. We
+% need this to expand acronyms in case the user generates no typeset
+% list. We create a dummy list |GLX@Null@List|. This assumes, of course, that
+% you have no entries for list |GLX@Null@List|. But who would, anyhow?
+%    \begin{macrocode}
+\AtBeginDocument{%
+  \glxheading{GLX@Null@List}{}%
+  \printglosstex(GLX@Null@List)}
+%    \end{macrocode}
+%
+% We want to remind the user to run \GlossTeX\ when there were
+% undefined terms in the document.
+%    \begin{macrocode}
+\AtEndDocument{%
+  \ifx\GLX@undefined@term\@undefined\else %
+    \PackageWarningNoLine{glosstex}%
+    {There were undefined terms.\MessageBreak
+      You should (re)run GlossTeX}\fi}
+%    \end{macrocode}
+%
+% \begin{macro}{\GlossTeXPage}
+% Call |\glosstexpage| depending on |#1| (\meta{pageref-mode}) for
+% each entry,
+% |\GLX@theglosstex@pagerefmode| for each list and
+% |\if@GLX@pagerefmode| for the whole package.
+%    \begin{macrocode}
+\newcommand{\GlossTeXPage}[2]{\ignorespaces%
+  \ifthenelse{\boolean{@GLX@pagerefmode}}%
+    {% refpage true
+      \ifthenelse{%
+        \equal{\GLX@theglosstex@pagerefmode}{a}}{\glosstexpage{#2}}{%
+        \ifthenelse{\equal{\GLX@theglosstex@pagerefmode}{n}}{}{%
+          \ifthenelse{\equal{#1}{a}}{\glosstexpage{#2}}{}%
+          \ifthenelse{\equal{#1}{p}}{\glosstexpage{#2}}{}%
+          \ifthenelse{\equal{#1}{n}}{}{}}}}%
+    {% refpage false
+      \ifthenelse{%
+        \equal{\GLX@theglosstex@pagerefmode}{a}}{\glosstexpage{#2}}{%
+        \ifthenelse{\equal{\GLX@theglosstex@pagerefmode}{n}}{}{%
+          \ifthenelse{\equal{#1}{a}}{\glosstexpage{#2}}{}%
+          \ifthenelse{\equal{#1}{p}}{}{}%
+          \ifthenelse{\equal{#1}{n}}{}{}}}}%
+    }%
+%    \end{macrocode}
+% \end{macro}
+%
+% Now declare the options this package accepts and execute the
+% standard options.
+%    \begin{macrocode}
+\DeclareOption{refpage}{\@GLX@pagerefmodetrue}
+\DeclareOption{norefpage}{\@GLX@pagerefmodefalse}
+\DeclareOption{itemfirst}{\@GLX@itemfirsttrue}
+\DeclareOption{longfirst}{\@GLX@itemfirstfalse}
+\DeclareOption{text}{\@GLX@footnotefalse}
+\DeclareOption{footnote}{\@GLX@footnotetrue}
+\DeclareOption{roundparen}{\gdef\GLX@paren@l{(}\gdef\GLX@paren@r{)}}
+\DeclareOption{squareparen}{\gdef\GLX@paren@l{[}\gdef\GLX@paren@r{]}}
+\ExecuteOptions{norefpage,itemfirst,text,roundparen}
+\ProcessOptions
+%    \end{macrocode}
+%
+% \begin{macro}{\GlossTeXNull}
+% This one is used as a dummy to work around a feature in
+% \MakeIndex{}.
+%    \begin{macrocode}
+\newcommand{\GlossTeXNull}[1]{}
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\glosstex}
+% \begin{definition}
+% |\glosstex|\opt{|(|\meta{list}|)|}\opt{|[|\meta{pageref-mode}|]|}|{|\meta{label}|}|.
+% \end{definition}
+%    \begin{macrocode}
+\DeclareRobustCommand\glosstex{\GLX@glosstex}
+\newcommand{\GLX@glosstex}{%
+  \@ifnextchar({\GLX@@glosstexr}{%
+    \@ifnextchar[{\GLX@@glosstexs(\GLX@gldef@list)}{%
+      \GLX@@@glosstex(\GLX@gldef@list)[\GLX@gldef@page]}}}
+\newcommand{\GLX@@glosstexr}{}
+\def\GLX@@glosstexr(#1){%
+  \@ifnextchar[{\GLX@@glosstexs(#1)}{\GLX@@@glosstex(#1)[\GLX@gldef@page]}}
+\newcommand{\GLX@@glosstexs}{}
+\def\GLX@@glosstexs(#1)[#2]{%
+  \GLX@@@glosstex(#1)[#2]}
+\newcommand{\GLX@@@glosstex}{}
+\def\GLX@@@glosstex(#1)[#2]#3{\GLX@do@glosstex{#3}{#2}{#1}{a}}
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\acronym}
+% \begin{definition}
+% |\acronym|\opt{|(|\meta{list}|)|}\opt{|[|\meta{pageref-mode}|]|}|{|\meta{label}|}| 
+% \end{definition}
+%    \begin{macrocode}
+\DeclareRobustCommand\acronym{\GLX@acronym}
+\newcommand{\GLX@acronym}{%
+  \@ifnextchar({\GLX@@acronymr}{%
+    \@ifnextchar[{\GLX@@acronyms(\GLX@acdef@list)}{%
+      \GLX@@@acronym(\GLX@acdef@list)[\GLX@acdef@page]}}}
+\newcommand{\GLX@@acronymr}{}
+\def\GLX@@acronymr(#1){%
+  \@ifnextchar[{\GLX@@acronyms(#1)}{\GLX@@@acronym(#1)[\GLX@acdef@page]}}
+\newcommand{\GLX@@acronyms}{}
+\def\GLX@@acronyms(#1)[#2]{%
+  \GLX@@@acronym(#1)[#2]}
+\newcommand{\GLX@@@acronym}{}
+\def\GLX@@@acronym(#1)[#2]#3{\GLX@do@glosstex{#3}{#2}{#1}{a}}
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\gls}
+% \begin{macro}{\gls*}
+% \begin{definition}
+% |\gls|\opt{|*|}\opt{|(|\meta{list}|)|}\opt{|[|\meta{pageref-mode}|]|}|{|\meta{label}|}| 
+% \end{definition}
+%    \begin{macrocode}
+\DeclareRobustCommand\gls{%
+  \@ifstar{\GLX@glsS}{\GLX@gls}}
+\newcommand{\GLX@gls}{%
+  \@ifnextchar({\GLX@@glsr}{%
+    \@ifnextchar[{\GLX@@glss(\GLX@gldef@list)}{%
+      \GLX@@@gls(\GLX@gldef@list)[\GLX@gldef@page]}}}
+\newcommand{\GLX@@glsr}{}
+\def\GLX@@glsr(#1){%
+  \@ifnextchar[{\GLX@@glss(#1)}{\GLX@@@gls(#1)[\GLX@gldef@page]}}
+\newcommand{\GLX@@glss}{}
+\def\GLX@@glss(#1)[#2]{%
+  \GLX@@@gls(#1)[#2]}
+\newcommand{\GLX@@@gls}{}
+\def\GLX@@@gls(#1)[#2]#3{\GLX@do@glosstex{#3}{#2}{#1}{a}\GLX@do@acs{#3}{#1}}
+\newcommand{\GLX@glsS}{%
+  \@ifnextchar({\GLX@@glsSr}{%
+    \@ifnextchar[{\GLX@@glsSs(\GLX@gldef@list)}{%
+      \GLX@@@glsS(\GLX@gldef@list)[\GLX@gldef@page]}}}
+\newcommand{\GLX@@glsSr}{}
+\def\GLX@@glsSr(#1){%
+  \@ifnextchar[{\GLX@@glsSs(#1)}{\GLX@@@glsS(#1)[\GLX@gldef@page]}}
+\newcommand{\GLX@@glsSs}{}
+\def\GLX@@glsSs(#1)[#2]{%
+  \GLX@@@glsS(#1)[#2]}
+\newcommand{\GLX@@@glsS}{}
+\def\GLX@@@glsS(#1)[#2]#3{\GLX@do@glosstex{#3}{#2}{#1}{n}\GLX@do@acs{#3}{#1}}
+%    \end{macrocode}
+% \end{macro}
+% \end{macro}
+%
+% \begin{macro}{\ac}
+% \begin{macro}{\ac*}
+% \begin{definition}
+%   |\ac|\opt{|*|}\opt{|,|\meta{lparen}|,|\meta{rparen}|,|}\opt{|<|\meta{form}|>|}\opt{|(|\meta{list}|)|}\opt{|[|\meta{pageref-mode}|]|}|{|\meta{label}|}|\\
+% \end{definition}
+%    \begin{macrocode}
+\DeclareRobustCommand\ac{%
+  \@ifstar{\GLX@acS}{\GLX@ac}}
+\newcommand{\GLX@ac}{%
+  \@ifnextchar,{\GLX@@acc}{%
+    \@ifnextchar<{\GLX@@aca,\relax,\relax,}{%
+      \@ifnextchar({\GLX@@acr,\relax,\relax,<>}{%
+        \@ifnextchar[{\GLX@@acs,\relax,\relax,<>(\GLX@acdef@list)}{%
+          \GLX@@@ac,\relax,\relax,<>(\GLX@acdef@list)[\GLX@acdef@page]}}}}}
+\newcommand{\GLX@@acc}{}
+\def\GLX@@acc,#1,#2,{%
+  \@ifnextchar<{\GLX@@aca,#1,#2,}{%
+    \@ifnextchar({\GLX@@acr,#1,#2,<>}{%
+      \@ifnextchar[{\GLX@@acs,#1,#2,<>(\GLX@acdef@list)}{%
+        \GLX@@@ac,#1,#2,<>(\GLX@acdef@list)[\GLX@acdef@page]}}}}
+\newcommand{\GLX@@aca}{}
+\def\GLX@@aca,#1,#2,<#3>{%
+  \@ifnextchar({\GLX@@acr,#1,#2,<#3>}{%
+    \@ifnextchar[{\GLX@@acs,#1,#2,<#3>(\GLX@acdef@list)}{%
+      \GLX@@@ac,#1,#2,<#3>(\GLX@acdef@list)[\GLX@acdef@page]}}}
+\newcommand{\GLX@@acr}{}
+\def\GLX@@acr,#1,#2,<#3>(#4){%
+  \@ifnextchar[{\GLX@@acs,#1,#2,<#3>(#4)}{%
+    \GLX@@@ac,#1,#2,<#3>(#4)[\GLX@acdef@page]}}
+\newcommand{\GLX@@acs}{}
+\def\GLX@@acs,#1,#2,<#3>(#4)[#5]{%
+  \GLX@@@ac,#1,#2,<#3>(#4)[#5]}
+\newcommand{\GLX@@@ac}{}
+\def\GLX@@@ac,#1,#2,<#3>(#4)[#5]#6{%
+  \GLX@do@glosstex{#6}{#5}{#4}{a}\GLX@do@ac{#6}{#4}{#3}{#1}{#2}}
+\newcommand{\GLX@acS}{%
+  \@ifnextchar,{\GLX@@acSc}{%
+    \@ifnextchar<{\GLX@@acSa,\relax,\relax,}{%
+      \@ifnextchar({\GLX@@acSr,\relax,\relax,<>}{%
+        \@ifnextchar[{\GLX@@acSs,\relax,\relax,<>(\GLX@acdef@list)}{%
+          \GLX@@@acS,\relax,\relax,<>(\GLX@acdef@list)[\GLX@acdef@page]}}}}}
+\newcommand{\GLX@@acSc}{}
+\def\GLX@@acSc,#1,#2,{%
+  \@ifnextchar<{\GLX@@acSa,#1,#2,}{%
+    \@ifnextchar({\GLX@@acSr,#1,#2,<>}{%
+      \@ifnextchar[{\GLX@@acSs,#1,#2,<>(\GLX@acdef@list)}{%
+        \GLX@@@acS,#1,#2,<>(\GLX@acdef@list)[\GLX@acdef@page]}}}}
+\newcommand{\GLX@@acSa}{}
+\def\GLX@@acSa,#1,#2,<#3>{%
+  \@ifnextchar({\GLX@@acSr,#1,#2,<#3>}{%
+    \@ifnextchar[{\GLX@@acSs,#1,#2,<#3>(\GLX@acdef@list)}{%
+      \GLX@@@acS,#1,#2,<#3>(\GLX@acdef@list)[\GLX@acdef@page]}}}
+\newcommand{\GLX@@acSr}{}
+\def\GLX@@acSr,#1,#2,<#3>(#4){%
+  \@ifnextchar[{\GLX@@acSs,#1,#2,<#3>(#4)}{%
+    \GLX@@@acS,#1,#2,<#3>(#4)[\GLX@acdef@page]}}
+\newcommand{\GLX@@acSs}{}
+\def\GLX@@acSs,#1,#2,<#3>(#4)[#5]{%
+  \GLX@@@acS,#1,#2,<#3>(#4)[#5]}
+\newcommand{\GLX@@@acS}{}
+\def\GLX@@@acS,#1,#2,<#3>(#4)[#5]#6{%
+  \GLX@do@glosstex{#6}{#5}{#4}{n}\GLX@do@ac{#6}{#4}{#3}{#1}{#2}}
+%    \end{macrocode}
+% \end{macro}
+% \end{macro}
+%
+% \begin{macro}{\acs}
+% \begin{macro}{\acs*}
+% \begin{definition}
+%   |\acs|\opt{|*|}\opt{|(|\meta{list}|)|}\opt{|[|\meta{pageref-mode}|]|}|{|\meta{label}|}|\\
+% \end{definition}
+%    \begin{macrocode}
+\DeclareRobustCommand\acs{%
+  \@ifstar{\GLX@acsS}{\GLX@acs}}
+\newcommand{\GLX@acs}{%
+  \@ifnextchar({\GLX@@acsr}{%
+    \@ifnextchar[{\GLX@@acss(\GLX@acdef@list)}{%
+      \GLX@@@acs(\GLX@acdef@list)[\GLX@acdef@page]}}}
+\newcommand{\GLX@@acsr}{}
+\def\GLX@@acsr(#1){%
+  \@ifnextchar[{\GLX@@acss(#1)}{\GLX@@@acs(#1)[\GLX@acdef@page]}}
+\newcommand{\GLX@@acss}{}
+\def\GLX@@acss(#1)[#2]{%
+  \GLX@@@acs(#1)[#2]}
+\newcommand{\GLX@@@acs}{}
+\def\GLX@@@acs(#1)[#2]#3{\GLX@do@glosstex{#3}{#2}{#1}{a}\GLX@do@acs{#3}{#1}}
+\newcommand{\GLX@acsS}{%
+  \@ifnextchar({\GLX@@acsSr}{%
+    \@ifnextchar[{\GLX@@acsSs(\GLX@acdef@list)}{%
+      \GLX@@@acsS(\GLX@acdef@list)[\GLX@acdef@page]}}}
+\newcommand{\GLX@@acsSr}{}
+\def\GLX@@acsSr(#1){%
+  \@ifnextchar[{\GLX@@acsSs(#1)}{\GLX@@@acsS(#1)[\GLX@acdef@page]}}
+\newcommand{\GLX@@acsSs}{}
+\def\GLX@@acsSs(#1)[#2]{%
+  \GLX@@acsS(#1)[#2]}
+\newcommand{\GLX@@@acsS}{}
+\def\GLX@@@acsS(#1)[#2]#3{\GLX@do@glosstex{#3}{#2}{#1}{n}\GLX@do@acs{#3}{#1}}
+%    \end{macrocode}
+% \end{macro}
+% \end{macro}
+%
+% \begin{macro}{\acl}
+% \begin{macro}{\acl*}
+% \begin{definition}
+%   |\acl|\opt{|*|}\opt{|(|\meta{list}|)|}\opt{|[|\meta{pageref-mode}|]|}|{|\meta{label}|}|\\
+% \end{definition}
+%    \begin{macrocode}
+\DeclareRobustCommand\acl{%
+  \@ifstar{\GLX@aclS}{\GLX@acl}}
+\newcommand{\GLX@acl}{%
+  \@ifnextchar({\GLX@@aclr}{%
+    \@ifnextchar[{\GLX@@acls(\GLX@acdef@list)}{%
+      \GLX@@@acl(\GLX@acdef@list)[\GLX@acdef@page]}}}
+\newcommand{\GLX@@aclr}{}
+\def\GLX@@aclr(#1){%
+  \@ifnextchar[{\GLX@@acls(#1)}{\GLX@@@acl(#1)[\GLX@acdef@page]}}
+\newcommand{\GLX@@acls}{}
+\def\GLX@@acls(#1)[#2]{%
+  \GLX@@@acl(#1)[#2]}
+\newcommand{\GLX@@@acl}{}
+\def\GLX@@@acl(#1)[#2]#3{\GLX@do@glosstex{#3}{#2}{#1}{a}\GLX@do@acl{#3}{#1}}
+\newcommand{\GLX@aclS}{%
+  \@ifnextchar({\GLX@@aclSr}{%
+    \@ifnextchar[{\GLX@@aclSs(\GLX@acdef@list)}{%
+      \GLX@@@aclS(\GLX@acdef@list)[\GLX@acdef@page]}}}
+\newcommand{\GLX@@aclSr}{}
+\def\GLX@@aclSr(#1){%
+  \@ifnextchar[{\GLX@@aclSs(#1)}{\GLX@@@aclS(#1)[\GLX@acdef@page]}}
+\newcommand{\GLX@@aclSs}{}
+\def\GLX@@aclSs(#1)[#2]{%
+  \GLX@@@aclS(#1)[#2]}
+\newcommand{\GLX@@@aclS}{}
+\def\GLX@@@aclS(#1)[#2]#3{\GLX@do@glosstex{#3}{#2}{#1}{n}\GLX@do@acl{#3}{#1}}
+%    \end{macrocode}
+% \end{macro}
+% \end{macro}
+%
+% \begin{macro}{\acf}
+% \begin{macro}{\acf*}
+% \begin{definition}
+%   |\acf|\opt{|*|}\opt{|,|\meta{lparen}|,|\meta{rparen}|,|}\opt{|<|\meta{form}|>|}\opt{|(|\meta{list}|)|}\opt{|[|\meta{pageref-mode}|]|}|{|\meta{label}|}|
+% \end{definition}
+%    \begin{macrocode}
+\DeclareRobustCommand\acf{%
+  \@ifstar{\GLX@acfS}{\GLX@acf}}
+\newcommand{\GLX@acf}{%
+  \@ifnextchar,{\GLX@@acfc}{%
+    \@ifnextchar<{\GLX@@acfa,\relax,\relax,}{%
+      \@ifnextchar({\GLX@@acfr,\relax,\relax,<>}{%
+        \@ifnextchar[{\GLX@@acfs,\relax,\relax,<>(\GLX@acdef@list)}{%
+          \GLX@@@acf,\relax,\relax,<>(\GLX@acdef@list)[\GLX@acdef@page]}}}}}
+\newcommand{\GLX@@acfc}{}
+\def\GLX@@acfc,#1,#2,{%
+  \@ifnextchar<{\GLX@@acfa,#1,#2,}{%
+    \@ifnextchar({\GLX@@acfr,#1,#2,<>}{%
+      \@ifnextchar[{\GLX@@acfs,#1,#2,<>(\GLX@acdef@list)}{%
+        \GLX@@@acf,#1,#2,<>(\GLX@acdef@list)[\GLX@acdef@page]}}}}
+\newcommand{\GLX@@acfa}{}
+\def\GLX@@acfa,#1,#2,<#3>{%
+  \@ifnextchar({\GLX@@acfr,#1,#2,<#3>}{%
+    \@ifnextchar[{\GLX@@acfs,#1,#2,<#3>(\GLX@acdef@list)}{%
+      \GLX@@@acf,#1,#2,<#3>(\GLX@acdef@list)[\GLX@acdef@page]}}}
+\newcommand{\GLX@@acfr}{}
+\def\GLX@@acfr,#1,#2,<#3>(#4){%
+  \@ifnextchar[{\GLX@@acfs,#1,#2,<#3>(#4)}{%
+    \GLX@@@acf,#1,#2,<#3>(#4)[\GLX@acdef@page]}}
+\newcommand{\GLX@@acfs}{}
+\def\GLX@@acfs,#1,#2,<#3>(#4)[#5]{%
+  \GLX@@@acf,#1,#2,<#3>(#4)[#5]}
+\newcommand{\GLX@@@acf}{}
+\def\GLX@@@acf,#1,#2,<#3>(#4)[#5]#6{%
+  \GLX@do@glosstex{#6}{#5}{#4}{a}\GLX@do@acf{#6}{#4}{#3}{#1}{#2}}
+\newcommand{\GLX@acfS}{%
+  \@ifnextchar,{\GLX@@acfSc}{%
+    \@ifnextchar<{\GLX@@acfSa,\relax,\relax,}{%
+      \@ifnextchar({\GLX@@acfSr,\relax,\relax,<>}{%
+        \@ifnextchar[{\GLX@@acfSs,\relax,\relax,<>(\GLX@acdef@list)}{%
+          \GLX@@@acfS,\relax,\relax,<>(\GLX@acdef@list)[\GLX@acdef@page]}}}}}
+\newcommand{\GLX@@acfSc}{}
+\def\GLX@@acfSc,#1,#2,{%
+  \@ifnextchar<{\GLX@@acfSa,#1,#2,}{%
+    \@ifnextchar({\GLX@@acfSr,#1,#2,<>}{%
+      \@ifnextchar[{\GLX@@acfSs,#1,#2,<>(\GLX@acdef@list)}{%
+        \GLX@@@acfS,#1,#2,<>(\GLX@acdef@list)[\GLX@acdef@page]}}}}
+\newcommand{\GLX@@acfSa}{}
+\def\GLX@@acfSa,#1,#2,<#3>{%
+  \@ifnextchar({\GLX@@acfSr,#1,#2,<#3>}{%
+    \@ifnextchar[{\GLX@@acfSs,#1,#2,<#3>(\GLX@acdef@list)}{%
+      \GLX@@@acfS,#1,#2,<#3>(\GLX@acdef@list)[\GLX@acdef@page]}}}
+\newcommand{\GLX@@acfSr}{}
+\def\GLX@@acfSr,#1,#2,<#3>(#4){%
+  \@ifnextchar[{\GLX@@acfSs,#1,#2,<#3>(#4)}{%
+    \GLX@@@acfS,#1,#2,<#3>(#4)[\GLX@acdef@page]}}
+\newcommand{\GLX@@acfSs}{}
+\def\GLX@@acfSs,#1,#2,<#3>(#4)[#5]{%
+  \GLX@@@acfS,#1,#2,<#3>(#4)[#5]}
+\newcommand{\GLX@@@acfS}{}
+\def\GLX@@@acfS,#1,#2,<#3>(#4)[#5]#6{%
+  \GLX@do@glosstex{#6}{#5}{#4}{n}\GLX@do@acf{#6}{#4}{#3}{#1}{#2}}
+%    \end{macrocode}
+% \end{macro}
+% \end{macro}
+%
+% \begin{macro}{\GLX@entry}
+% This is the control-sequence written into the |.aux|-file which is
+% to be read by \GlossTeX{}. This
+% macro is defined so that it takes 5 arguments and expands to
+% |\relax| when the |.aux|-file is reread by \TeX{}.
+%    \begin{macrocode}
+\newcommand{\GLX@entry}[5]{\relax}
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\GLX@do@glosstex}
+% This macro writes lines of the format
+% \begin{definition}
+%   |\GLX@entry{|\meta{label}|}{|\meta{pageref-mode}|}{|\meta{list}|}{|\meta{list-mode}|}{|\meta{page}|}|
+% \end{definition}
+% into the |.aux|-file.
+%    \begin{macrocode}
+\newcommand{\GLX@do@glosstex}[4]{%
+  \protected@write\@auxout{}%
+  {\string\GLX@entry{#1}{#2}{#3}{#4}{\thepage}}}
+%    \end{macrocode}
+% \end{macro}
+%
+% The following commands create macros so that |\GLX@term@|\meta{label} contains
+% the short-form of \meta{label} |#1|, |\GLX@term@@|\meta{label} contains the \meta{long-form}
+% of \meta{label} |#1| and |\GLX@terml@|\meta{label} expands to |x| if the \meta{long-form} of
+% \meta{label} |#1| has already been used. This is heavily borrowed from
+% \package{acronym}.
+%
+% \begin{macro}{\GLX@do@acs}
+% Output the short-form \meta{item} of \meta{label} |#1| in
+% \meta{list} |#2|.
+%    \begin{macrocode}
+\newcommand{\GLX@do@acs}[2]{%
+  \expandafter\ifx\csname GLX@term@#1\endcsname\relax%
+    \textbf{#1!}%
+    \PackageWarning{glosstex}{Term `#1' is not defined}%
+    \gdef\GLX@undefined@term{x}%
+    \expandafter\gdef\csname GLX@term@#1\endcsname{\textbf{#1!}}%
+  \else%
+    \GLX@output@short{#1}{#2}{\csname GLX@term@#1\endcsname}%
+  \fi}
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\GLX@do@acl}
+% Output the \meta{long-form} of \meta{label} |#1| in \meta{list} |#2|.
+%    \begin{macrocode}
+\newcommand{\GLX@do@acl}[2]{%
+  \expandafter\ifx\csname GLX@term@@#1\endcsname\relax%
+    \textbf{#1!}%
+    \PackageWarning{glosstex}{Term `#1' has no long form}%
+    \expandafter\gdef\csname GLX@term@@#1\endcsname{\textbf{#1!}}%
+  \else%
+    \GLX@output@long{#1}{#2}{\csname GLX@term@@#1\endcsname}%
+  \fi}
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\GLX@do@acf}
+% Output \meta{short} |(|\meta{long}|)| of \meta{label} |#1| by calling
+% |\GLX@do@acs| and |GLX@do@acl|.
+% \begin{definition}
+% |\GLX@do@acf||{|\meta{label}|}||{|\meta{list}|}||{|\meta{form}|}||{|\meta{lparen}|}||{|\meta{rparen}|}|
+% \end{definition}
+%    \begin{macrocode}
+\newcommand{\GLX@do@acf}[5]{%
+  \begingroup%
+  \ifthenelse{\equal{#3}{i}}{\def\GLX@il{i}\def\GLX@tf{-}}{%
+    \ifthenelse{\equal{#3}{l}}{\def\GLX@il{l}\def\GLX@tf{-}}{%
+      \ifthenelse{\equal{#3}{it}}{\def\GLX@il{i}\def\GLX@tf{t}}{%
+        \ifthenelse{\equal{#3}{if}}{\def\GLX@il{i}\def\GLX@tf{f}}{%
+          \ifthenelse{\equal{#3}{lt}}{\def\GLX@il{l}\def\GLX@tf{t}}{%
+            \ifthenelse{\equal{#3}{lf}}{\def\GLX@il{l}\def\GLX@tf{f}}{%
+              \ifthenelse{\equal{#3}{t}}{\def\GLX@il{-}\def\GLX@tf{t}}{%
+                \ifthenelse{\equal{#3}{f}}{\def\GLX@il{-}\def\GLX@tf{f}}{%
+                  \def\GLX@il{-}\def\GLX@tf{-}}%
+                }}}}}}}%
+  \ifthenelse{\boolean{@GLX@itemfirst}}%
+  {% itemfirst true
+    \ifthenelse{%
+      \equal{\GLX@itemorder{#2}}{i}}{\def\GLX@itemorder@{i}}{%
+      \ifthenelse{\equal{\GLX@itemorder{#2}}{l}}{\def\GLX@itemorder@{l}}{%
+        \ifthenelse{\equal{\GLX@il}{i}}{\def\GLX@itemorder@{i}}{}%
+        \ifthenelse{\equal{\GLX@il}{-}}{\def\GLX@itemorder@{i}}{}%
+        \ifthenelse{\equal{\GLX@il}{l}}{\def\GLX@itemorder@{l}}{}}}}%
+  {% itemfirst false
+    \ifthenelse{%
+      \equal{\GLX@itemorder{#2}}{i}}{\def\GLX@itemorder@{i}}{%
+      \ifthenelse{\equal{\GLX@itemorder{#2}}{l}}{\def\GLX@itemorder@{l}}{%
+        \ifthenelse{\equal{\GLX@il}{i}}{\def\GLX@itemorder@{i}}{}%
+        \ifthenelse{\equal{\GLX@il}{-}}{\def\GLX@itemorder@{l}}{}%
+        \ifthenelse{\equal{\GLX@il}{l}}{\def\GLX@itemorder@{l}}{}}}}%
+  \ifthenelse{\boolean{@GLX@footnote}}%
+  {% footnote true
+    \ifthenelse{%
+      \equal{\GLX@itemplacement{#2}}{t}}{\def\GLX@itemplacement@{t}}{%
+      \ifthenelse{\equal{\GLX@itemplacement{#2}}{f}}{\def\GLX@itemplacement@{f}}{%
+        \ifthenelse{\equal{\GLX@tf}{t}}{\def\GLX@itemplacement@{t}}{}%
+        \ifthenelse{\equal{\GLX@tf}{-}}{\def\GLX@itemplacement@{f}}{}%
+        \ifthenelse{\equal{\GLX@tf}{f}}{\def\GLX@itemplacement@{f}}{}}}}%
+  {% footnote false
+    \ifthenelse{%
+      \equal{\GLX@itemplacement{#2}}{t}}{\def\GLX@itemplacement@{t}}{%
+      \ifthenelse{\equal{\GLX@itemplacement{#2}}{f}}{\def\GLX@itemplacement@{f}}{%
+        \ifthenelse{\equal{\GLX@tf}{t}}{\def\GLX@itemplacement@{t}}{}%
+        \ifthenelse{\equal{\GLX@tf}{-}}{\def\GLX@itemplacement@{t}}{}%
+        \ifthenelse{\equal{\GLX@tf}{f}}{\def\GLX@itemplacement@{f}}{}}}}%
+  %
+  \ifthenelse{\equal{\GLX@itemorder@}{i}}%
+  {% itemorder i
+    \ifthenelse{\equal{\GLX@itemplacement@}{f}}%
+    {\GLX@do@acf@if{#1}{#2}}%
+    {\GLX@do@acf@it{#1}{#2}{#4}{#5}}}%
+  {% itemorder l
+    \ifthenelse{\equal{\GLX@itemplacement@}{f}}%
+    {\GLX@do@acf@lf{#1}{#2}}%
+    {\GLX@do@acf@lt{#1}{#2}{#4}{#5}}}%
+  \endgroup}%
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\GLX@do@ac}
+% Either call |\GLX@do@acf| or |\GLX@do@acs|, depending on
+% |\GLX@terml@#1| $==$ |x|.
+% \begin{definition}
+% |\GLX@do@ac||{|\meta{label}|}||{|\meta{list}|}||{|\meta{form}|}||{|\meta{lparen}|}||{|\meta{rparen}|}|
+% \end{definition}
+%    \begin{macrocode}
+\newcommand{\GLX@do@ac}[5]{%
+  \begingroup%
+  \ifthenelse{\equal{#3}{i}}{\def\GLX@il{i}\def\GLX@tf{-}}{%
+    \ifthenelse{\equal{#3}{l}}{\def\GLX@il{l}\def\GLX@tf{-}}{%
+      \ifthenelse{\equal{#3}{it}}{\def\GLX@il{i}\def\GLX@tf{t}}{%
+        \ifthenelse{\equal{#3}{if}}{\def\GLX@il{i}\def\GLX@tf{f}}{%
+          \ifthenelse{\equal{#3}{lt}}{\def\GLX@il{l}\def\GLX@tf{t}}{%
+            \ifthenelse{\equal{#3}{lf}}{\def\GLX@il{l}\def\GLX@tf{f}}{%
+              \ifthenelse{\equal{#3}{t}}{\def\GLX@il{-}\def\GLX@tf{t}}{%
+                \ifthenelse{\equal{#3}{f}}{\def\GLX@il{-}\def\GLX@tf{f}}{%
+                  \def\GLX@il{-}\def\GLX@tf{-}}%
+                }}}}}}}%
+  \ifthenelse{\boolean{@GLX@itemfirst}}%
+  {% itemfirst true
+    \ifthenelse{%
+      \equal{\GLX@itemorder{#2}}{i}}{\def\GLX@itemorder@{i}}{%
+      \ifthenelse{\equal{\GLX@itemorder{#2}}{l}}{\def\GLX@itemorder@{l}}{%
+        \ifthenelse{\equal{\GLX@il}{i}}{\def\GLX@itemorder@{i}}{}%
+        \ifthenelse{\equal{\GLX@il}{-}}{\def\GLX@itemorder@{i}}{}%
+        \ifthenelse{\equal{\GLX@il}{l}}{\def\GLX@itemorder@{l}}{}}}}%
+  {% itemfirst false
+    \ifthenelse{%
+      \equal{\GLX@itemorder{#2}}{i}}{\def\GLX@itemorder@{i}}{%
+      \ifthenelse{\equal{\GLX@itemorder{#2}}{l}}{\def\GLX@itemorder@{l}}{%
+        \ifthenelse{\equal{\GLX@il}{i}}{\def\GLX@itemorder@{i}}{}%
+        \ifthenelse{\equal{\GLX@il}{-}}{\def\GLX@itemorder@{l}}{}%
+        \ifthenelse{\equal{\GLX@il}{l}}{\def\GLX@itemorder@{l}}{}}}}%
+  \ifthenelse{\boolean{@GLX@footnote}}%
+  {% footnote true
+    \ifthenelse{%
+      \equal{\GLX@itemplacement{#2}}{t}}{\def\GLX@itemplacement@{t}}{%
+      \ifthenelse{\equal{\GLX@itemplacement{#2}}{f}}{\def\GLX@itemplacement@{f}}{%
+        \ifthenelse{\equal{\GLX@tf}{t}}{\def\GLX@itemplacement@{t}}{}%
+        \ifthenelse{\equal{\GLX@tf}{-}}{\def\GLX@itemplacement@{f}}{}%
+        \ifthenelse{\equal{\GLX@tf}{f}}{\def\GLX@itemplacement@{f}}{}}}}%
+  {% footnote false
+    \ifthenelse{%
+      \equal{\GLX@itemplacement{#2}}{t}}{\def\GLX@itemplacement@{t}}{%
+      \ifthenelse{\equal{\GLX@itemplacement{#2}}{f}}{\def\GLX@itemplacement@{f}}{%
+        \ifthenelse{\equal{\GLX@tf}{t}}{\def\GLX@itemplacement@{t}}{}%
+        \ifthenelse{\equal{\GLX@tf}{-}}{\def\GLX@itemplacement@{t}}{}%
+        \ifthenelse{\equal{\GLX@tf}{f}}{\def\GLX@itemplacement@{f}}{}}}}%
+  %
+  \ifthenelse{\equal{\GLX@itemorder@}{i}}%
+  {% itemorder i
+    \ifthenelse{\equal{\GLX@itemplacement@}{f}}%
+    {\expandafter\ifx\csname GLX@terml@#1\endcsname\relax%
+        \GLX@do@acf@if{#1}{#2}%
+        \expandafter\gdef\csname GLX@terml@#1\endcsname{x}%
+      \else%
+        \GLX@do@acs{#1}{#2}%
+      \fi}%
+    {\expandafter\ifx\csname GLX@terml@#1\endcsname\relax%
+        \GLX@do@acf@it{#1}{#2}{#4}{#5}%
+        \expandafter\gdef\csname GLX@terml@#1\endcsname{x}%
+      \else%
+        \GLX@do@acs{#1}{#2}%
+      \fi}}%
+  {% itemorder l
+    \ifthenelse{\equal{\GLX@itemplacement@}{f}}%
+    {\expandafter\ifx\csname GLX@terml@#1\endcsname\relax%
+        \GLX@do@acf@lf{#1}{#2}%
+        \expandafter\gdef\csname GLX@terml@#1\endcsname{x}%
+      \else%
+        \GLX@do@acs{#1}{#2}%
+      \fi}%
+    {\expandafter\ifx\csname GLX@terml@#1\endcsname\relax%
+        \GLX@do@acf@lt{#1}{#2}{#4}{#5}%
+        \expandafter\gdef\csname GLX@terml@#1\endcsname{x}%
+      \else%
+        \GLX@do@acs{#1}{#2}%
+      \fi}}%
+  \endgroup}
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\GLX@do@acf@it}
+% \begin{definition}
+% |\GLX@do@acf@it||{|\meta{label}|}||{|\meta{list}|}||{|\meta{lparen}|}||{|\meta{rparen}|}|
+% \end{definition}
+%    \begin{macrocode}
+\newcommand{\GLX@do@acf@it}[4]{%
+  \GLX@do@acs{#1}{#2}%
+  \expandafter\ifx\csname GLX@term@@#1\endcsname\relax%
+  \else\nolinebreak[3]\space%
+  \ifthenelse{\equal{#3}{\relax}}{%
+    \expandafter\ifx\csname GLX@paren@l@#2\endcsname\relax%
+      \GLX@paren@l%
+    \else%
+      \expandafter\csname GLX@paren@l@#2\endcsname%
+    \fi}{#3}%
+  \GLX@do@acl{#1}{#2}%
+  \ifthenelse{\equal{#4}{\relax}}{%
+    \expandafter\ifx\csname GLX@paren@r@#2\endcsname\relax%
+      \GLX@paren@r%
+    \else%
+      \expandafter\csname GLX@paren@r@#2\endcsname%
+    \fi}{#4}%
+  \fi}%
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\GLX@do@acf@if}
+% \begin{definition}
+% |\GLX@do@acf@if||{|\meta{label}|}||{|\meta{list}|}|
+% \end{definition}
+%    \begin{macrocode}
+\newcommand{\GLX@do@acf@if}[2]{%
+  \GLX@do@acs{#1}{#2}%
+  \expandafter\ifx\csname GLX@term@@#1\endcsname\relax%
+  \else\nolinebreak[3]\footnote{\GLX@do@acl{#1}{#2}}\fi}%
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\GLX@do@acf@lt}
+% \begin{definition}
+% |\GLX@do@acf@lt||{|\meta{label}|}||{|\meta{list}|}||{|\meta{lparen}|}||{|\meta{rparen}|}|
+% \end{definition}
+%    \begin{macrocode}
+\newcommand{\GLX@do@acf@lt}[4]{%
+  \expandafter\ifx\csname GLX@term@@#1\endcsname\relax%
+  \else\GLX@do@acl{#1}{#2}\fi%
+  \nolinebreak[3]\space%
+  \ifthenelse{\equal{#3}{\relax}}{%
+    \expandafter\ifx\csname GLX@paren@l@#2\endcsname\relax%
+      \GLX@paren@l%
+    \else%
+      \expandafter\csname GLX@paren@l@#2\endcsname%
+    \fi}{#3}%
+  \GLX@do@acs{#1}{#2}%
+  \ifthenelse{\equal{#4}{\relax}}{%
+    \expandafter\ifx\csname GLX@paren@r@#2\endcsname\relax%
+      \GLX@paren@r%
+    \else%
+      \expandafter\csname GLX@paren@r@#2\endcsname%
+    \fi}{#4}}%
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\GLX@do@acf@lf}
+% \begin{definition}
+% |\GLX@do@acf@lf||{|\meta{label}|}||{|\meta{list}|}|
+% \end{definition}
+%    \begin{macrocode}
+\newcommand{\GLX@do@acf@lf}[2]{%
+  \expandafter\ifx\csname GLX@term@@#1\endcsname\relax%
+  \else\GLX@do@acl{#1}{#2}\fi%
+  \footnote{\GLX@do@acs{#1}{#2}}}%
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\GLX@newterm}
+% This macro defines |\GLX@term@#1| and |\GLX@term@@|\meta{label} so that they expand to
+% their appropriate meaning.
+% \begin{definition}
+% |\GLX@newterm||{|\meta{label}|}||{|\meta{item}|}||{|\meta{long-form}|}|
+% \end{definition}
+%    \begin{macrocode}
+\newcommand{\GLX@newterm}[3]{%
+  \expandafter\gdef\csname GLX@term@#1\endcsname{#2}%
+  \ifx#3\empty%
+  \else\expandafter\gdef\csname GLX@term@@#1\endcsname{#3}\fi}%
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{environment}{theglosstex}
+% This environment is used for typesetting the lists generated by
+% \GlossTeX{}. These are the meanings of the parameters:
+%
+% \begin{description}
+% \item[\#1] This \meta{list}
+% \item[\#2] This \meta{pageref-mode}
+% \item[\#\#1] \meta{label}
+% \item[\#\#2] \meta{item}
+% \item[\#\#3] \meta{long-form}
+% \item[\#\#4] \meta{text}
+% \item[\#\#5] \meta{list}
+% \item[\#\#6] \meta{list-mode}
+% \item[\#\#7] \meta{page-stuff}
+% \end{description}
+%
+% The whole list is encapsulated into the environment defined by the
+% macros |\GLX@benv@|\meta{list} and |\GLX@eenv@|\meta{list}. These
+% contain |\begin{description}| and |\end{description}| for
+% \meta{list} $==$ |glo| as default. Each |\GlossTeXEntry| is only
+% processed if its \meta{list} is identical to the environment's
+% \meta{list} and it's \meta{list-mode} $==$
+% |a|. |\GLX@item@|\meta{list} is called for each of these entries.
+% \begin{definition}
+% |theglosstex||{|\meta{list}|}||{|\meta{pageref-mode}|}|
+% \end{definition}
+%    \begin{macrocode}
+\newenvironment{theglosstex}[2]{%
+%    \end{macrocode}
+% First, we define some macros which correspond to the arguments given
+% to this environment. We need |\GLX@theglosstex@list| when closing the
+% current environment. |\GLX@theglosstex@pagerefmode| wouldn't really
+% necessary if I weren't that lazy. Having this as global data makes
+% |theglosstex| non reentrant, but we don't need nested glossaries. So
+% we save passing all these arguments around.
+%    \begin{macrocode}
+  \gdef\GLX@theglosstex@list{#1}%
+  \gdef\GLX@theglosstex@pagerefmode{#2}%
+%    \end{macrocode}
+% Next, we expand |\GLX@benv@|\meta{list} to start the environment.
+%    \begin{macrocode}
+  \csname GLX@benv@#1\endcsname%
+%    \end{macrocode}
+%
+% \begin{macro}{\glxref}
+% \begin{macro}{\glxrefS}
+% This one produces an entry in the current \meta{list} (stored in
+% |\GLX@theglosstex@list|). 
+% \begin{definition}
+% |\glxref||{|\meta{label}|}|
+% \end{definition}
+%    \begin{macrocode}
+  \DeclareRobustCommand{\glxref}{%
+    \@ifstar{\GLX@glxrefS}{\GLX@glxref}}%
+  \newcommand{\GLX@glxref}[1]{%
+    \GLX@do@glosstex{##1}{n}{\GLX@theglosstex@list}{a}%
+    \GLX@do@acs{##1}{\GLX@theglosstex@list}}%
+  \newcommand{\GLX@glxrefS}[1]{%
+    \GLX@do@glosstex{##1}{n}{\GLX@theglosstex@list}{a}}%
+%    \end{macrocode}
+% \end{macro}
+% \end{macro}
+%
+% Define the corresponding macros for \meta{label} using \meta{item}
+% and \meta{long-form} and also write out the macro call for the
+% definition into the |.aux|-file so that they are defined at the next
+% run early. Then, check if the current \meta{label} is to appear in
+% the active \meta{list} and check if it is to appear in this
+% \meta{list} at all. If these checks all succeed, call
+% |\GLX@item@|\meta{label} to typeset the current \meta{label}.
+%    \begin{macrocode}
+  \newcommand{\GlossTeXEntry}[7]{%
+    \GLX@newterm{##1}{##2}{##3}%
+    \write\@auxout{\string\GLX@newterm{##1}{##2}{##3}}%
+    \ifthenelse{\equal{#1}{##5}}{%
+      \ifthenelse{\equal{a}{##6}}{%
+        \csname GLX@item@#1\endcsname%
+        {##1}{##2}{##3}{##4}{##5}{##6}{##7}}{}%
+      }{}}}{%
+  \csname GLX@eenv@\GLX@theglosstex@list\endcsname}%
+%    \end{macrocode}
+% \end{environment}
+%
+% \begin{macro}{\printglosstex}
+% The optional arguments are the \meta{list} to be typeset and the
+% \meta{pageref-mode}. First, 
+% |\GLX@heading@|\meta{list} is called (defaults to something like
+% |\section{\glossaryname}|) to produce a proper heading. Then, if
+% present, the |.glx|-file is included into a |theglosstex|
+% environment.
+% \begin{definition}
+% |\printglosstex|\opt{|(|\meta{list}|)|}\opt{|[|\meta{pageref-mode}|]|}
+% \end{definition}
+%    \begin{macrocode}
+\DeclareRobustCommand\printglosstex{\GLX@printglosstex}
+\newcommand{\GLX@printglosstex}{%
+  \@ifnextchar({\GLX@@printglosstexr}{%
+    \@ifnextchar[{\GLX@@printglosstexs(glo)}{%
+      \GLX@@@printglosstex[p](glo)}}}
+\newcommand{\GLX@@printglosstexr}{}
+\def\GLX@@printglosstexr(#1){%
+  \@ifnextchar[{\GLX@@printglosstexs(#1)}{%
+    \GLX@@@printglosstex(#1)[p]}}
+\newcommand{\GLX@@printglosstexs}{}
+\def\GLX@@printglosstexs(#1)[#2]{%
+  \GLX@@@printglosstex(#1)[#2]}
+\newcommand{\GLX@@@printglosstex}{}
+\def\GLX@@@printglosstex(#1)[#2]{\GLX@do@printglosstex{#1}{#2}}
+\newcommand{\GLX@do@printglosstex}[2]{%
+  \expandafter\ifx\csname GLX@heading@#1\endcsname\relax%
+    \textbf{#1!}%
+    \PackageWarning{glosstex}{Heading for list `#1' is not defined}%
+    \expandafter\gdef\csname GLX@heading@#1\endcsname{\textbf{#1!}}%
+  \else%
+    \csname GLX@heading@#1\endcsname%
+    \IfFileExists{\jobname.glx}{%
+      \begin{theglosstex}{#1}{#2}%
+        \input{\jobname.glx}%
+      \end{theglosstex}}%
+    {\typeout{No file \jobname.glx}}%
+  \fi}
+%    \end{macrocode}
+% \end{macro}
+%
+% That was the hard part. The following macros are really trivial, so
+% lean back now. They are primarily meant for convenience for using
+% the |.std| and |.cfg| files.
+%
+% \begin{macro}{\glxgldefault}
+% \begin{macro}{\glxacdefault}
+% The commands set the default \meta{list} and \meta{pageref-mode} for
+% the commands starting with |\gl| and |\ac| excluding |\glxref|, respectively.
+%    \begin{macrocode}
+\newcommand{\glxgldefault}[2]{%
+  \gdef\GLX@gldef@list{#1}%
+  \gdef\GLX@gldef@page{#2}}
+\newcommand{\glxacdefault}[2]{%
+  \gdef\GLX@acdef@list{#1}%
+  \gdef\GLX@acdef@page{#2}}
+%    \end{macrocode}
+% \end{macro}
+% \end{macro}
+%
+% \begin{macro}{\glxitemorderdefault}
+% \begin{macro}{\glxitemplacementdefault}
+% These macros set the defaults concerning \meta{item-placement} and
+% \meta{item-order} in \meta{list}.
+%    \begin{macrocode}
+\newcommand{\glxitemorderdefault}[2]{%
+  \expandafter\gdef\csname GLX@itemorder@#1\endcsname{#2}}
+\newcommand{\glxitemplacementdefault}[2]{%
+  \expandafter\gdef\csname GLX@itemplacement@#1\endcsname{#2}}
+%    \end{macrocode}
+% \end{macro}
+% \end{macro}
+%
+% \begin{macro}{\GLX@itemorder}
+% \begin{macro}{\GLX@itemplacement}
+% These expand to |\GLX@itemorder@#1| and |GLX@itemplacement@|\meta{list}.
+%    \begin{macrocode}
+\newcommand{\GLX@itemorder}[1]{%
+  \expandafter\ifx\csname GLX@itemorder@#1\endcsname\relax%
+    \PackageWarning{glosstex}{Item order for list `#1' not defined}%
+    \expandafter\gdef\csname GLX@itemorder@#1\endcsname{\textbf{#1!}}%
+  \else%
+    \csname GLX@itemorder@#1\endcsname%
+  \fi}
+\newcommand{\GLX@itemplacement}[1]{%
+  \expandafter\ifx\csname GLX@itemplacement@#1\endcsname\relax%
+    \PackageWarning{glosstex}{Item placement for list `#1' not defined}%
+    \expandafter\gdef\csname GLX@itemplacement@#1\endcsname{\textbf{#1!}}%
+  \else%
+    \csname GLX@itemplacement@#1\endcsname%
+  \fi}
+%    \end{macrocode}
+% \end{macro}
+% \end{macro}
+%
+% \begin{macro}{\glxparendefault}
+% Set the default for \meta{paren} on package-level.
+%    \begin{macrocode}
+\newcommand{\glxparendefault}[2]{%
+  \gdef\GLX@paren@l{#1}%
+  \gdef\GLX@paren@r{#2}}
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\glxparenlistdefault}
+% Set the default for \meta{paren} on \meta{list}-level.
+%    \begin{macrocode}
+\newcommand{\glxparenlistdefault}[3]{%
+  \expandafter\gdef\csname GLX@paren@l@#1\endcsname{#2}%
+  \expandafter\gdef\csname GLX@paren@r@#1\endcsname{#3}}
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\glxheading}
+% This macro sets the headings to be used typesetting a \meta{list}.
+%    \begin{macrocode}
+\newcommand*{\glxheading}[2]{%
+  \expandafter\gdef\csname GLX@heading@#1\endcsname{#2}}
+%    \end{macrocode}
+% \end{macro}
+%
+% And finally, include the mandatory standard configuration file |glosstex.std|
+% and an optional |.cfg|-file.
+%    \begin{macrocode}
+\InputIfFileExists{glosstex.std}{%
+  \typeout{Using the standard configuration file glosstex.std}}{%
+  \PackageWarning{glosstex}{%
+    File glosstex.std not found. I can't stand it no more}}
+\InputIfFileExists{glosstex.cfg}{%
+  \typeout{Using the configuration file glosstex.cfg}}{}
+%</package>
+%    \end{macrocode}
+%
+% \subsection{The \MakeIndex{} Style-File \file{glosstex.ist}}
+%
+% It is very important to use an appropriate \gls{ist-file} for \MakeIndex\
+% to be able to read and write files in the correct format. \GlossTeX\
+% comes with |glosstex.ist| which has to be used as style-file for
+% \MakeIndex{}. The file |glosstex.ist| should not be modified since
+% it is tightly coupled to the features of \MakeIndex{}. Note the use
+% of ``|~|'' as |quote| to enable german word-ordering using the |-g|
+% option to \MakeIndex{}. So if you want a ``|~|'' in your |.gdf|-file,
+% you have to type ``|~~|''
+%
+%    \begin{macrocode}
+%<*ist>
+keyword        "\\GlossTeXEntry"
+quote          '~'                     
+delim_0        ""                      
+group_skip     "\n"
+indent_length  0
+indent_space   ""
+item_0         "\n\\GlossTeXEntry"
+postamble      "\n"
+preamble       "\n"
+%</ist>
+%    \end{macrocode}
+%
+% \Finale
+\endinput

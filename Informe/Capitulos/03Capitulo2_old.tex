@@ -1,0 +1,99 @@
+%--------------------------------------------------------------------
+%
+%                          Capítulo 8
+%
+%---------------------------------------------------------------------
+
+\chapter{Habla imaginada}
+
+\begin{FraseCelebre}
+	\begin{Frase}
+		Todo lo que una persona puede imaginar, otras podrán hacerlo realidad.
+	\end{Frase}
+	\begin{Fuente}
+		Julio Verne
+	\end{Fuente}
+\end{FraseCelebre}
+
+\begin{resumen}
+	En este capítulo se estudia la problemática del habla imaginada y las investigaciones realizadas para lograr su reconocimiento en señales electroencefalográficas. Luego, se define el corpus de datos utilizado en este proyecto y se explica el tratamiento realizado con la aplicación del framework implementado.
+\end{resumen}
+
+Alguna introducción conveniente quizás ...
+
+%-------------------------------------------------------------------
+\section{Conceptos básicos}
+%-------------------------------------------------------------------
+\label{cap8:sec:conceptos}
+El concepto de ``habla imaginada'' (también referido como de ``habla no pronunciada'') consiste en la imaginación de la pronunciación de palabras o vocales sin realizar ningún movimiento, lo cual es captado en el cerebro mediante el EEG. Las aplicaciones de su reconocimiento está adquiriendo mayor atención debido a su importancia en diversos campos: desde la ayuda a personas con algún tipo de discapacidad motriz o en su comunicación, como en aplicaciones de seguridad donde es crucial la privacidad de un discurso, y hasta en control de dispositivos computarizados y video juegos.
+
+\textbf{COMPLETAR:}
+
+\begin{itemize}
+	\item Antecedentes y otros trabajos realizados sobre el mismo tema.
+\end{itemize}
+
+%-------------------------------------------------------------------
+\section{Corpus de datos}
+%-------------------------------------------------------------------
+\label{cap8:sec:datos}
+La base de datos que se utilizó para llevar adelante esta aplicación, fue adquirida desde BrainLiner \footnote{\url{http://www.brainliner.jp/}}, un sitio web para compartir datos neurológicos. El proyecto de dicho corpus fue creado para una publicación de clasificación de vocales imaginadas en un enfoque single-trial. \cite{dasalla2009single}. El corpus se encuentra almacenado en formato MATLAB, y además contiene los scripts utilizados en el paper para realizar el procesamiento previo. (citar algunos papers que usan esta base de datos quizás ...)
+
+%-------------------------------------------------------------------
+\subsection{Registro}
+%-------------------------------------------------------------------
+\label{cap8:subsec:registro}
+
+Las señales continuas de \ac{EEG} fueron registradas usando un sistema BioSemi ActiveTwo con 64+8 electrodos activos Ag-AgCl y una frecuencia de muestreo de 2048 Hz. Los registros fueron realizados sobre tres sujetos, dos masculinos y un femenino, de entre 26 y 29 años de edad. Además todos ellos eran diestros, de habla fluída en inglés y ninguno poseía algún desorden neurológico u otro problema significante de salud.
+
+
+\begin{figure}[t]
+	\begin{center}
+		\includegraphics[width=\textwidth]%
+		{Imagenes/Bitmap/diagrama-imgspeech}
+		\caption{Diagrama temporal de un experimento, para la base de datos usada en la aplicación de habla imaginada.}
+		\label{fig:imgspeech-dasalla}
+	\end{center}
+\end{figure}
+
+
+Las tres tareas consideradas fueron la imaginación de las vocales /a/, /u/ y el estado de control. El seguimiento de un experimento se puede visualizar en la Figura \ref{fig:imgspeech-dasalla}. Al inicio del experimento, aparecen ilustraciones en una pantalla ubicada a 1 m del sujeto para guiarlo en el protocolo. Cada ejemplo comienza con un sonido o ``beep'' y la aparición de una cruz de fijación, a lo cual le sigue la imaginación de una de las posibles vocales /a/, /u/ o el estado de control (refiriéndose este último al estado de no pensar o imaginar nada). La cruz de fijación mencionada se mantiene en pantalla por un intervalo aleatorio de tiempo de entre 2 y 3 segundos, y el propósito de ello es para remover la influencia de cualquier potencial evocado, causado por el ``beep'', antes de iniciar las tareas (se denomina a ese lapso ``pre-estímulo''). 
+
+%-------------------------------------------------------------------
+\subsection{Procesamiento de datos}
+%-------------------------------------------------------------------
+\label{cap8:subsec:procesamiento}
+
+Los datos utilizados cuentan con procesamiento realizado en  \cite{dasalla2009single}, el cual fue realizado usando MATLAB R2006 y EEGLAB. Los registros de EEG fueron filtrados con un pasa banda de fase cero, en el rango de 1-45 Hz, para remover cualquier ruido de línea de baja frecuencia o ruido electrónico. Para cada tarea se extrajeron 50 épocas, resultando un total de 150 por sujeto.
+
+(Aclarar que no tengo un dominio en eeg por lo cual no proceso mucho)
+(ya se encuentran originalmente escalados entre 1 y -1, aclarar que es una cagada eso y por qué)
+
+Además, en el trabajo correspondiente al procesamiento explicado, se utilizó el método de patrones espaciales comunes o CSP (en inglés, \textit{common spatial patterns}) para diseñar filtros espaciales que, al aplicarse a series de tiempos de \ac{EEG}, produce nuevas series de tiempo con varianzas que son máximamente discriminativas. Descripciones detalladas del método CSP pueden encontrarse en \cite{muller1999designing} y \cite{ramoser2000optimal}, y en este trabajo se parte de los datos procesados con dicho tratamiento debido a su disponibilidad en esas condiciones. (Ver si conviene describir brevemente el metodo CSP)
+
+\textbf{COMPLETAR:}
+
+\begin{itemize}
+	\item Adjuntar scripts de pre-procesamiento en Matlab, aclarando que no se realizaron en el marco del proyecto.
+	
+	\item Explicar experimentos realizados, con sus correspondientes configuraciones, y presentar resultados en lo posible comparando con los del paper.
+\end{itemize}
+
+
+
+
+ 
+
+
+
+
+
+
+
+% Variable local para emacs, para  que encuentre el fichero maestro de
+% compilación y funcionen mejor algunas teclas rápidas de AucTeX
+%%%
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: "../Tesis.tex"
+%%% End:

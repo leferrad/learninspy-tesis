@@ -1,0 +1,381 @@
+%---------------------------------------------------------------------
+%
+%                          Capítulo 4
+%
+%---------------------------------------------------------------------
+
+\chapter{Descripción del sistema}
+
+
+\begin{FraseCelebre}
+	\begin{Frase}
+		Inteligencia es hacer artificiales los objetos, especialmente las herramientas para hacer herramientas.
+	\end{Frase}
+	\begin{Fuente}
+		Henri Bergson
+	\end{Fuente}
+\end{FraseCelebre}
+
+\begin{resumen}
+En este capítulo se describe la estructura determinada para el sistema, explicando cada uno de sus componentes y justificando su composición. Además se presentan las características más importantes del framework, y se explica en detalle cómo se propone incorporar el procesamiento distribuido en el modelado de redes neuronales, comparando luego dicha propuesta con otras similares existentes.
+\end{resumen}
+
+El producto desarrollado en este proyecto se identifica como \emph{Learninspy}, haciendo referencia en su nombre a las técnicas de aprendizaje profundo (o \textit{deep learning}) en redes neuronales y al uso de la tecnología Spark con Python (así también como al apodo del autor de este framework). En la Figura \ref{fig:learninspy-logo} se presenta su logo, el cual quizás visualiza mejor el significado mencionado. 
+
+Una elección hecha para el desarrollo de este sistema fue realizar toda el codigo fuente en inglés. Esto se hizo con el fin de ser fiel a la terminología original de todas las técnicas, y para que sea entendible por cualquier desarrollador y no sólo los de habla hispana. No obstante, toda la documentación se encuentra en español aunque próximamente se planea mantener dos versiones de ella en ambos lenguajes.
+
+
+\begin{figure}[t]
+	\begin{center}
+		\scalebox{0.7}{
+			\includegraphics[width=0.8\textwidth]%
+			{Imagenes/Bitmap/Learninspy-logo_grande}
+		}
+		\caption{Logo del framework desarrollado.}
+		\label{fig:learninspy-logo}
+	\end{center}
+\end{figure}
+
+
+%-------------------------------------------------------------------
+\section{Estructura}
+%-------------------------------------------------------------------
+\label{cap4:sec:estructura}
+
+En este trabajo de tesis se desarrolló un software estructurado como \emph{framework}. Este tipo de sistema provee conceptos, criterios y prácticas para enfrentar un determinado tipo de problemática en base a un enfoque dado. La idea de implementar este tipo de sistema surgió debido a la dificultad de personalizar ciertos frameworks de aprendizaje profundo existentes, planteándose además el desafío de combinar la flexibilidad para crear o modificar funcionalidades y la escalabilidad en términos computacionales.
+
+Para ello, un framework permite las siguientes ventajas \cite{frameworkMClifton}:
+\begin{itemize}
+	\item Facilita trabajar con tecnologías complejas.
+	\item Reúne un conjunto de componentes aislados en algo mucho más útil.
+	\item Obliga a implementar el código de una forma que promueva una programación consistente, menos bugs, y aplicaciones más flexibles.
+	\item Cualquiera puede fácilmente testear y depurar el código, incluso si no fue quien lo escribió. 
+\end{itemize}
+
+Tal como se aclaró en la Sección \ref{cap1:subsec:restricciones}, el código fuente de Learninspy sigue un Diseño Orientado a Objetos (\acs{DOO}) que permite en un framework los siguientes beneficios para desarrolladores \cite{fayad1997object}:
+\begin{itemize}
+	\item \emph{Modularidad}, al encapsular detalles de la implementación detrás de interfaces estables y sencillas de utilizar.
+	\item \emph{Reutilización}, definiendo componentes genéricos que pueden ser reaplicados para crear nuevas aplicaciones. Con ello se aprovecha el dominio de conocimiento y el esfuerzo previo de desarrolladores experimentados para evitar rehacer y revalidar soluciones ya existentes.
+	\item \emph{Extensibilidad}, al proveer métodos acoplables que permiten a las aplicaciones extender sus interfaces estables.
+	\item \emph{Inversión de control}, al invertir el flujo de ejecución del programa dejando que alguna entidad lleve a cabo las acciones de control que se requieran, en el orden necesario y para todos los sucesos que deban ocurrir, en lugar de hacerlo imperativamente mediante llamadas a procedimientos o funciones.
+\end{itemize}
+
+% LINKS: http://dirkriehle.com/computer-science/research/dissertation/chapter-4.html; http://www.codeproject.com/Articles/5381/What-Is-A-Framework; http://paginas.fe.up.pt/~aaguiar/as/acm-out97-p32-fayad.pdf
+
+La última propiedad mencionada refiere a que por medio del framework se explicita una solicitud concreta (e.g. entrenar una red neuronal sobre un conjunto de datos), y el mismo decide la secuencia de acciones necesarias para atenderla. En cuanto a las demás, el resto del presente capítulo muestra evidencia de su cumplimiento mediante las características que se van presentando.
+
+
+Como la mayoría de los proyectos desarrollados en Python, Learninspy está compuesto por paquetes que agrupan módulos en común, y en cada uno de estos últimos se reúnen las clases (en términos de DOO) que tengan mayor relación. A continuación se describe brevemente la lógica de cada módulo y paquete, aunque para mayor detalle se debe consultar el manual de referencia \footnote{Documentación de Learninspy: \url{http://learninspy.readthedocs.io/}}:
+\begin{itemize}
+	\item \textbf{Core}: Como bien dice el nombre, es el módulo principal o el núcleo del framework. El mismo contiene clases relacionadas con la construcción de redes neuronales profundas, desde la configuración de los parámetros usados hasta la optimización del desempeño en las tareas asignadas. Se detallan entonces cada uno de los submódulos que lo componen:
+	\begin{itemize}
+		\item[+] \textit{Activations}: En el mismo se implementan las funciones de activación (con su correspondiente derivada analítica) que se podrán utilizar en las capas de una red neuronal. 
+		\item[+] \textit{Autoencoder}: Se extienden las clases desarrolladas en el submódulo \textit{model}, mediante herencia de métodos y atributos, para implementar autocodificadores y su uso en forma apilada.  
+		\item[+] \textit{Loss}: Provee dos funciones de error, las cuales son utilizadas en base a la tarea designada a una red neuronal: clasificación, mediante la función de \textit{Entropía Cruzada}, y regresión, con la función de \textit{Error Cuadrático Medio}.
+		\item[+] \textit{Model}: Es el submódulo principal de \textbf{core} ya que contiene las clases referidas directamente a redes neuronales, el diseño de sus capas y la configuración de los parámetros que manejan.
+		\item[+] \textit{Neurons}: Este submódulo contiene una clase para manejar las matrices de pesos sinápticos y los vectores de sesgo que componen las capas de una red neuronal. Dichos arreglos se implementan mediante NumPy para que se almacenen de forma local (i.e. se alojan por completo en un mismo nodo físico de ejecución), aunque se tiene pensado extender esta clase para que puedan manejarse en forma distribuida. 
+		\item[+] \textit{Optimization}: Implementa los algoritmos y funcionalidades de optimización que se utilizan para mejorar iterativamente el modelado de las redes neuronales. Los algoritmos presentes han sido explicados en la Sección \ref{cap2:subsec:optimizacion} (salvo Adagrad, ya que en su lugar se implementó Adadelta) y para la implementación fueron adaptados desde el desarrollo hecho en Climin \cite{bayer2016climin}, el cual es un framework de optimización pensado para escenarios de aprendizaje maquinal.
+		\item[+] \textit{Search}: Realizado para abarcar algoritmos de búsqueda que optimicen los parámetros de un modelo en particular. El único algoritmo desarrollado en esta versión es el de búsqueda aleatoria, que fue detallado anteriormente en la Sección \ref{cap2:subsec:ajuste-parametros}.
+		\item[+] \textit{Stops}: Recopila distintos criterios de corte para frenar la optimización de las redes en base a una condición determinada. Al igual que el submódulo \textit{optimization}, está basado en el trabajo hecho en Climin. 
+	\end{itemize}
+	\item \textbf{Utils}: Este módulo abarca todas las utilidades desarrolladas para posibilitar tanto la construcción de redes neuronales como el funcionamiento total del framework. El mismo dispone de los siguientes submódulos:
+	
+	\begin{itemize}
+		\item[+] \textit{Checks}: Contiene funcionalidades para comprobar la correcta implementación de las funciones de activación y de error, basándose en las instrucciones de un tutorial de aprendizaje profundo \cite{ng2012ufldl}.
+		\item[+] \textit{Data}: Es el submódulo principal de \textbf{utils}, ya que posee clases útiles para construir los conjuntos de datos que alimentan las redes neuronales, y también funcionalidades para muestrearlos, etiquetarlos, partirlos y normalizarlos.
+		\item[+] \textit{Evaluation}: Se proporcionan clases para evaluar el desempeño de las redes neuronales en tareas de clasificación y regresión, mediante diversas métricas que fueron explicadas en la Sección \ref{cap2:subsec:metricas}. 		
+		\item[+] \textit{Feature}: Se implementan funcionalidades referidas a extracción de características o tipos de pre-procesamiento sobre los datos que alimentan una red neuronal. Un ejemplo de ello es el análisis de componentes principales o PCA (mencionado en la Sección \ref{cap2:subsec:no-supervisado}), que fue implementado siguiendo tutoriales clásicos de deep learning \cite{li2015cs231n} \cite{ng2012ufldl}.
+		\item[+] \textit{Fileio}: Submódulo con funciones para realizar manejo de archivos y la configuración del logger de Learninspy.
+		\item[+] \textit{Plots}: Reúne todas las funcionalidades referidas a gráficas y visualizaciones (como el ajuste de una red durante el entrenamiento).
+	\end{itemize}
+\end{itemize}
+
+Además, a la misma altura que estos dos módulos, existe un script denominado \textit{context} en donde se configura e instancia el contexto de Spark a utilizar en el framework. En la Sección \ref{cap5:subsec:rendimiento-spark} del siguiente capítulo se mencionan las configuraciones que contempla este script referidas al rendimiento de Spark.
+
+En base al diseño planteado, se identifican dos perfiles de acceso al framework: a) de usuario, en el cual mediante conocimientos básicos de Python se puede utilizar la plataforma y añadirle algunas funcionalidades, siguiendo un paradigma de programación imperativa; b) de desarrollador, que requiere usar un paradigma de programación orientado a objetos y funcional, para la comprensión total del código mediante conocimientos de Python y Spark.
+
+La estructura presentada se considera exhaustiva en cuanto a contenido del framework, por lo cual cualquier desarrollador que quiera modificar o agregar componentes al mismo debería poder valerse de los módulos disponibles en la arquitectura comprendida.
+
+%-------------------------------------------------------------------
+\section{Características}
+%-------------------------------------------------------------------
+\label{cap4:sec:features}
+
+A continuación, se detallan las particularidades de Learninspy que lo hacen un framework útil para construir redes neuronales con aprendizaje profundo sobre un conjunto de datos y en forma distribuida:
+\begin{itemize}
+	\item \textit{Diseño que permite extender funcionalidades con pocas modificaciones y sin romper el funcionamiento de otros módulos}. 
+	
+	Esto se relaciona con la propiedad de \textit{extensibilidad} en un framework, mencionada en la anterior Sección \ref{cap4:sec:estructura}. Por ejemplo, para agregar una función de activación y su derivada analítica, basta con incorporar sus definiciones en el submódulo \textbf{core.activations} y, mediante una etiqueta apropiada, adjuntarlas a los diccionarios de Python (que se encuentran al final del módulo) para utilizarlas en el framework a través del mismo. Se puede realizar un tratamiento similar para agregar tanto funciones de error como algoritmos de optimización y sus criterios de corte. 
+	
+	\item \textit{El paradigma orientado a objetos permite aprovechar la naturaleza del diseño de las redes neuronales, para así expresar las relaciones existentes entre las entidades manejadas}.
+	
+	Por ejemplo, la composición de una red neuronal por capas de neuronas, donde cada una de ellas tiene asociado una matriz de pesos sinápticos y un vector de sesgo, y también el hecho de que un autocodificador sea un tipo especial de red neuronal por lo que tiene una relación de herencia de métodos y atributos.
+	
+	%\item \textbf{Durante el diseño e implementación se priorizó la estructuración simple y lograr fácil legibilidad en el código fuente, tal como se ha definido en el alcance del proyecto.}
+	
+	%Es por ello que, a pesar de que Spark se encuentra codificado en el lenguaje Scala, se eligió implementar el sistema en Python utilizando la API de ese lenguaje que provee el motor usado. A raíz de ello, ¿se sacrifica en parte la eficiencia del motor que podría lograrse utilizando el lenguaje nativo Scala?, a costa de conseguir un framework fácil de usar y reutilizar en trabajos desde el código fuente. % \footnote{\url{https://datasciencevademecum.wordpress.com/2016/01/28/6-points-to-compare-python-and-scala-for-data-science-using-apache-spark/}}.
+	
+	\item \textit{Mínima cantidad de dependencias en el sistema}.
+	
+	A partir del énfasis que se tuvo en esta propiedad para el diseño, no se requiere instalar más que Spark (y Java por ello) y parte del ecosistema de SciPy (que es casi un estándar en las típicas aplicaciones de Python).
+	
+	\item \textit{Optimización de un modelo mediante entrenamiento de réplicas en forma concurrente y distribuida}.
+	
+	Es la característica principal de optimización que se diseñó para el sistema, y es explicada detalladamente en la siguiente Sección \ref{cap4:sec:paralelismo}.
+	
+	%\item \textbf{La función de consenso que hace la mezcla de los modelos entrenados en paralelo puede también implementarse}. 
+	
+	%Este grado de libertad otorga gran flexibilidad y potencia al framework, 
+	
+	%(ventaja respecto a H2O). (está en el módulo \textbf{core.optimization})
+
+	\item \textit{Los resultados del modelado pueden reproducirse de forma determinística}
+
+	A diferencia de otras herramientas que distribuyen las operaciones de modelado, en Learninspy es posible replicar de forma exacta un experimento con una configuración dada. Esto se debe a que internamente se gestiona en forma determinística el semillero que alimenta el generador de números aleatorios, los cuales son requeridos por varios algoritmos que intervienen en el modelado (e.g. inicializador de pesos sinápticos, DropOut, etc). 
+	
+	
+	\item \textit{Soporte para procesar conjuntos de datos en forma local y distribuida}
+	
+	Mediante las funciones y clases del módulo \textit{utils.data} presentado, se brindan funcionalidades para el tratamiento de datos tanto en forma local como distribuida (utilizando RDDs de Spark para este último caso).
+	
+	\item \textit{Soporte para cargar y guardar modelos entrenados}. 
+		
+	El trabajo de optimización de los modelos se puede realizar de forma diferida, ya que los mismos se pueden guardar y volver a cargar en formato binario. Esto tiene gran utilidad sobre todo cuando se someten a aprendizaje no supervisado, el cual puede realizarse en muchas pasadas hasta aplicarse el ajuste fino.
+	
+	
+	% \item  Quizás conviene poner un diagrama de bloques referido al pipeline de datos recomendado para su tratamiento en Learninspy.
+\end{itemize}
+
+Como se puede ver, algunas características están referidas al diseño del software en general y otras son más específicas del procesamiento distribuido que involucra. Por lo tanto, se describe a continuación en qué formas se logran integrar estas características en el framework.
+	
+	
+%-------------------------------------------------------------------
+\subsection{Explotación del cómputo distribuido}
+%-------------------------------------------------------------------
+\label{cap4:subsec:compdistrib}
+
+Como ya se dijo anteriormente en otras secciones, las aplicaciones que suelen tratarse con aprendizaje profundo están relacionadas con datos de gran dimensión, y por ello las herramientas que realizan dicho tratamiento requieren una ventaja computacional para resultar útiles en ello. Las formas en que Learninspy aprovecha el procesamiento distribuido de Spark son las siguientes:
+\begin{enumerate}
+	\item \textbf{Preparar conjuntos de datos:}
+	El framework provee una abstracción para manejar conjuntos de datos, la cual incluye el etiquetado de los patrones por clases, la normalización y escalado de los datos, el muestreo balanceado por clases, etc. Para grandes volúmenes de datos se provee una interfaz adecuada para los RDDs de Spark, con lo cual el pre-procesamiento puede realizarse en forma distribuida.
+	
+	\item \textbf{Optimizar modelos en forma paralelizada:}
+	Siendo quizás el valor principal del procesamiento distribuido en el framework, esta característica se basa en que, por cada iteración del ajuste de una red neuronal, el modelado se realice mediante instancias replicadas que se entrenan de forma independiente y luego convergen en un modelo único, reuniendo así las actualizaciones que adquirió cada instancia por separado.
+	
+	\item \textbf{Ahorrar costos de comunicación, transfiriendo conjuntos de datos a los nodos por única vez (broadcasting):}
+	Como se explicó en la Sección \ref{cap3:subsec:spark-funcionalidades}, la funcionalidad de Broadcast que provee Spark permite que una variable muy utilizada se pueda enviar a los nodos computacionales una sóla vez (siempre que la usen únicamente en modo lectura). Esto resulta útil y eficiente con los conjuntos de datos empleados en el ajuste de las redes neuronales, el cual se hace iterativamente y de otra forma requeriría establecer una comunicación con los nodos activos por cada iteración.
+	
+	\item \textbf{Configurar infraestructura fácilmente:}
+	Mediante simples configuraciones en las variables de entorno, se puede conectar el framework forma sencilla a una estructura computacional definida con Spark (lo cual se menciona más adelante en la Sección \ref{cap5:sec:configuraciones}).
+	
+\end{enumerate}
+
+Para entender cómo se obtiene la segunda característica mencionada, que se considera la más importante y tiene cierta complejidad, la siguiente sección detalla la forma en que se implementa en Learninspy.
+
+%-------------------------------------------------------------------
+\section{Entrenamiento distribuido}
+%-------------------------------------------------------------------
+\label{cap4:sec:paralelismo}
+
+El procedimiento para minimizar la función de costo sobre una red neuronal es una característica clave de Learninspy, ya que es una de las formas principales en que se aprovecha el cómputo distribuido en el framework. Dado que los algoritmos de optimización utilizados para realizar ello son iterativos, la paralelización propuesta busca incorporar los beneficios de la concurrencia para sacar mayor provecho al proceso en cada una de sus iteraciones.
+
+La idea no es nueva ya que es implementada en diversos esquemas como los explicados en la Sección \ref{cap3:subsec:paralel-modelos}. Se basa en que el proceso de optimización de las redes neuronales se puede paralelizar de forma tal que se obtenga una mejoría en duración y hasta resultados respecto al procedimiento convencional sin concurrencia. Para ello se tiene que, por cada iteración del proceso, un modelo base es copiado a cada nodo computacional para que cada una de estas copias o réplicas se entrene de forma independiente sobre algún subconjunto muestreado del conjunto original de datos. El hecho de optimizar en cada iteración con un subconjunto de datos (conocidos como \textit{mini-batch}) en lugar del conjunto completo permite acelerar el proceso y está demostrado en varios estudios que aún así obtiene buenos resultados, como fue explicado en la Sección \ref{cap2:subsec:optimizacion}. Es preciso aclarar que dichos subconjuntos son obtenidos de un muestreo aleatorio sin reemplazos sobre el conjunto de entrenamiento, utilizando la función \textit{sample} de la librería \textit{random} que ofrece la versión usada de Python.
+
+La cantidad de modelos replicados a entrenar en paralelo es configurable: para un mejor desempeño en términos de recursos, debe ser la cantidad de nodos/núcleos disponibles, pero también puede ser menor o mayor para tener otro impacto en los resultados. Una vez entrenadas las réplicas, se procede a mezclar los modelos de forma que converjan los aportes de la optimización en un único modelo. Para ello se emplea una ``función de consenso'' que toma los parámetros de cada modelo y los pondera en base al resultado de evaluación sobre los respectivos subconjuntos de datos que utilizaron.
+
+En el Algoritmo \ref{alg:train} se esquematiza el procedimiento general que sigue el entrenamiento de una red neuronal en Learninspy. Notar que el mismo se estructura como una tarea MapReduce, ya que de esa forma es implementado mediante las primitivas de ese tipo que provee el motor Spark. Mediante la función \textit{merge} se realiza el proceso de mezclado de modelos mediante una función de consenso, lo cual se explica en detalle a continuación. 
+
+	
+\begin{algorithm}
+	\caption{Entrenamiento distribuido en Learninspy}\label{alg:train}
+	\begin{algorithmic}[1]
+		\Require Modelo actual $h_{W,b}$.
+		\Function{train}{$\Gamma$, $\mu$, $\rho$} \Comment{Parámetros: Conjunto de entrenamiento $\Gamma$; tamaño de mini-batch $\mu$; cantidad de modelos concurrentes o "paralelismo" $\rho$}
+		\State --- MAP ---
+		\State $H_{W,b} = copy\_model(h_{W,b}, \rho)$  \Comment{Realizar $\rho$ copias de $h_{W,b}$ sobre los nodos disponibles }
+		\For {$H_{W,b}^{(i)} \forall i \in \{1, \dots, \rho \}$} \Comment{Bucle de ejecución concurrente}
+		\State $\Gamma_\mu = sample(\Gamma, \mu)$ \Comment{Muestreo de $\mu$ ejemplos sobre el conjunto $\Gamma$} 
+		\State $s_{i} = minimize(H_{W,b}^{(i)}, \Gamma_\mu ) $ \Comment{Optimización de modelo réplica}
+		\EndFor
+		\State --- REDUCE ---
+		\State $h_{W,b} = merge(H_{W,b}, s)$  \Comment{Mezcla de modelos con función de consenso}
+		\State $results = evaluate(h_{W,b}, \Gamma)$ \Comment{Evaluación sobre el conjunto de datos}
+		\Return $h_{W,b}, results$
+		\EndFunction
+	\end{algorithmic}
+\end{algorithm}
+
+\iffalse
+\begin{algorithm}
+	\caption{Mezcla de modelos entrenados concurrentemente}\label{alg:merge}
+	\begin{algorithmic}[1] 
+		\Function{merge}{$H_{W,b}$, $f$} \Comment{Parámetros: Conjunto de modelos replicados a mezclar $h_{W,b}^{(i)} \forall i \in \{1, \dots, \rho\}$; función de consenso usada para mezclar modelos $f$.}
+		\State $h_{W,b} = $
+		\State --- MAP ---
+		\For {$H_{W,b}^{(i)} \forall i \in \{1, \dots, \rho \}$}
+			\For {$l \in \{1, \dots, L\}$}
+				
+			\EndFor
+		\EndFor
+		\State --- REDUCE ---
+		
+		\EndFunction
+	\end{algorithmic}
+\end{algorithm}
+\fi
+
+\iffalse
+\begin{python}
+	class MyClass(Yourclass):
+	def __init__(self, my, yours):
+		bla = '5 1 2 3 4'
+		print bla
+\end{python}
+\fi	
+	
+	
+
+%-------------------------------------------------------------------
+\subsection{Funciones de consenso}
+%-------------------------------------------------------------------
+\label{cap4:subsec:consenso}	
+
+Una vez entrenados todos los modelos replicados de forma concurrente, se deben mezclar en uno solo tratando de reunir las contribuciones de cada uno al ajuste del modelo deseado. Para ello, se puede caracterizar a cada modelo optimizado por su desempeño o \textit{scoring} $s_i$ que es obtenido de dos formas posibles: por una métrica aplicada en su evaluación (e.g. \textit{accuracy} de clasificación, o $R^2$ de regresión), o bien por el valor resultante en la función de costo definida. El valor escogido para caracterizar cada modelo puede utilizarse como parte de una ponderación realizada sobre todos los modelos durante la mezcla, la cual consiste simplemente en una suma de los parámetros $W$ y $b$ de cada capa, por cada uno de los modelos correspondientemente. Para ello se propone usar una función de consenso que, en base a una ponderación establecida, logre reunir las contribuciones de los modelos para obtener un único modelo representativo. Esta mezcla consiste en una suma de los parámetros mencionados estableciendo pesos en base a una ponderación elegida, y esa suma a su vez es escalada por la sumatoria de los pesos obtenidos de la siguiente forma:  
+
+\begin{equation}
+ f(l_{W,b}, w) = \sum_i \frac{w_i l_i}{\sum w_i}
+\end{equation}
+
+Si el denominador es muy cercano a 0, el mismo se reemplaza por una constante $\epsilon = 1e-3$ para evitar divisiones por 0. 
+
+Por defecto, se incluyen tres tipos de ponderación: a) constante, con los mismos pesos valiendo 1 para todos los modelos (resultando una media aritmética de cada parámetro), b) lineal, donde se utiliza en forma directa el valor de $s_i$, c) logarítmica, de forma que la ponderación no tenga gran variación sobre valores altos de $s_i$ (muy buen valor en la evaluación, o bien pésimo costo de la red):
+
+
+\begin{subequations}
+%\begin{align}
+	
+	\begin{align}
+			w_i  & = 1, \qquad \forall i \in \{1, \dots, \rho\} \\
+			w_i  & = s_i, \qquad \forall i \in \{1, \dots, \rho\} \\
+			w_i  & = 1 + \ln(\max(s_i, \epsilon)), \qquad \forall i \in \{1, \dots, \rho\}, \qquad \epsilon=1e-3
+	\end{align}
+	
+%\end{align}	
+\end{subequations}
+
+Notar que para la ponderación logarítmica, si el dominio es menor o muy cercano a 0 se reemplaza por una constante $\epsilon = 1e-3$ para evitar conflictos con el dominio de la función logaritmo. 
+
+\begin{figure}
+	\centering
+	\subfloat[Sin ponderación (constante)]{{\includegraphics[width=0.38\textwidth]
+			{Imagenes/Bitmap/Rplot-funcons-avg} }}%
+	\qquad
+	\subfloat[Ponderación lineal]{{\includegraphics[width=0.38\textwidth]
+			{Imagenes/Bitmap/Rplot-funcons-w_avg} }}%
+	\qquad
+	\subfloat[Ponderación logarítmica]{{\includegraphics[width=0.38\textwidth]
+			{Imagenes/Bitmap/Rplot-funcons-log_avg} }}%
+	\caption{Función que describe los pesos $w$ que ponderan a cada modelo réplica en base a su valor $s$, suponiendo un dominio (0, 1] para dicho valor.}%
+	\label{fig:consenso}
+\end{figure}
+
+
+En la Figura \ref{fig:consenso} se representan gráficamente las funciones mencionadas, para un dominio definido en los valores del \textit{scoring}. Para utilizar una función de consenso en particular, se debe configurar tanto la función como el \textit{scoring} que utiliza mediante los parámetros de optimización que se definen para el modelado. Para ello, se debe instanciar un objeto OptimizerParameters del módulo \textit{core.optimization} indicando dichos parámetros en sus argumentos (ver detalles de uso en el manual de referencia). 
+
+
+\iffalse
+\begin{python}
+	def merge_models(results_rdd, criter='w_avg', goal='hits'):
+	# Bloque de chequeos:
+	# ...
+	# Mezcla de modelos con la funcion de consenso definida
+	layers = (results_rdd.map(merge_fun)
+	.reduce(lambda left, right:
+	mix_models(left, right)))
+	total = results_rdd.map(weights).sum()
+	# Ponderación sobre sobre todas las capas
+	final_list_layers = map(lambda layer: layer / total, layers)
+	return final_list_layers	
+\end{python}
+\fi
+
+%-------------------------------------------------------------------
+\subsection{Criterios de corte}
+%-------------------------------------------------------------------
+\label{cap4:subsec:criterios-corte}
+
+En cualquier aplicación de aprendizaje maquinal, por lo general no se ejecuta la optimización de un modelo hasta obtener un desempeño deseado ya que puede ser que no se alcance dicho objetivo por la configuración establecida. Es por ello que, tal como se introdujo en la Sección \ref{cap2:subsec:control-optimiz}, resulta conveniente establecer ciertas heurísticas para monitorear la convergencia del modelo en su optimización. Un \textit{criterio de corte} es una función que utiliza información de la optimización de un modelo durante dicho proceso (e.g. scoring sobre el conjunto de validación, costo actual, cantidad de iteraciones realizadas) y, en base a una regla establecida, determina si debe frenarse o no. Las reglas más comunes son:
+
+\begin{itemize}
+	\item \textit{Máximo de iteraciones:} Se detiene la optimización luego de que el número de iteraciones sobre los datos exceda un valor máximo establecido.
+	
+	\item \textit{Alcanzar un valor mínimo deseado:} Se establece una tolerancia para un determinado valor de información en la optimización (como el scoring o el costo), con lo cual el proceso se frena cuando el valor se alcanza o supera.
+	
+	\item \textit{Tiempo transcurrido:} Luego de exceder un intervalo de tiempo máximo fijado (en segundos, por lo general), se detiene el proceso de optimización.
+	
+\end{itemize}
+
+Cada una de estas reglas devuelve Verdadero si el proceso debe frenar o Falso en caso contrario. Dichos resultados booleanos pueden combinarse con operadores lógicos AND y OR para armar reglas más expresivas que configuren la optimización de una forma más específica. Por ejemplo, se puede establecer que el proceso tenga un máximo de 100 iteraciones o bien que frene si se llega a un scoring de 0.9 estableciendo un OR entre las dos primeras reglas explicadas. 
+
+La implementación de ello se encuentra en el módulo \textbf{core.stops}, y se llevó a cabo mediante una adaptación del código provisto por Climin \footnote{Repositorio de código: \url{https://github.com/BRML/climin}} 
+% % % %
+\iffalse
+\makeatletter
+\renewcommand\@makefntext[1]{\leftskip=2em\hskip-1em\@makefnmark#1}
+\makeatother 
+\footnote{ 
+		Repositorio de código: \url{https://github.com/BRML/climin} 
+
+		Documentación: \url{http://climin.readthedocs.org}	
+} 
+\fi
+% % % %
+con lo cual se puede extender el framework con nuevas reglas y criterios de corte para la optimización de los modelos.
+
+Notar que para implementar este esquema de criterios en Learninspy, se deben especificar dos tipos de configuración: una para la optimización de los modelos réplicas a entrenar en paralelo sobre un batch de datos (llamada ``optimización local''), y otra para la optimización en general del modelo final respecto a un conjunto de validación (denominada ``optimización global''). En la Sección \ref{cap5:sec:experimentos} del capítulo siguiente, un experimento de validación está dedicado a mostrar de forma empírica la relación entre ambos tipos de optimización.
+
+
+%-------------------------------------------------------------------
+\subsection{Esquemas similares}
+%-------------------------------------------------------------------
+\label{cap4:subsec:esquemas}
+
+
+En términos de comparación respecto a los esquemas mencionados en la Sección \ref{cap3:subsec:paralel-modelos}, se identifcan las siguientes ventajas del esquema propuesto en este trabajo:
+
+\begin{itemize}
+	\item \textbf{Simplicidad}: Gracias a las primitivas que provee Spark, implementar el esquema es sencillo y requiere pocas líneas de código para lograr que la optimización sea concurrente y además escale en recursos. %(adjuntar ejemplo en Python?).
+	
+	\item \textbf{Convergencia}: Dado que se sincronizan las actualizaciones en cada iteración mediante el mezclado, se mitiga el riesgo de divergencia en la optimización que padecen tanto Downpour SGD como HOGWILD!, convergiendo a una solución comparablemente óptima con la desarrollada por el SGD sin paralelizar.
+	
+	\item \textbf{Elección del algoritmo de optimización}: Ya que el esquema es independiente del algoritmo utilizado para optimizar un modelo, se pueden implementar diversos tipos de algoritmos iterativos que estén basados en gradiente como los mencionados en la Sección \ref{cap2:subsec:optimizacion}. Los mismos se pueden desarrollar en el módulo \textit{core.optimization} del framework, donde actualmente se proveen dos algoritmos para optimizar redes neuronales.
+	
+	\item \textbf{Reproducibilidad de resultados}: En H2O, una plataforma que utiliza HOGWILD! para optimizar redes neuronales profundas, se debe ejecutar el entrenamiento con un único hilo de ejecución para obtener resultados replicables debido a las limitaciones del esquema. En Learninspy dicha reproducibilidad se logra independientemente del paralelismo empleado (por lo que se mencionó antes en la Sección \ref{cap4:sec:features}), lo cual se ve como una ventaja muy importante a la hora de experimentar.
+	
+	\item \textbf{Personalización}: El mezclado de modelos no necesariamente se debe hacer promediando las contribuciones (como sucede en Iterative MapReduce y HOGWILD!), sino que se puede diseñar la función de consenso que decide cómo ponderar las mismas e incorporarla fácilmente en el framework. Por defecto se incluyen las tres funciones explicadas anteriormente.
+	
+\end{itemize}
+
+De los tres algoritmos tratados en la comparación, se considera que el propuesto en este trabajo se asemeja mayormente al denominado Iterative MapReduce, ya que ambos incoporan la metodología de una tarea MapReduce en cada iteración de la optimización en un modelo. No obstante, en Learninspy se decidió implementar un esquema propio para definir el entrenamiento distribuido de una forma que, al igual que otras características de este framework, sea flexible y entensible respecto a las funcionalidades involucradas, asegurando además la propiedad de escalabilidad buscada.	
+
+
+
+\iffalse
+Futuros trabajos:
+
+\begin{itemize}
+	
+	\item Feature: Estaría bueno que se estime el tiempo aprox. de entrenamiento.
+	
+	\item Feature: Estaría bueno implementar un módulo de scheduler en un futuro, como el de climin http://climin.readthedocs.org/en/latest/schedule.html
+\end{itemize}
+\fi
+
+
+% Variable local para emacs, para  que encuentre el fichero maestro de
+% compilación y funcionen mejor algunas teclas rápidas de AucTeX
+%%%
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: "../Tesis.tex"
+%%% End:

@@ -1,0 +1,1083 @@
+%---------------------------------------------------------------------
+%
+%                          Capítulo 2
+%
+%---------------------------------------------------------------------
+
+\chapter{Fundamentos teóricos}
+
+\begin{FraseCelebre}
+\begin{Frase}
+Todas las teorías son legítimas y ninguna \\ tiene importancia. Lo que importa \\ es lo que se hace con ellas.
+\end{Frase}
+\begin{Fuente}
+Jorge Luis Borges
+\end{Fuente}
+\end{FraseCelebre}
+
+\begin{resumen}
+Este capítulo pretende refrescar conocimientos, e introducir otros, para entender las bases teóricas utilizadas en todo el trabajo realizado. Inicialmente, se exhibe la noción de aprendizaje maquinal en sistemas de regresión y clasificación, desde la forma supervisada hasta la no supervisada, y cómo las redes neuronales se utilizan para componer dichos sistemas. Finalmente se profundiza en aspectos del aprendizaje profundo, lo cual en conjunto con todos los fundamentos presentados abarcan las características implementadas para este trabajo.
+
+\end{resumen}
+
+En los últimos años, el ``aprendizaje maquinal'' (mejor conocido en inglés como \textit{machine learning}) adquirió bastante popularidad, presentando algoritmos que aproximan en diversas tareas el concepto de inteligencia artificial \cite{bengio2009learning}. Este campo estudia técnicas para construir sistemas capaces de aprender a partir de datos a realizar diversos tipos de tareas sin requerir que se les indique cómo hacerlas. Esto se emplea en una gran cantidad de aplicaciones en donde no es factible diseñar y programar de forma explícita algoritmos para realizar tareas complejas, como visión computacional, motores de búsqueda, reconocimiento de voz, predicción de fraudes, etc. 
+
+Los tipos de sistemas que se diseñan para realizar estas tareas mencionadas por lo general siguen dos tipos de aprendizaje: supervisado, y no supervisado \cite{bishop2006pattern}. A su vez, dichas tareas a realizar sobre datos se suelen clasificar típicamente en las siguientes categorías: a) clasificación, donde el sistema aprende de forma supervisada a asignar clases; b) regresión, aprendiendo supervisadamente a predecir una variable continua; c) agrupamiento o \textit{clustering}, para dividir los datos en grupos pero de forma no supervisada; d) reducción de dimensiones, mapeando los datos de entrada en un espacio de menor dimensión. En la siguiente sección de este capítulo se detallan los contenidos referidos a la construcción de estos sistemas, para conocer cómo se implementan los algoritmos de aprendizaje maquinal a partir de un conjunto de datos.
+
+
+
+%------------------------------------------------------------------
+\section{Aprendizaje supervisado}
+%-------------------------------------------------------------------
+\label{cap2:sec:supervisado}
+A continuación se procede a detallar la implementación de un sistema con aprendizaje maquinal en forma supervisada para realizar tareas de regresión y clasificación, con el fin de hacer familiar el tratamiento de funciones objetivo, computando sus gradientes y optimizando los objetivos sobre un conjunto de parámetros. Estas herramientas básicas van a formar la base para los algoritmos implementados en el presente trabajo.
+
+%------------------------------------------------------------------
+\subsection{Sistemas de regresión y clasificación}
+%-------------------------------------------------------------------
+\label{cap2:subsec:reg-clasif}
+
+En una \emph{regresión lineal} el objetivo es predecir un valor deseado $y$ partiendo de un vector de entrada $x\in\Re^{n}$ (que por lo general representa las ``características'' que describen el fenómeno analizado). Para ello, lo usual es contar con un conjunto de patrones o ejemplos donde cada uno de ellos tiene asociado un vector con características $x^{(i)}$  y su predicción correspondiente o ``etiqueta'' $y^{(i)}$, y con ello se busca modelar de forma supervisada (i.e. explicitando la salida deseada) una función $y=h(x)$ tal que $y^{(i)}\approx h(x^{(i)}) $ para cada $i$-ésimo ejemplo de entrenamiento. Teniendo una cantidad suficiente de patrones, se espera que $h(x)$ sea un buen predictor incluso cuando se le presente un nuevo vector de características donde su correspondiente etiqueta no se conoce.
+
+Para modelar la hipótesis $h(x)$, en cualquier tipo de sistema, se deben definir dos cuestiones: i) cómo se representa la hipótesis y ii) cómo se mide su error de aproximación respecto a la función deseada $y$. En el caso de la regresión lineal, se define: $h_{\theta}(x)=\sum_j \theta_j x_j$, donde $h_{\theta}(x)$ representa una gran familia de funciones parametrizadas por $\theta$. Por lo tanto, para encontrar una elección de $\theta$ que aproxime $h_{\theta}(x^{(i)})$ lo mayor posible a $y^{(i)}$, se busca minimizar una función de ``costo'' o ``penalización'', la cual mide el error cometido en la predicción. Un ejemplo de esta función es utilizar como medida el \emph{Error Cuadrático Medio} (o MSE, del inglés \emph{Mean Squared Error}), la cual se define como:
+
+\begin{equation}
+	\label{eq:mse}
+	L_i(\theta)=\frac{1}{2}\sum_j (h_{\theta}(x_j^{(i)})-y_j^{(i)})^2
+\end{equation}
+
+El valor resultante de esta función corresponde al error de aproximación de $h_{\theta}(x^{(i)})$ para un i-ésimo ejemplo dado, y para conocer el error total sobre todo el conjunto de N ejemplos disponibles se promedian todos los errores cometidos tal que $L(\theta) = \frac{1}{N}\sum_i^{N} L_i(\theta)$.
+La elección de $\theta$ que minimiza esta función de costo se puede encontrar mediante algoritmos de optimización (e.g.\ gradiente descendiente) que, por lo general, requieren que se compute tanto $L_i(\theta)$ como su gradiente $\nabla_{\theta} L_i(\theta)$ (detallado más adelante en la Sección \ref{cap2:subsec:optimizacion}). En este caso, al diferenciar la función de costo respecto al parámetro $\theta$, al aplicar la regla de la cadena el gradiente queda:
+
+\begin{equation}
+	\label{eq:d_mse}
+	\frac{\partial L_i(\theta)}{\partial \theta}= x^{(i)} \odot (h_{\theta}(x^{(i)})-y^{(i)})
+\end{equation}
+
+Notar que la constante $\frac{1}{2}$ utilizada en la Ecuación \ref{eq:mse} es agregada para que sea cancelada al ser derivada dicha función, y con ello se ahorra el cómputo de multiplicar todos los valores del vector dado en la Ecuación \ref{eq:d_mse}. 
+
+En el caso de la regresión lineal, los valores a predecir son continuos. Cuando se tratan problemas de clasificación, la predicción se realiza sobre una variable discreta que puede tomar sólo determinados valores. Para ello, lo que se intenta es predecir la probabilidad de que un ejemplo dado pertenezca a una clase contra la posibilidad de que pertenezca a otra/s. En una \emph{regresión logística} la clasificación se realiza mediante la predicción de etiquetas binarias, por lo cual $y^{(i)}\in \{0,1\}$. Llamando $z = \theta^\top x$ a la salida lineal, específicamente se trata de aprender una función de la forma:
+
+\begin{equation}
+	\begin{split}
+		P(y=1 \mid x) &= h_{\theta}(x) = \frac{1}{1+\exp(-z)}\equiv \sigma(z), \\ 	
+		P(y=0 \mid x) &= 1 - P(y=1 \mid x) = 1 - h_{\theta}(x) 	
+	\end{split}
+\end{equation}
+
+La función $\sigma (z) $ es denominada ``función logística'' o ``sigmoidea'' (desarrollada en la Sección \ref{cap2:subsec:funactiv}), y su imagen cae en el rango $[0,1]$ por lo que $ h_{\theta}(x)$ puede interpretarse como una probabilidad. Por lo general este tipo de regresión se asocia con otra función de costo denominada \textit{Entropía Cruzada}, la cual se define mediante la siguiente expresión:
+
+% VER http://neuralnetworksanddeeplearning.com/chap3.html
+
+$$L_i(\theta)=- \left(y^{(i)}\log(h_\theta (x^{(i)})) + (1-y^{(i)}) \log(1 - h_\theta (x^{(i)})) \right)$$
+
+A partir de ello, se puede clasificar un nuevo patrón chequeando cuál de las dos clases resulta con mayor probabilidad. 
+Cuando se deben manejar más de dos clases, la \emph{regresión softmax} es utilizada como clasificador para tratar con etiquetas $y^{(i)}\in \{1, \dots , K \}$, donde $K$ es el número de clases.
+
+Dado un vector de entrada $x$, se busca estimar la probabilidad que $P(y=k \mid x)$ para cada valor de $k = 1, \dots , K$. Entonces, la hipótesis debe resultar en un vector de dimensión $K$ cuyos elementos sean las probabilidades estimadas (y sumen uno). Concretamente, la función $h_\theta (x)$ toma la forma:
+
+\begin{align*}
+h_\theta(x) =
+\begin{bmatrix}
+P(y = 1 | x; \theta) \\
+P(y = 2 | x; \theta) \\
+\vdots \\
+P(y = K | x; \theta)
+\end{bmatrix}
+=
+\frac{1}{ \sum_{j=1}^{K}{\exp(z^{(j)}) }}
+\begin{bmatrix}
+\exp(z^{(1)}) \\
+\exp(z^{(2)}) \\
+\vdots \\
+\exp(z^{(K)}) \\
+\end{bmatrix}
+\end{align*}
+
+Notar que por cada $ k \in \{1, \dots, K\} $ existe un $z^{(k)} = \theta^{(k)\top} x $ para cada parámetro $\theta^{(k)}$ del modelo, y el término $\frac{1}{ \sum_{j=1}^{K}{\exp(z^{(j)}) }}$ normaliza la distribución para que sume uno en total. En cuanto a la función de costo, es similar a la definida para la regresión logística excepto que se debe sumar sobre los K diferentes valores de las clases posibles. Para ello, se puede expresar cada etiqueta $y^{(i)}$ de forma ``binarizada'' como un vector de dimensión K, que esté compuesto de ceros excepto en la posición correspondiente a la clase apuntada por $y^{(i)}$. Llamando $t^{(i)}_k$ a este vector, donde para un patrón $i$ está compuesto de ceros excepto en la posición $k$ que vale 1, y recordando que $h_\theta (x^{(i)})$ es un vector también de dimensión K (por ser la salida de la función \textit{softmax}), se tiene:
+
+\begin{equation}
+	L_i(\theta)=- \sum_k \left(t^{(i)}_k \cdot \log(h_\theta (x^{(i)})) \right)
+\end{equation}
+
+Notar que esto compone un clasificador lineal, ya que las predicciones sólo se basan en el logaritmo de una distribución de probabilidades \cite{van2014analysis}. En cuanto al gradiente de dicha función, se puede demostrar que mediante la regla de la cadena se llega a la siguiente expresión simple:
+
+\begin{equation}
+	\nabla_{z} L_i(\theta)= h_\theta (x^{(i)}) - t^{(i)}_K
+\end{equation}
+
+Recordar que $\nabla_{z} L_i(\theta)$ resulta en un vector por ser la derivada de la función de costo $L_i(\theta)$ (que es un escalar) respecto a la salida lineal $z$, y como ya se dijo ambos se utilizan para la optimización del parámetro $\theta$ mediante algoritmos basados en gradientes. También es preciso aclarar que a esta función se le pueden adicionar otros términos que sirvan para agregar penalizaciones al modelo a optimizar, como pueden ser algunas normas regularizadoras (que más adelante se detallan en la Sección \ref{cap2:subsubsec:reg-pesos}) las cuales deben tener un gradiente asociado para la optimización mencionada.
+
+%-------------------------------------------------------------------
+\subsection{Optimización}
+%-------------------------------------------------------------------
+\label{cap2:subsec:optimizacion}
+
+%Va acá y no en redes neuronales pq es más propio de un sistema que del hecho q sean redes neuronales.
+
+%Cuando se empieza a hablar de modelo?
+
+% FALTAN CITAS!
+
+Una vez que se tiene un modelo parametrizado por un conjunto $\theta$, y una función de costo para medir el error de aproximación a la función deseada $y$, se procede a optimizarlo para mejorar dicha aproximación en base a un conjunto de datos. Para ello se emplean algoritmos de optimización que, por cada ejemplo del conjunto de datos, utilizan el valor obtenido por la función de costo para actualizar los parámetros del modelo. Este procedimiento se realiza sobre todos los datos disponibles para minimizar el error producido por el modelo, y generalmente se aplica de forma iterativa a través de ``épocas''.
+
+La idea es que buscar el mejor conjunto de parámetros se puede hacer más fácilmente mediante un refinamiento iterativo, por el cual se parte de un conjunto inicial (designado de alguna forma, como aleatoriamente) que luego se refina iterativamente de forma que en cada pasada éste se mejora un poco para minimizar la función de costo asociada. Este proceso puede interpretarse como recorrer paso a paso un espacio de búsqueda (el de parámetros) donde en cada uno de ellos se busca dirigirse a la región que asegura el mínimo costo posible. Concretamente, se empieza con un $\theta$ aleatorio y luego se computan modificaciones $\delta \theta$ sobre el mismo tal que al actualizar a $\theta + \delta \theta$ el costo sea menor.
+
+%Para la búsqueda de un $\theta$ óptimo, se debe utilizar información del modelo en sí para conocer por cada época cuánto y cómo debe variar dicho conjunto de parámetros. En caso de que la función de costo, que mide la ``bondad'' del modelo, disponga de gradientes entonces se puede aprovechar dicha información para calcular la mejor dirección de cambio de los parámetros, que garantiza matemáticamente que es la de mayor cambio respecto a... Específicamente, el gradiente es un vector de pendientes o derivadas para cada dimensión en el espacio de búsqueda.
+
+
+%There are two ways to compute the gradient: A slow, approximate but easy way (numerical gradient), and a fast, exact but more error-prone way that requires calculus (analytic gradient).
+
+
+Dada una función de costo u objetivo \(L(\theta)\) y la capacidad de calcular su gradiente respecto a los parámetros \(\theta \in \mathbb{R}^d \), el procedimiento de evaluar iterativamente sus valores para actualizar \(\theta\) se denomina \textit{gradiente descendiente} (\acs{GD}) \cite{bishop2006pattern}. Esta actualización se efectúa en la dirección opuesta del gradiente de la función objetivo, y mediante una tasa de aprendizaje \(\eta\) se define el tamaño de los pasos a realizar hasta el mínimo de esta función, lo cual se resume como:
+
+\begin{equation}
+\label{eq:gd}
+\theta = \theta - \eta \cdot \nabla_\theta L(\theta)
+\end{equation}
+
+Aunque existen otras formas de realizar la optimización basada en gradientes (e.g. el método quasi-Newton L-BFGS), el gradiente descendiente es actualmente el más común y estándar para optimizar la función de costo en un modelo (especialmente en redes neuronales).
+
+Cuando el conjunto de datos a utilizar en la optimización es realmente grande, resulta ineficiente computar la función de costo y su gradiente sobre el conjunto entero por cada actualización a realizar. Es por ello que se suele implementar un enfoque del gradiente descendiente denominado \textit{mini-batch}, en donde cada actualización se computa sobre un subconjunto o ``batch'' muestreado del conjunto original. En la práctica, el gradiente obtenido del \textit{mini-batch} es una buena aproximación del gradiente total, y con ello se obtiene una convergencia más rápida mediante una actualización de parámetros más frecuente \cite{cotter2011better}.
+
+
+El caso extremo del \textit{mini-batch} es cuando se utiliza un único ejemplo como batch, y en ese caso el proceso se denomina \textit{gradiente descendiente estocástico} (conocido en inglés como \textit{Stochastic Gradient Descent} o \acs{SGD}). Aunque esa es su definición técnica, en la práctica se suele referir como SGD al gradiente descendiente con \textit{mini-batch} ya que, en la mayoría de las herramientas de optimización, resulta más eficiente evaluar los gradientes para un subconjunto de datos que para una única entrada a la hora de computar una actualización. En cuanto al tamaño de batch a utilizar, se debe tener en cuenta las restricciones de memoria que existan, aunque por lo general suele ser de entre 10 y 100 ejemplos.
+
+
+%Gradient descent is a way to minimize an objective function \(J(\theta)\) parameterized by a model's parameters \(\theta \in \mathbb{R}^d \) by updating the parameters in the opposite direction of the gradient of the objective function \(\nabla_\theta J(\theta)\) w.r.t. to the parameters. The learning rate \(\eta\) determines the size of the steps we take to reach a (local) minimum. In other words, we follow the direction of the slope of the surface created by the objective function downhill until we reach a valley.
+
+
+%Mini-batch gradient descent finally takes the best of both worlds and performs an update for every mini-batch of $n$ training examples:
+
+
+%$\theta = \theta - \eta \cdot \nabla_\theta J( \theta; x^{(i:i+n)}; y^{(i:i+n)})$ 
+
+
+%Vanilla mini-batch gradient descent, however, does not guarantee good convergence, but offers a few challenges that need to be addressed:
+
+%Choosing a proper learning rate can be difficult. A learning rate that is too small leads to painfully slow convergence, while a learning rate that is too large can hinder convergence and cause the loss function to fluctuate around the minimum or even to diverge.
+
+%Learning rate schedules [11] try to adjust the learning rate during training by e.g. annealing, i.e. reducing the learning rate according to a pre-defined schedule or when the change in objective between epochs falls below a threshold. These schedules and thresholds, however, have to be defined in advance and are thus unable to adapt to a dataset's characteristics [10].
+
+
+%\textbf{Algoritmos de optimización}
+  
+%Momentum
+  
+Para acelerar la optimización por GD en una dirección dada, se suele agregar a la Ecuación \ref{eq:gd} un término de \textit{momentum} que básicamente aplica una fracción \(\gamma\) de la actualización hecha en la época anterior sobre la actual, lo cual resulta:
+
+\begin{align}
+v_t & = \gamma v_{t-1} + \eta \nabla_\theta L( \theta) \\
+\theta_t & = \theta_{t-1} - v_t
+\end{align}
+
+En la Figura \ref{fig:momentum} se puede apreciar el efecto de aplicar \textit{momentum} en la optimización, por el cual se disminuyen las oscilaciones al acelerarse el proceso en la dirección relevante \cite{ds2016deepdive}. El término \(\gamma\) suele fijarse en 0.9 o un valor similar.
+
+\begin{figure}[t]
+	\begin{center}
+		\includegraphics[width=0.8\textwidth]%
+		{Imagenes/Bitmap/sgd-momentum}
+		\caption{Influencia del \textit{momentum} en la optimización por gradiente descendiente (GD). Izquierda, GD sin \textit{momentum}. Derecha, GD con \textit{momentum}.}
+		\label{fig:momentum}
+	\end{center}
+\end{figure}
+
+%Nesterov accelerated gradient
+
+Existe otra forma de aplicar un \textit{momentum}, distinta a la de computar el gradiente sobre el \(\theta\) actual para aplicar el término en la actualización. El gradiente acelerado de Nesterov (en inglés, conocido como \textit{Nesterov Accelerated Gradient} o \acs{NAG}) va más allá al calcular el gradiente no sobre el parámetro actual sino sobre una aproximación de su valor futuro de la siguiente forma:
+\begin{align}
+v_t & = \gamma v_{t-1} + \eta \nabla_\theta L( \theta_{t-1} + \gamma v_{t-1} ) \\
+\theta_t & = \theta_{t-1} - v_t
+\end{align}
+
+Esto tiene una garantía teórica de convergencia para funciones objetivo convexas \cite{nesterov1983method}, y en la práctica suele funcionar bastante mejor respecto al uso del \textit{momentum} estándar. 
+
+
+%Adagrad
+
+Todos los enfoques explicados manipulan la tasa de aprendizaje $\eta$ de forma global y siempre igual para todos los parámetros. \textit{Adagrad} es un algoritmo de optimización que calcula de forma adaptativa su tasa respecto a los parámetros. Para ello utiliza una tasa de aprendizaje distinta para cada parámetro $\theta$ en cada paso, y no una misma actualización para todos a la vez, lo cual se resume como:
+
+\begin{equation}
+\label{eq:adagrad}
+\theta_{t+1} = \theta_{t} - \dfrac{\eta}{\sqrt{G_{t} + \epsilon}} \odot \nabla_\theta L(\theta)_t
+\end{equation}
+
+donde $\odot$ es una multiplicación elemento a elemento entre la matriz $G_{t}$ y el vector gradiente de la función objetivo. Aquí $\epsilon$ es un término de suavizado que evita divisiones por cero (usualmente pequeño, en el orden de 1e-8), y $G_{t}$ es una matriz diagonal cuya diagonal corresponde a la suma de los gradientes cuadrados actuales (i.e. $\nabla_\theta L( \theta)^2_t$).  Uno de los beneficios principales de esta técnica es que elimina la necesidad de ajustar manualmente la tasa $\eta$, y se ha mostrado en estudios que mejora importantemente la robustez de SGD especialmente en redes neuronales profundas \cite{dean2012large}. %Most implementations use a default value of 0.01 and leave it at that.
+
+
+\textit{Adadelta} es una extensión de \textit{Adagrad} que busca reducir la forma agresiva y monotónicamente decreciente de obtener la tasa de aprendizaje \cite{zeiler2012adadelta}. En lugar de acumular todos los gradientes cuadrados pasados, Adadelta restringe una ventana con un tamaño fijo para acumular estos valores en una suma que se define recursivamente como una media móvil decreciente. Esta media móvil exponencial $E[\nabla_\theta L( \theta)^2]_t$ en la época $t$ depende sólo del promediado anterior y el gradiente actual tal que:
+
+\begin{equation}
+E[\nabla_\theta L( \theta)^2]_t = \gamma E[\nabla_\theta L( \theta)^2]_{t-1} + (1-\gamma) \nabla_\theta L( \theta)^2_t
+\end{equation}
+
+Los gradientes acumulados en la media móvil se deben inicializar en 0 para hacer posible esta actualización recursiva. A partir de ello, respecto a la Ecuación \ref{eq:adagrad} de \textit{Adagrad} se cambia la matriz $G_{t}$ por esta media móvil de forma tal que:
+
+\begin{equation}
+\theta_{t+1} = \theta_{t} + \Delta \theta , \qquad
+\Delta \theta = - \dfrac{\eta}{\sqrt{E[\nabla_\theta L(\theta)^2]_t + \epsilon}} \nabla_\theta L(\theta)_{t}
+\end{equation}
+
+De allí se puede ver que el denominador de la actualización corresponde a la raíz del error cuadrático medio del gradiente (i.e. $RMS[\nabla_\theta L(\theta)]_t$). 
+
+Dado que las unidades en esta actualización no coinciden (ya que deberían tener las mismas hipotéticas unidades que el parámetro en cuestión), los autores del método definieron otra media móvil exponencial pero aplicada sobre el cuadrado de las actualizaciones en lugar del cuadrado de los gradientes. Por lo tanto, ahora el término $RMS[\Delta \theta]_t$ es desconocido, por lo cual se aproxima con el $RMS$ de las actualizaciones hasta el paso anterior. A partir de esto, la actualización definida para \textit{Adadelta} resulta:
+
+
+\begin{align}
+\theta_{t+1} = \theta_{t} + \Delta \theta , \qquad
+\Delta \theta & = - \dfrac{RMS[\Delta \theta]_{t-1}}{RMS[\nabla_\theta L(\theta)]_t} \nabla_\theta L(\theta)_{t}  \\
+RMS[\Delta \theta]_t & = \sqrt{E[\Delta \theta^2]_t + \epsilon} \\ E[\Delta \theta^2]_t & = \gamma E[\Delta \theta^2]_{t-1} + (1 - \gamma) \Delta \theta^2_t
+\end{align}
+
+
+Notar que la constante $\eta$ desaparece de la ecuación original ya que no resulta necesario definir una tasa de aprendizaje para la actualización, aunque en algunas implementaciones se incorpora para tener otro control de la optimización.
+
+Se puede encontrar una buena referencia de estos métodos explicados en distintos artículos y tutoriales de optimización \cite{li2015cs231n} \cite{ds2016deepdive} \cite{ruder2016optimization} \cite{bayer2016climin}.
+
+
+
+
+\iffalse
+
+Conclusions
+
+There is no right answer for choosing the correct optimization algorithm as SGD still holds the crown, while the others attempt to decrease learning rate dramatically sometimes sacrificing performance. In fact many papers use vanilla SGD without momentum. However, if you care about fast convergence you should choose one of the adaptive learning rate methods.
+
+%Stochastic gradient descent [19] is controlled by another hyperparameter to consider, the learning rate ?. ? determines how large of a step is taken when the parameters are updated. Large values for ? mean that convergence may occur quicker, but, depending on the topology of the cost function, may cause the algorithm to miss theglobal minimum or oscillate. Thus, selection of the proper ? is essential to optimal learning, as illustrated in Figure 2.4. The algorithm is prone to becoming stuck at local minima, and so other algorithms and modifications have been proposed to resolve some of these issues. This paper focuses solely on using stochastic gradient descent to solve the learning task, but some problems discussed in the results section indicate future research should investigate more sophisticated algorithms.
+
+
+\fi
+
+
+%------------------------------------------------------------------
+\subsection{Métricas de evaluación}
+%-------------------------------------------------------------------
+\label{cap2:subsec:metricas}
+
+Para conocer el comportamiento del modelo optimizado en la tarea asignada, se establecen métricas para medir su desempeño sobre un conjunto de datos y a partir de ello poder ajustar el mismo para mejorar sus resultados. Dichas métricas son específicas del tipo de problema tratado, por lo que se distinguen para tareas de \textit{clasificación} y \textit{regresión}.
+
+\subsubsection{Clasificación}
+
+En problemas supervisados de clasificación, cada patrón de un conjunto de datos tiene asignada una etiqueta de la clase que debe predecir el modelo. A raíz de ello, los resultados para cada patrón corresponden a cuatro categorías:
+
+\begin{itemize}
+	\item \underline{Verdadero Positivo} (VP): la etiqueta es positiva y la predicción también.
+	\item \underline{Verdadero Negativo} (VN): la etiqueta es negativa y la predicción también.
+	\item \underline{Falso Positivo} (FP): la etiqueta es negativa pero la predicción es positiva.
+	\item \underline{Falso Negativo} (FN): la etiqueta es positiva pero la predicción es negativa.
+\end{itemize}
+
+La forma más sencilla de medir el desempeño de una clasificación es calcular su exactitud mediante la cantidad de aciertos obtenidos para la clase dada sobre el total de las predicciones hechas (medida conocida como \textit{accuracy} o \acs{ACC}). No obstante, esta medida no es buena especialmente cuando se tratan conjuntos de datos no balanceados por clases. Si se quiere modelar un predictor de anomalías, es muy probable que los datos utilizados tengan más ejemplos de comportamiento normal que de algo anómalo, y si se obtiene un 95\% de predicciones correctas sobre el total no hay seguridad de que el modelo sea bueno si el 5\% restante abarca muchas o todas las anomalías no predichas. 
+
+Para evitar esto, se definen medidas de \textit{precisión} y \textit{sensibilidad} (mejor conocidas en inglés como \textit{precision} y \textit{recall}) que tienen en cuenta el ``tipo'' de error cometido. En tareas de clasificación, el valor de \textit{precision} $P$ determina para una clase la cantidad de Verdaderos Positivos dividido por el número total de elementos clasificados como pertenecientes a dicha clase (i.e. la suma de Verdaderos Positivos y Falsos Positivos), mientras que el valor de \textit{recall} $R$ representa la cantidad de Verdaderos Positivos predichos sobre el total de elementos que realmente pertenecen a la clase en cuestión (i.e. la suma de Verdaderos Positivos y Falsos Negativos) \cite{powers2011evaluation}. Por lo tanto, sus expresiones quedan dadas por:
+
+\begin{equation}
+P = \frac{VP}{VP + FP} \qquad R = \frac{VP}{VP + FN}
+\end{equation}
+
+En un contexto de recuperación de información, la \textit{precision} determina la cantidad de elementos relevantes del total que fueron recuperados, mientras que el \textit{recall} representa la fracción de elementos recuperados del total que son relevantes. Una medida que combina a estas dos mediante una media armónica es el Valor-F (mejor conocida e inglés como F--Score o F--Measure). La misma ofrece un balance entre \textit{precision} y \textit{recall} ajustado por un parámetro $\beta$, y un caso muy utilizado de esta medida es el F1-Score donde $\beta = 1$, tal que:
+
+\begin{equation}
+F(\beta) = (1+\beta^2) (\frac{P R}{\beta^2 P + R}) \qquad F1 = \frac{2  P  R}{P + R}
+\end{equation}
+
+En caso de que el sistema esté diseñado para tratar problemas multi-clase (dos o más clases), las métricas deben ajustarse para soportar esta característica \cite{yang1999re}. Para ello, se procede a calificar positiva o negativa a una predicción respecto a la etiqueta en base al contexto de una clase en particular. Cada tupla de etiqueta y predicción se evalúa para cada una de las clases, y se considera como positiva para dicha clase o negativa para el resto de las clases. Así, un verdadero positivo ocurre cuando la predicción y la etiqueta coinciden, mientras que un verdadero negativo se da cuando ni la predicción ni la etiqueta corresponden a la clase tomada en cuenta. Es por ello que para un simple patrón resultan múltiples verdaderos negativos en problemas de más de dos clases (y la misma idea se extiende para caracterizar FNs y VNs). Para seguir este enfoque de múltiples etiquetas posibles, se derivan las medidas ya definidas para evaluar la clasificación respecto a todas las clases en dos formas posibles \cite{sokolova2009systematic}:
+
+\begin{enumerate}[i)]
+	\item Computar el promedio de las mismas medidas calculadas por cada una de las clases (\textit{macro-promediado}).
+	\item La suma de cuentas para obtener VP, FP, VN, FN acumulativos, y a ello aplicar una métrica de evaluación (\textit{micro-promediado}).
+\end{enumerate}
+
+En la Tabla \ref{tab:metricas-multiclase} se exponen las medidas de evaluación explicadas utilizando estas aproximaciones, donde el subíndice $\mu$ representa a aquella medidas con \textit{micro-promediado} y el subíndice $M$ a aquellas con \textit{macro-promediado}. Notar que esta última aproximación para evaluar una clasificación abarca y generaliza las métricas explicadas para problemas de dos clases.
+
+\begin{table}[h!]
+	\begin{center}
+		\caption{Medidas de evaluación en problemas de clasificación multi-clases.}
+		\label{tab:metricas-multiclase}
+		\begin{adjustbox}{max width=0.9\textwidth}
+			\begin{tabular}{|l|c|c|}
+				\hline
+				\textbf{Medida} & \textbf{Fórmula} & \textbf{Sentido de la evaluación}\\
+				\hline
+				$ACC$ & 
+				$\dfrac{\sum_{i=1}^{C} \frac{VP_i + VN_i}{VP_i + FN_i + FP_i + VN_i}}{C} $& 
+				
+				\begin{tabular}{@{}c@{}}Promedio de la \\efectividad por clase \\ del clasificador\end{tabular}
+				\\
+				\hline
+				$P_{\mu}$ & 
+				$\dfrac{\sum_{i=1}^{C} VP_i}{\sum_{i=1}^{C} (VP_i + FP_i)}$  & 
+				\begin{tabular}{@{}c@{}}Suma de la precisión\\ lograda en la clasificación\\ por cada clase.\end{tabular}
+				\\
+				\hline
+				$R_{\mu}$ & 
+				$\dfrac{\sum_{i=1}^{C} VP_i}{\sum_{i=1}^{C} (VP_i + FN_i)}$  & 
+				\begin{tabular}{@{}c@{}}Suma de la sensibilidad\\ lograda en la clasificación\\ por cada clase.\end{tabular}
+				\\
+				\hline
+				$F_{\mu}(\beta)$ & 
+				$(1+\beta^2) (\dfrac{P_{\mu} R_{\mu}}{\beta^2  P_{\mu} + R_{\mu}}) $ & 
+				\begin{tabular}{@{}c@{}}Balance entre precisión y sensibilidad \\basada en la suma de decisiones \\realizadas por clase.\end{tabular}
+				\\
+				\hline
+				$P_{M}$ & 
+				$\dfrac{\sum_{i=1}^{C} \frac{VP_i}{VP_i + FP_i}}{C} $ & 
+				\begin{tabular}{@{}c@{}}Promedio de los cálculos \\ de precisión lograda \\ por cada clase.\end{tabular}
+				\\
+				\hline
+				$R_{M}$ & 
+				$\dfrac{\sum_{i=1}^{C} \frac{VP_i}{VP_i + FN_i}}{C} $ & 
+				\begin{tabular}{@{}c@{}}Promedio de los cálculos \\ de sensibilidad lograda \\ por cada clase.\end{tabular}
+				\\
+				\hline
+				$F_{M}(\beta)$ & 
+				$(1+\beta^2) (\dfrac{P_M R_M}{\beta^2  P_M + R_M}) $ &  
+				\begin{tabular}{@{}c@{}}Balance entre precisión y sensibilidad \\basada en un promedio sobre el \\total de clases.\end{tabular}
+				\\
+				\hline
+			\end{tabular}
+		\end{adjustbox}
+	\end{center}
+\end{table}
+
+
+Una forma visual de representar el desempeño del modelo en la clasificación hecha es mediante una \textit{matriz de confusión}, en la cual se presentan los resultados  de las predicciones en cantidades por cada una de las clases en cuestión. Dicha matriz cuadrada tiene dimensión igual a la cantidad de clases tratada, y cada columna corresponde a las predicciones hechas mientras que cada fila representa las instancias de la clase actual u original a predecir. Esta disposición de los resultados facilita su interpretación (de allí proviene el nombre, ya que se conoce rápidamente en qué clase/s se confunde el predictor) y además permite derivar rápido los cálculos de las métricas explicadas. En el caso de dos clases, es sencillo expresar las categorías de resultados sobre cada celda de la matriz, y para el caso multi-clase se representan de la forma mencionada anteriormente tal como se puede apreciar en la Tabla \ref{tab:confusion-matrix} cuando se tienen 3 clases. De allí se puede notar que una clasificación perfecta resulta en una matriz de confusión diagonal.
+
+
+\newcommand\MyBox[2]{
+	\fbox{\lower0.75cm
+		\vbox to 2.0cm{\vfil
+			\hbox to 2.0cm{\hfil\parbox{1.4cm}{\centering #1\\#2}\hfil}
+			\vfil}%
+	}%
+}
+\iffalse
+%\renewcommand\arraystretch{1.5}
+%\setlength\tabcolsep{0pt}
+\begin{adjustbox}{max width=0.7\textwidth}
+	\begin{tabular}{c >{\bfseries}r @{\hspace{0.7em}}c @{\hspace{0.4em}}c @{\hspace{0.7em}}l}
+		\multirow{17}{*}{\parbox{1.1cm}{\bfseries\raggedleft \rotatebox{90}{Actual}}} & 
+		& \multicolumn{2}{c}{\bfseries Predicción} & \\ \\
+		& & \bfseries p & \bfseries n & \bfseries Total \\
+		& p$'$ & \MyBox{Verdaderos}{Positivos} & \MyBox{Falsos}{Negativos} & P$'$ \\[2.4em]
+		& n$'$ & \MyBox{Falsos}{Positivos} & \MyBox{Verdaderos}{Negativos} & N$'$ \\
+		& Total & P & N &
+	\end{tabular}
+\end{adjustbox}
+
+\fi
+
+\hfill
+\\
+\hfill
+
+\renewcommand\MyBox[2]{
+	\fbox{\lower0.75cm
+		\vbox to 1.5cm{\vfil
+			\hbox to 1.5cm{\hfil\parbox{1.4cm}{\centering #1}\hfil}
+			\vfil}%
+	}%
+}
+
+\begin{minipage}{0.85\textwidth}
+	\centering
+	\captionof{table}{Esquema de matriz de confusión para evaluar predicciones sobre 3 clases.} \label{tab:confusion-matrix}
+	\begin{adjustbox}{max width=0.65\textwidth}
+		\begin{tabular}{c >{\bfseries}r @{\hspace{0.3em}}c @{\hspace{0.7em}}c @{\hspace{0.7em}}c @{\hspace{0.7em}}l}
+			
+			\multirow{19}{*}{\parbox{1.1cm}{\bfseries\raggedleft \rotatebox{90}{Actual}}}  
+			& \multicolumn{4}{c}{\bfseries Predicción} & \\ \\
+			
+			& 
+			& 
+			&  
+			& \bfseries 
+			& \bfseries  \\
+			
+			
+			&  
+			& \MyBox{$VP_1$} 
+			& \MyBox{$FN_1$\\$FP_2$} 
+			& \MyBox{$FN_1$\\$FP_3$} 
+			&  \\[2.7em]
+			
+			& 
+			& \MyBox{$FP_1$\\$FN_2$} 
+			& \MyBox{$VP_2$} 
+			& \MyBox{$FN_2$\\$FP_3$} 
+			&  \\[2.7em]
+			
+			&  
+			& \MyBox{$FP_1$\\$FN_3$} 
+			& \MyBox{$FP_2$\\$FN_3$} 
+			& \MyBox{$VP_3$} 
+			&  \\
+			
+			&  &  &  &  &
+		\end{tabular}
+	\end{adjustbox}
+\end{minipage}
+
+
+\subsubsection{Regresión}
+
+Cuando la variable a predecir es de naturaleza continua, el modelo a construir compone un sistema de regresión. Para ello, la forma de conocer la precisión en la predicción no debe hacerse por cantidad de aciertos sino midiendo un error en la salida. Las medidas más utilizadas para ello son el \textit{Error Cuadrático Medio} (en inglés, \textit{Mean Squared Error} o \acs{MSE}), el \textit{Error Absoluto Medio} (en inglés, \textit{Mean Absolute Error} o \acs{MAE}) y el coeficiente de determinación $R^2$ \cite{lehmann2006theory}. 
+
+\begin{align}
+	MSE = \frac{\sum_{i=0}^{N-1} (y_i - \hat{y_i})^2}{N} \qquad RMSE = \sqrt{\frac{\sum_{i=0}^{N-1} (y_i - \hat{y_i})^2}{N}}
+\end{align}
+
+\begin{align}
+	MAE = \frac{\sum_{i=0}^{N-1} |y_i - \hat{y_i}|}{N} \qquad RMAE = \sqrt{\frac{\sum_{i=0}^{N-1} |y_i - \hat{y_i}|}{N}}
+\end{align}
+
+\begin{align}
+	R^2 = 1 - \frac{MSE}{VAR(y)\cdot (N-1)} = 1 - \frac{\sum_{i=0}^{N-1} (y_i - \hat{y_i})^2}{\sum_{i=0}^{N-1} (y_i - \bar{y_i})^2}
+\end{align}
+
+
+El término error aquí representa la diferencia entre el valor verdadero $y_i$ y el predicho $\hat{y_i}$. Para ello se calcula una suma de los residuos, dividida por el número de grados de libertad $N$. Esto pueder verse como la media de las desviaciones de cada predicción respecto a los verdaderos valores, generadas por un modelo estimado durante un espacio de muestra particular. Valores de error bajos significan que el modelo es más preciso en sus predicciones, y un error total de 0 indica que el modelo se ajusta a los datos perfectamente. Tanto el cuadrado como el valor absoluto del error medido en cada suma captura la magnitud total del mismo, ya que algunas diferencias pueden ser negativas. Se suele utilizar la raíz cuadrada de el error calculado para hacerlo independiente de la escala para la comparación de distintos modelos. 
+
+El coeficiente de determinación $R^2$ provee una medida de cuán bien se ajusta el modelo a los datos.  El mismo puede ser interpretado como la proporción de la variación explicada por el modelo. Cuanto mayor es dicha proporción, mejor es el modelo en sus predicciones, siendo que el valor 1 indica un ajuste perfecto.
+
+
+
+%-------------------------------------------------------------------
+\subsection{Ajuste de hiperparámetros}
+%-------------------------------------------------------------------
+\label{cap2:subsec:ajuste-parametros}
+
+Como puede notarse, durante el diseño de un modelo existen diversos parámetros y configuraciones que se deben especificar en base a los datos tratados y la tarea asignada para dicho modelo. Estos pueden ser valores continuos de los que se puede tener una idea de rango posible (e.g. taza de aprendizaje para el algoritmo de optimización) o categorías particulares de algún componente (e.g. algoritmo de clasificación a utilizar). La configuración elegida es crucial para que el proceso de optimización resulte en un modelo con buen desempeño en la tarea asignada, y en el caso de los hiperparámetros (así se les denomina a los valores a ajustar en una configuración) elegir un valor determinado puede ser difícil especialmente cuando son sensibles en su variación. 
+
+Una forma asistida para realizar determinar una buena configuración es implementar un algoritmo de búsqueda de hiperparámetros, el cual realiza elecciones particulares tomando muestras sobre los rangos o categorías posibles que se definan, así luego se optimiza un modelo por cada configuración especificada. Opcionalmente, también se puede utilizar \textit{validación cruzada} \cite{kohavi1995study} para estimar la generalización del modelo obtenido con la configuración y su independencia del conjunto de datos tomado. Resumiendo, una búsqueda consta de:
+
+\begin{itemize}
+	\item Un modelo estimador (de regresión o clasificación).
+	\item Un espacio de parámetros.
+	\item Un método para muestrear o elegir candidatos.
+	\item Una función de evaluación del modelo.
+	\item (Opcional) Un esquema de validación cruzada.
+\end{itemize}
+
+Una forma de muestrear el espacio delimitado de parámetros es tomando de manera exhaustiva los valores que caen en una grilla, la cual generalmente se determina por una discretización equiespaciada del espacio tratado. A este método se le denomina ``búsqueda por grilla'' o \textit{grid search} en inglés, y se caracteriza por su simplicidad al ser fácil de implementar aunque por ello es más propenso a sufrir un problema denominado \textit{maldición de la dimensionalidad}. Este último señala que a medida que el espacio de búsqueda es mayor, la estrategia se hace menos eficiente ya que requiere una cantidad mucho mayor de muestras necesarias para obtener mejores candidatos \cite{donoho2000high}.
+
+
+Otra forma que evade buscar exahustivamente sobre el espacio de parámetros (lo cual también es potencialmente costoso si dicho espacio es de una dimensión alta), es la de muestrear una determinada cantidad de veces el espacio delimitado, en forma aleatoria y no sobre una grilla determinada. Este método se denomina ``búsqueda aleatoria'' o \textit{random search} en inglés, y es tan fácil de implementar como el \textit{grid search} aunque se considera más eficiente especialmente en espacios de gran dimensión \cite{bergstra2012random}.
+
+%-------------------------------------------------------------------
+\subsection{Control de la optimización}
+%-------------------------------------------------------------------
+\label{cap2:subsec:control-optimiz}
+
+\begin{figure}[t]
+	\begin{center}
+		\includegraphics[width=0.8\textwidth]%
+		{Imagenes/Bitmap/overfitting}
+		\caption{Tipos de ajuste que puede lograr un modelo sobre los datos que utiliza para su entrenamiento.}
+		\label{fig:overfitting}
+	\end{center}
+\end{figure}
+
+El ajuste de hiperparámetros y la mejora de las configuraciones y elecciones hechas en el diseño buscan que el modelo a construir tenga el mejor desempeño posible. Sin embargo, esto no se puede efectuar sobre el conjunto de datos con el cual se ajusta el modelo (llamado ``conjunto de entrenamiento'') ya que así no puede garantizarse que el modelo generalice y se desempeñe aproximadamente igual con otro conjunto de datos que no se le presentó nunca. Esta cuestión introduce un problema denominado ``sobreajuste'' (mejor conocido en inglés como \textit{overfitting}), por el cual un modelo optimizado se desempeña muy bien con los datos que utilizó en su ajuste, pero ocurre lo contrario sobre otro conjunto de datos que no haya ``visto'' o usado jamás. Este problema siempre trata de ser evitado ya que el desempeño obtenido no es representativo sobre casos en los que se pretenda utilizar el modelo en un escenario real. La Figura \ref{fig:overfitting} esquematiza cómo se desempeña el modelo sobre los datos de entrenamiento cuando ocurre el fenómeno de sobreajuste.
+
+Para mitigar el \textit{overfitting} se debe contar con un ``conjunto de validación'', construido a partir del total de datos disponibles al separar una porción para este propósito de validación. Este conjunto no se utiliza para entrenar el modelo, sino que durante dicho proceso sirve para evaluar y monitorear que el modelo está generalizando y no se está ajustando demasiado a los datos de entrenamiento. También se necesita definir un ``conjunto de prueba'', el cual no debe ser usado nunca durante el modelado ya que representa datos que se le van a presentar al modelo luego de que ya haya sido construido y que seguramente no son iguales a los que el mismo utilizó durante su entrenamiento. En cuanto a la magnitud a definir para cada porción elegida, en términos del conjunto total de datos, lo que se suele realizar es partir en 70\% para entrenamiento, 15\% para validación y el 15\% restante para prueba.
+
+Finalmente, durante la optimización se precisa la información del desempeño obtenido en el modelo para conocer cuándo es lo suficientemente bueno como para frenar el proceso. (ya que generalmente no se obtienen niveles óptimo) . Es por eso que suelen establecerse ciertas reglas o criterios de corte para que la optimización se realice hasta lograrse un nivel de desempeño definido, o bien frenarla cuando no se está obteniendo un ajuste deseable. 
+
+Concluyendo, el ajuste de parámetros (en forma manual o asistida con algoritmos de búsqueda) se realiza para optimizar el modelo sobre los datos de entrenamiento, y el desempeño obtenido con dicha configuración se evalúa con un conjunto de validación (que no debe ser utilizado para ajustar el modelo). Una vez que se encuentra la mejor configuración, se establece como fija y allí se evalúa sobre los datos de prueba para conocer finalmente el desempeño del modelo construido.
+
+%-------------------------------------------------------------------
+\section{Redes Neuronales Artificiales}
+%-------------------------------------------------------------------
+\label{cap2:sec:redesneuronales}
+
+
+Dentro del campo científico de la Inteligencia Artificial, las \textit{Redes Neuronales Artificiales} (\acs{RNA}) comprenden una rama antigua pero destacada, especialmente en la actualidad luego del surgimiento del aprendizaje produndo. Se entiende como \acs{RNA} a un sistema con elementos procesadores de información de cuyas interacciones locales depende su comportamiento en conjunto \cite{gonzalez1995redes}. Dicho sistema trata de emular el comportamiento del cerebro humano, adquiriendo conocimiento de su entorno mediante un proceso de aprendizaje y almacenándolo para disponer de su uso \cite{haykin2004comprehensive}. 
+
+%hablar de propiedades de generalizacion entre otras
+
+
+\begin{table}[h!]
+	\begin{center}
+		\caption{Diferencias entre cerebro humano y computadora convencional}
+		\label{tab:table1}
+		\begin{tabular}{|c|c|c|}
+			\hline
+			Características & 
+			Cerebro humano & 
+			\begin{tabular}{@{}c@{}}Computadora \\ convencional \end{tabular} \\
+			\hline
+			Velocidad de proceso & 
+			Entre $10^{-3}$ y $10^{-2}$ seg & 
+			Entre $10^{-9}$ y $10^{-8}$ seg\\
+			\hline
+			Nivel de procesamiento & 
+			Altamente paralelo & 
+			\begin{tabular}{@{}c@{}}Poco o nulo \\ paralelizado\end{tabular} \\
+			\hline
+			Número de procesadores & 
+			Entre $10^{11}$ y $10^{14}$ & 
+			Entre 4 y 8\\
+			\hline
+			Conexiones & 
+			10.000 por procesador & 
+			Pocas\\
+			\hline
+			\begin{tabular}{@{}c@{}}Almacenamiento \\ del conocimiento\end{tabular} &
+			Distribuido & 
+			En posiciones precisas\\
+			\hline
+			Tolerancia a fallos & 
+			Amplia & 
+			Poca o nula\\
+			\hline
+			\begin{tabular}{@{}c@{}}Consumo de energía \\ en una operación/seg\end{tabular} &
+			$10^{-16}$ Julios & 
+			$10^{-6}$ Julios\\
+			\hline
+		\end{tabular}
+	\end{center}
+\end{table}
+
+
+Las \acs{RNA}s son implementadas en computadoras para imitar la estructura neuronal de un cerebro, tanto en programas de software como en arquitecturas de hardware, por lo cual se utilizan para componer un sistema de aprendizaje maquinal. No obstante, sólo consiste en una aproximación debido a las diferencias significativas que se presentan en la Tabla \ref{tab:table1} \cite{lopez2008redes}. % Ver tambien http://www.scientificamerican.com/article/computers-vs-brains/
+Por lo general, las computadoras presentan una arquitectura de tipo Von Neumann basada en un microprocesador muy rápido capaz de ejecutar en serie instrucciones complejas de forma fiable, mientras que el cerebro está compuesto por millones de procesadores elementales o neuronas, que se interconectan formando redes. Además, las neuronas biológicas no adquieren conocimiento por ser programadas sino que lo hacen a partir de estímulos que reciben de su entorno, y operan mediante un esquema masivamente paralelo distinto al serializado o poco paralelo de la computadoras convencionales. 
+
+%-------------------------------------------------------------------
+\subsection{Arquitectura}
+%-------------------------------------------------------------------
+\label{cap2:subsec:arquitectura}
+
+\iffalse
+\begin{figure}[t]
+	\begin{center}
+		\includegraphics[width=0.7\textwidth]%
+		{Imagenes/Bitmap/neuron}
+		\caption{Estructura biológica de una neurona.}
+		\label{fig:neurona}
+	\end{center}
+\end{figure}
+\fi
+
+La unidad básica de cómputo en el cerebro es una neurona, la cual recibe señales de entrada desde sus dendritas y las procesa en su cuerpo, llamado soma, para producir señales de salida mediante un único axón. Estas últimas a su vez interactúan por sinápsis con las dendritas de otras neuronas y con ello se logra la comunicación de estímulos en todo el cerebro. %En la Figura \ref{fig:neurona} se visualiza la estructura de una neurona detallando los componentes mencionados. 
+
+\begin{figure}[t]
+	\begin{center}
+		\includegraphics[width=0.7\textwidth]%
+		{Imagenes/Bitmap/neuron_model}
+		\caption{Modelo matemático de una neurona.}
+		\label{fig:neurona_modelo}
+	\end{center}
+\end{figure}
+
+
+Para modelar el comportamiento de las neuronas, la idea es que las sinápsis que producen pueden controlarse mediante \textit{pesos sinápticos} que definan una magnitud de la influencia que ejerce una con otra (y también dirección, al poder excitar o inhibir mediante pesos positivos o negativos, correspondientemente). Los pesos sinápticos $w_0$ multiplican las señales de entrada $x_0$ que llegan por las dendritas para ejercer una suma ponderada en el soma, y si el resultado supera un cierto umbral la neurona se ``activa'' enviando un estímulo a lo largo de su axón. Dicha suma puede incorporar además un término de sesgo $b$ que participa sin multiplicarse por la entrada. En este modelo se considera que no interesa conocer el preciso tiempo en que se activa la neurona sino la frecuencia en que ocurre, por lo cual ello es representado mediante una \textit{función de activación} \cite{haykin2004comprehensive}. En la Figura \ref{fig:neurona_modelo} se representa gráficamente el modelo explicado, el cual constituye lo que se denomina como ``perceptrón simple'. 
+
+%La manera en que las neuronas de una red se estructuran están íntimamente relacionadas con el algoritmo de aprendizaje que se use para entrenar dicha red...
+
+
+Para modelar una red neuronal artificial las neuronas se agrupan en capas, de forma tal que todas las unidades de una capa se conectan con todas las neuronas de sus capas próximas para formar una estructura interconectada. En la forma más simple, se tiene una capa de entrada que proyecta la señal entrante en una capa de salida. Cuando se incorporan capas intermedias (denominadas capas ocultas), la red adquiere más niveles de procesamiento entre su entrada y salida, y lo que se forma es un ``perceptrón multicapa'' (conocido en inglés como \textit{Multi Layer Perceptron} o \acs{MLP}) \cite{haykin2004comprehensive}. En esta configuración, para producir la salida de la red se computan sucesivamente todas las activaciones una capa tras otra, donde puede notarse que una red con $n$ capas equivale a tener $n$ perceptrones simples en cascada, donde la salida del primero es la entrada del segundo y así sucesivamente. Además, cada capa puede tener diferente número de neuronas, e incluso distinta función de activación. 
+
+\begin{figure}[t]
+	\begin{center}
+		\includegraphics[width=0.85\textwidth]%
+		{Imagenes/Bitmap/arq-mlp}
+		\caption{Arquitectura básica de un MLP con 4 capas.}
+		\label{fig:mlp}
+	\end{center}
+\end{figure}
+
+Siguiendo el modelo matemático de un perceptrón simple, los pesos sinápticos ahora pueden expresarse en conjunto de forma vectorial como matrices, así como también el sesgo se representa como un vector. Por lo tanto, dada un vector de entrada $x$, la suma ponderada efectuada en una capa se expresa como un producto entre la matriz de pesos sinápticos $W$ y dicha entrada $x$, en la cual también se suma el vector de sesgo o \textit{bias} $b$. Al resultado de esto se le aplica la función de activación, con lo cual se produce la salida final de la capa. En la Figura \ref{fig:mlp} se representa la arquitectura de un perceptrón multicapa, mostrando las interacciones que tienen sus unidades desde la entrada hasta su salida. 
+
+%Para lo vectorial, indicar que representan los subindices
+
+%-------------------------------------------------------------------
+\subsection{Funciones de activación}
+%-------------------------------------------------------------------
+\label{cap2:subsec:funactiv}
+
+Una función de activación determina cómo se transforman las entradas a través de la red neuronal, lo cual es determinante para que logre su capacidad de aprender funciones complejas. En general, se caracterizan por ser \textit{no lineales} ya que incrementan el poder de expresión y con ello se pueden obtener interesantes representaciones de las entradas que ayuden a la tarea designada para la red. La razón por la cual no es conveniente que sean lineales es porque de esa forma no tendría sentido que la red posea más de una capa, ya que la combinación de funciones lineales tiene un resultado lineal. Además, las redes neuronales están pensadas principalmente para tratar tanto problemas de clasificación en donde las clases no son linealmente separables como problemas en donde no se logra una precisión deseable mediante un modelo lineal.
+
+Como se anticipó anteriormente en la arquitectura de una red, cada unidad o neurona de una capa recibe una entrada que es ponderada por sus pesos sinápticos para luego producir una salida activada que sirve como entrada a todas las neuronas de la capa siguiente (o en el caso de ser la última capa, que es el resultado final de la activación completa de la red). 
+Dado un vector $x$ de entrada para una capa de la red, se le aplica una transformación afín (i.e. una transformación lineal por la matriz de pesos W, seguido de una traslación por el vector b) cuyo resultado es la salida lineal $z$. Dicha salida es la que recibe la función de activación $f$ para producir la salida final de la capa $a$, lo cual se expresa como :
+
+\begin{equation} 
+\label{eq:activ}
+\begin{split}
+	z &= W x + b \\
+	a &= f(z)
+\end{split}
+\end{equation}
+
+
+Originalmente las funciones de activación más utilizadas eran las sigmoideas, las cuales son la \textit{sigmoidea} ($\sigma$) y la \textit{tangente hiperbólica} ($tanh$). Las mismas tienen una inspiración biológica y están delimitadas por un mínimo y un máximo valor, lo cual causa que las neuronas se saturen en las últimas capas de la red neuronal \cite{van2014analysis}. Ambas funciones se definen analíticamente como.
+
+\begin{equation}
+\label{eq:sigmoideas}
+	\sigma(z)=\frac{1}{1+e^{-z}}, \qquad
+	tanh(z)=\frac{e^{z}-e^{-z}}{e^{z}+e^{-z}}
+\end{equation}
+
+Otra función de activación que ha sido muy utilizada en muchas aplicaciones es la \textit{lineal rectificada} o \ac{ReLU}, la cual comprende una no linealidad simple: resulta en 0 para entradas negativas, y para valores positivos se mantiene intacta, por lo cual no tiene valores límites como las funciones sigmoideas. El gradiente de la \ac{ReLU} es 1 para todos los valores positivos y 0 para los negativos, lo cual hace que, durante la optimización de la red, los gradientes negativos no sean usados para actualizar los pesos sinápticos correspondientes. Además, el hecho de que el gradiente sea 1 para cualquier valor positivo hace que el entrenamiento sea más rápido que con otras funciones de activación no lineales. Por ejemplo, la función sigmoidea tiene muy pequeños gradientes para grandes valores positivos y negativos, por lo que el aprendizaje practicamente se frena o ``estanca'' en dichas regiones \cite{dettmers2015deep}. Es preciso notar que las \ac{ReLU}s poseen una discontinuidad en 0, por lo cual no es derivable allí la función. No obstante se fuerza a que allí la derivada sea igual a 0, y el hecho de que allí la activación sea 0 otorga buenas propiedades de ralez a la red \cite{van2014analysis}. Una función que aproxima a la \ac{ReLU} es la \textit{softplus}, que además de ser continua su derivada es la función \textit{sigmoidea}. Ambas funciones entonces se expresan como: %No obstante, las \ac{ReLU}s son mayormente usadas debido a que ... 
+
+\begin{equation}
+relu(z)=max(0,z), \qquad
+softplus(z)=\log{(1+e^z)} 
+\end{equation}
+
+En la Figura \ref{fig:activaciones} se visualizan las funciones de activación explicadas en un dominio definido, mientras que en la Tabla \ref{tab:activaciones} se presentan todas las funciones de activación mencionadas con la respectiva derivada de cada una.
+
+
+
+\begin{figure}[t]
+	\begin{center}
+		\includegraphics[width=0.75\textwidth]%
+		{Imagenes/Bitmap/activaciones}
+		\caption{Visualización de las funciones de activación para $-3 \leq z \leq 3$.}
+		\label{fig:activaciones}
+	\end{center}
+\end{figure}
+
+
+\begin{table}[h!]
+	\begin{center}
+		\caption{Funciones de activación desarrolladas, detallando para cada una tanto su expresión la de su respectiva derivada analítica.}
+		\label{tab:activaciones}
+		\begin{tabular}{|c|c|c|}
+			\hline
+			\textbf{Nombre} & \textbf{Función} & \textbf{Derivada}\\
+			\hline
+			$Sigmoidea$ & 
+			$f(z) = \dfrac{1}{1+e^{-z}} $& 
+			$f^\prime(z) =\dfrac{e^z - e^{-z}}{e^z + e^{-z}} $\\
+			\hline
+			\begin{tabular}{@{}c@{}}\textit{Tangente} \\ \textit{Hiperbólica}\end{tabular} &
+			$f(z) = \dfrac{e^z - e^{-z}}{e^z + e^{-z}}$& 
+			$f^\prime(z) = 1-tanh^2(z) $\\
+			\hline
+			$ReLU$ & 
+			$f(z) = max(0,z) $& 
+			$f^\prime(z) = 
+			\begin{cases}
+			1 & z > 0 
+			\\ 0 & z \leq 0
+			\end{cases}$\\
+			\hline
+			$Softplus$ & 
+			$f(z) = \log{(1+e^z)}$& 
+			$f^\prime(z) = \sigma(z) = \dfrac{1}{1 + e^{-z}}$\\
+			\hline
+		\end{tabular}
+	\end{center}
+\end{table}
+
+En el caso de que la red neuronal tratada esté diseñada para realizar tareas de clasificación, se debe tener en cuenta que la última capa tenga una salida conveniente para ello. Es por eso que la función allí debe ser de clasificación, y para ello se suele utilizar la función \textit{softmax} explicada en la Sección \ref{cap2:sec:supervisado}. 
+
+%\textbf{COMPLETAR}:
+%Explicar lo del bias mejor, quizás con
+
+%\url{https://en.wikipedia.org/wiki/Artificial_neuron}
+
+%VER http://lamda.nju.edu.cn/weixs/project/CNNTricks/CNNTricks.html
+%Usar bastante http://cs231n.github.io/neural-networks-2/
+
+
+%-------------------------------------------------------------------
+\subsection{Retropropagación}
+%-------------------------------------------------------------------
+\label{cap2:subsubsec:backprop}
+
+La propagación hacia atrás de errores o retropropagación (en inglés, \textit{backpropagation}) es un algoritmo de aprendizaje utilizado para efectuar el entrenamiento de redes neuronales. Fue introducido originalmente en la década del 1970, pero cobró realmente importancia y utilidad en el 1986 mediante una publicación que describía el trabajo con distintas redes neuronales donde este algoritmo alcanzaba un aprendizaje bastante más rápido que otros enfoques \cite{williams1986learning}. A raíz de ello se logró resolver problemas que antes no estaban resueltos, y actualmente es casi un estándar para la optimización de redes neuronales.
+
+%En líneas generales, primero se aplica un patrón de entrada como estímulo para la primera capa de la red, el cual se va propagando a través de todas las capas superiores hasta generar una salida final que se compara con la deseada para medir un error. A continuación, este error se transmite hacia atrás, partiendo de la capa de salida hacia todas las neuronas de la capa intermedia que contribuyan directamente a la salida. Este proceso se repite, capa por capa, hasta que todas las neuronas de la red hayan recibido un error que describa su aportación relativa al error total. Basándose en el valor del error recibido, se reajustan los pesos de conexión de cada neurona, de manera que en la siguiente vez que se presente el mismo patrón, la salida esté más cercana a la deseada. 
+
+El procedimiento consiste en que, dado un patrón $(x, y)$, primero se realiza un ``paso hacia adelante'' para computar todas las activaciones de cada capa a través de la red hasta calcular la salida final de la misma. A partir de esto se puede utilizar la salida deseada $y$ para computar el valor de la función objetivo y su gradiente respecto a la salida, los cuales son necesarios para conocer cuánto deben variar todos los parámetros de la red. Para ello, se calcula en cada unidad $i$ de cada capa $l$ un ``término de error'' que mide cuánto afectó cada una en las salidas calculadas. Para la capa de salida, dicho término se calcula en base al gradiente ya computado, y a partir de ello se efectúa el ``paso hacia atrás'' del algoritmo de la siguiente forma: desde la penúltima capa hasta la primera (sin contar la de entrada), se computa cada término de error en base al correspondiente de la capa siguiente (usado para multiplicar los pesos sinápticos dados) y al gradiente de la activación dada, y a partir de ello se puede computar el gradiente de la función objetivo respecto a los parámetros de la red tratados. Se puede notar que el término de error se va propagando desde el final de la red hasta el principio para poder computar el gradiente de la función objetivo respecto a cada parámetro de la red, y en dicho cálculo se aplica la regla de la cadena sucesivamente para derivar estos valores desde las activaciones obtenidas.
+
+Finalmente, el resultado de este algoritmo es el valor de la función de costo y su gradiente respecto a todos los parámetros de la red, lo cual es de utilidad en algoritmos de optimización basados en gradientes como los descriptos en la Sección \ref{cap2:subsec:optimizacion}. Detalles específicos de la implementación se pueden encontrar en tutoriales de redes neuronales \cite{nielsen2015neural} \cite{ng2012ufldl}, y en el Algoritmo \ref{alg:backpropagation} del Apéndice \ref{ap1:algoritmos} se resume este proceso explicado.
+
+\iffalse
+\begin{algorithm}
+	\caption{Algoritmo de retropropagación para redes neuronales}\label{alg:backpropagation2}
+	\begin{algorithmic}
+		\Require Matrices de pesos sinápticos $W$, vectores de bias $b$, n\textordmasculine de capas $L$.
+		\Function{backpropagation}{$x$, $y$} \Comment{\textit{Parámetros}: Patrón de entrada $x$; salida deseada $y$.}
+		\State \textbf{1) Entrada}: 
+		\State $a^{(1)} = f(x) $ \Comment{Calcular la activación para la capa de entrada }
+		\State \textbf{2) Paso hacia adelante}: 
+		\For{$l = 2, 3, \dots, L$}
+		\State $z^{(l)} = W^{(l)}a^{(l-1)} + b^{(l)}$ \Comment{Salida lineal de la capa.}
+		\State $a^{(l)} = f(z^{(l)})$ \Comment{Salida activada de la capa.}
+		\EndFor
+		\State \textbf{3) Error en salida} 
+		\State \( \phantom{\nabla_a J} \mathllap{J} = loss(a^{(L)}, y)  \) \Comment{Aplicar función de costo}
+		\State \(\nabla_a J = d\_loss(a^{(L)}, y)\) \Comment{Gradiente del costo respecto a la activación.}
+		\State \(\phantom{\nabla_a J} \mathllap{\delta^L} = \nabla_a J \odot f'(z^{(l)})\)
+		\Comment{Computar el vector derivada de la salida}
+		\State \textbf{4) Retropropagar el error y computar gradientes}:
+		\For{$l = L-1, L-2, \dots, 2$}
+		\State \( \phantom{\nabla_{W^{(l)}} J} \mathllap{ \delta^{(l)}}= (W^{(l+1)})^{\top} \delta^{(l+1)} \odot f'(z^{(l)}) \)
+		\State \( \nabla_{W^{(l)}} J = \delta^{(l+1)} (a^{(l)})^\top \) \Comment{Respecto al parámetro $W$ de la capa $l$} 
+		\State \( \phantom{\nabla_{W^{(l)}} J} \mathllap{\nabla_{b^{(l)}} J} = \delta^{(l+1)} \) \Comment{Respecto al parámetro $b$ de la capa $l$} 
+		\EndFor
+		\State \Return $J, \nabla_{W} J, \nabla_{b} J  $ \Comment{Devuelve el costo de la red y los gradientes}
+		\EndFunction
+	\end{algorithmic}
+\end{algorithm}
+\fi
+
+
+%-------------------------------------------------------------------
+\section{Aprendizaje profundo}
+%-------------------------------------------------------------------
+\label{cap2:sec:deeplearning}
+
+A partir de la introducción sobre  \textit{deep learning} realizada en la sección Resumen de este trabajo, así como los antecedentes de sus aplicaciones exitosas mencionados en la Sección \ref{cap1:sec:background}, en los siguiente apartados se procede a profundizar acerca de las características que ofrece en el modelado a diferencia de las redes neuronales básicas ya detalladas. 
+
+
+%-------------------------------------------------------------------
+\subsection{Redes Neuronales Profundas}
+%-------------------------------------------------------------------
+\label{cap2:subsec:redes-profundas}
+
+%Deep Neural Networks allows computational models that are composed of multiple processing layers to learn representations of data with multiple levels of abstraction. These methods have dramatically improved the state-of-the-arts in visual object recognition, object detection, text recognition and many other domains such as drug discovery and genomics.
+
+
+Existen ciertas particularidades en las redes profundas que despertaron su interés e incrementaron su estudio. Principalmente, se puede demostrar que hay funciones que una red de $n$ capas puede representar de forma compacta (con un número de unidades ocultas que es polinomio del número de entradas) pero una red de $n-1$ capas no puede representar a menos que tenga una gran cantidad exponencial de unidades ocultas, y esto quiere decir que las redes profundas pueden representar significativamente más conjuntos de funciones que las redes de una o pocas capas ocultas \cite{ng2012ufldl}. Además, una red profunda puede aprender a representar los datos mediante descomposiciones por partes. %En el caso de imágenes, la primera capa podría aprender a agrupar píxeles de forma que se detecten bordes, la segunda capa podría agrupar dichos bordes para detectar contornos largos o partes de algún objeto, y con más capas quizás se consiga incluso revelar más características complejas. En el caso de señales de EEG, se podría esperar el mismo comportamiento donde en cada capa se separe el ruido de la señal de interés para luego poder interpretar esta última de una forma significativa \cite{walker2015deep}. %Finalmente, siendo fiel a la inspiración biológica del cerebro, se sabe que los cómputos corticales también tienen múltiples capas de procesamiento por lo que puede justificarse la cantidad de niveles de representación que necesitan los datos para aplicaciones complejas como las tareas que realiza la mente (como procesar imágenes visuales) (ya veo como lo redacto mejor).
+
+La profundidad definida para una red neuronal en la práctica es arbitraria, y depende mucho de la tarea a realizar y los datos disponibles para el ajuste: si la red es poco profunda (e.g. 2 o 3 capas), la misma tendrá menor poder de representación y además se corre el riesgo de \textit{overfitting} si la cantidad de unidades en la capa oculta es grande respecto a la dimensión de entrada; si la red es bastante profunda (e.g. 10 o más capas), se tiene mayor capacidad para el aprendizaje, aunque la gran cantidad de niveles en la red puede ocasionar un problema típico de este modelado denominado \textit{vanishing gradient}. Este último ocurre en el entrenamiento de redes neuronales mediante aprendizaje basado en gradiente y retropropagación, y afecta no sólo a las del tipo multicapa sino también a aquellas del tipo recurrente \cite{hochreiter2001gradient}. 
+
+El \textit{vanishing gradient} se debe a que la señal de error a retropropagar para el ajuste de parámetros decrece exponencialmente con la cantidad de capas, por lo cual las capas que estén más cerca de la entrada se entrenan muy lentamente. Las funciones de activacion utilizadas influyen bastante en este problema: si la imagen del gradiente abarca valores chicos (e.g. sigmoidea, tangente hiperbólica), se corre mayor riesgo de que se ``desvanezcan'' las actualizaciones para las primeras capas; si dicha imagen comprende valores altos (e.g. ReLU), existe el riesgo de que las actualizaciones sean inestables y dificulten la convergencia de la optimización (problema denominado \textit{exploding gradient}) \cite{nielsen2015neural}. 
+
+A raíz de esto, se originaron varias propuestas para mitigar este problema: 
+
+\begin{enumerate}
+	\item El ``pre-entrenamiento'' de las redes neuronales mediante aprendizaje no supervisado para inicializar los pesos sinápticos capa-por-capa posibilitó arquitecturas de múltiples niveles que sólo requerían de un pequeño ajuste en forma supervisada para obtener buenos resultados \cite{bengio2009learning} \cite{erhan2010does}.
+	
+	%The first solution to this problem was layer-by-layer pretraining, where the model is built in a layer-by-layer fashion by using unsupervised learning so that the features in early layers are already initialized or ?pretrained? with some suitable features (weights). Pretrained features in early layers only need to be adjusted slightly during supervised learning to achieve good results. 
+	
+	\item Las redes recurrentes LSTM (\textit{Long short-term memory}) componen una arquitectura específicamente diseñada para combatir el \textit{vanishing gradient} \cite{hochreiter1997long}, y actualmente son implementadas a nivel industrial en sistemas de visión computacional y reconocimiento de voz debido a la gran precisión que obtiene en dichas tareas.
+	
+	\item El aprendizaje residual compone una metodología propuesta para entrenar redes de gran profundidad (de cientos o miles de capas) disminuyendo importantemente el problema mencionado y mostrando resultados competitivos en tareas de visión computacional
+\end{enumerate}
+
+%las redes recurrentes LSTM (\textit{Long short-term memory}) componen una arquitectura específicamente diseñada para combatir el \textit{vanishing gradient} \cite{hochreiter1997long}, y actualmente son implementadas a nivel industrial en sistemas de visión computacional y reconocimiento de voz debido a la gran precisión que obtiene en dichas tareas; el aprendizaje residual compone una metodología propuesta para entrenar redes de gran profundidad (de cientos o miles de capas) disminuyendo importantemente el problema mencionado y mostrando resultados competitivos en tareas de visión computacional;
+
+En las siguientes secciones se profundiza acerca de la primer propuesta mencionada, pero primero se procede a detallar un procedimiento realizado en cualquier tipo de red neuronal para mejorar la calidad del ajuste de parámetros.
+
+%-------------------------------------------------------------------
+\subsection{Tratamiento sobre los pesos sinápticos}
+%-------------------------------------------------------------------
+\label{cap2:subsec:pesos-sinapticos}
+
+Para mitigar el problem de \textit{overfitting} mencionado, especialmente cuando la red tiene tantos parámetros libres (i.e. pesos sinápticos y sesgo) que pueden ajustarse demasiado a los datos de entrenamiento, siempre resulta conveniente que estos parámetros reciban un tratamiento apropiado desde que se instancian hasta que se optimizan. A continuación se describen dos formas de realizar esto, las cuales adquirieron especial importancia con el origen del aprendizaje profundo debido a la cantidad de parámetros que poseen las redes de ese tipo.
+
+
+%-------------------------------------------------------------------
+\subsubsection{Inicialización}
+%-------------------------------------------------------------------
+\label{cap2:subsubsec:init-pesos}
+
+La inicialización de los pesos sinápticos en una red neuronal influye mucho en su desempeño y el tiempo que se requiere para optimizarlo. %Un error común es asumir que, siguiendo la idea de que aproximadamente la mitad de los pesos deben ser negativos y la otra mitad positivos, sería razonable inicializarlos a todos con valor 0. Esto es erróneo, ya que la actualización de los pesos siempre será la misma si la salida de todas las neuronas es la misma, con lo cual se frena la optimización de forma  temprana. 
+Lo deseable es que los pesos sinápticos se inicialicen con valores cercanos (pero no iguales) a 0, por lo cual puede pensarse en que dichos valores se obtengan de un muestreo sobre una distribución de probabilidades que tenga media igual a 0 y una varianza pequeña para que los valores sean cercanos a 0. Dicha distribución puede ser normal o uniforme, y se ha comprobado que en la práctica la elección de una u otra tiene relativamente poco impacto en el desempeño final. En cuanto a que los valores sean pequeños, se debe tener cuidado ya que eso implica también que, durante la retropropagación, los gradientes utilizados para actualizar los pesos también sean pequeños (ya que son proporcionales) y con ello las actualizaciones se ``desvanezcan'' en la propagación, especialmente con redes profundas. 
+
+Por lo tanto para inicializar los pesos de esta forma se debe controlar la varianza de la distribución a muestrear, y que además su valor tenga relación con la dimensión de entrada que tienen los pesos sinápticos. Una recomendación es la de escalar la varianza a $\frac{1}{\sqrt{n}}$, siendo $n$ el número de entradas que tiene la matriz de pesos %, y tanto el desarrollo en fórmulas como la explicación de porqué se asegura que todas la neuronas en la red inicialmente tienen aproximadamente la misma distribución de salida (y con ello empíricamente mejora la tasa de convergencia) se encuentra en un tutorial de redes neuronales de Stanford 
+\cite{li2015cs231n}. En la práctica, es muy utilizado que la varianza sea $\sqrt{\frac{2}{n}}$, lo cual muestra buen comportamiento en redes neuronales profundas (especialmente cuando la función de activación es una \ac{ReLU}) \cite{he2015delving}. Otra forma de inicializar los pesos, recomendada para las funciones de activación sigmoideas, es la de utilizar para el muestreo una distribución uniforme que esté en el rango $\pm \sqrt{\frac{6}{n_{in}+n_{out}}}$ para la función Tanh, y en el rango $\pm 4.0 \sqrt{\frac{6}{n_{in}+n_{out}}}$ para la sigmoidea \cite{glorot2010understanding}. En cuanto al vector de sesgo, por lo general se suelen inicializar todos sus valores iguales (o muy aproximado, según algunos trabajos) a $0$. No se requiere ninguna técnica de muestreo ya que, según muchos estudios, el mayor impacto en la inicialización de los parámetros está dado por los pesos sinápticos \cite{li2015cs231n}.
+
+%Initializing the biases. It is possible and common to initialize the biases to be zero, since the asymmetry breaking is provided by the small random numbers in the weights. For ReLU non-linearities, some people like to use small constant value such as 0.01 for all biases because this ensures that all ReLU units fire in the beginning and therefore obtain and propagate some gradient. However, it is not clear if this provides a consistent improvement (in fact some results seem to indicate that this performs worse) and it is more common to simply use 0 bias initialization.
+
+%-------------------------------------------------------------------
+\subsubsection{Regularización}
+%-------------------------------------------------------------------
+\label{cap2:subsubsec:reg-pesos}
+
+
+%Adding regularization to a learning algorithm avoids overfitting. 
+%Regularization penalizes the complexity of a learning model.
+%Sparseness is one way to measure complexity. Sparse parameter vectors have few non-zero entries
+
+%In principle, adding a regularization term to the loss will encourage smooth network mappings in a neural network (by penalizing large values of the parameters, which decreases the amount of nonlinearity that the network models).
+
+Como se ha dicho anteriormente, es deseable que las redes neuronales sean capaces de generalizar las aptitudes adquiridas durante el entrenamiento para tener un buen desempeño al presentarse patrones nunca vistos. Para prevenir el problema del \textit{overfitting}, un buen tratamiento es incoporar términos de regularización sobre los pesos sinápticos. Con ello se penaliza la complejidad del modelo en términos del ajuste a los datos de entrenamiento, de forma que pueda obtenerse generalización sobre los datos de prueba. Entre las formas de regularización más utilizadas, se destacan tres técnicas:
+
+\hfil
+
+\textbf{Norma $L_1$}
+
+Término que se agrega a la función objetivo a optimizar en la red neuronal, y que tiene la particularidad de conducir a que la matriz de pesos sea ``rala'' (es decir, que algunos valores sean muy cercanos o iguales a 0). Esta propiedad puede ser deseable para que se utilicen sólo un subconjunto ralo de las entradas más importantes y se produzca robustez ante entradas con ruido \cite{li2015cs231n}. Agregando este término, la función de costo y su gradiente quedan:
+	
+\begin{equation}
+	\begin{split}
+		L &= L_0 + \lambda_1 \sum_l \sum_i \sum_j |W^{(l)}_{ji}|  \\
+		\nabla L &= \nabla L_0 + \lambda_1 \sum_l \sum_i \sum_j sign(W^{(l)}_{ji})
+	\end{split}
+\end{equation}
+
+Aquí, se define a $sign(x)$ como una función que retorna $1$ si x es positivo, $-1$ si es negativo ó $0$ en caso que $x$ sea nulo.
+	
+\hfil
+	
+\textbf{Norma $L_2$}
+
+Es la regularización más común que se incorpora en los pesos de una red neuronal, y tiene el efecto de penalizar fuertemente las matrices de pesos con picos o diferencias importantes entre valores, con lo cual se fuerza a que los pesos sean pequeños \cite{nielsen2015neural}. Al incorporar este término en el costo de la red resulta:
+	
+	
+\begin{equation}
+	\begin{split}
+		L &= L_0 + \lambda_2 \sum_l \sum_i \sum_j \frac{1}{2}(W^{(l)}_{ji})^2  \\
+		\nabla L &= \nabla L_0 + \lambda_2 \sum_l \sum_i \sum_j W^{(l)}_{ji}
+	\end{split}
+\end{equation}
+	
+Notar que a partir de ello, durante la actualización de los pesos sinápticos en la optimización, la regularización por norma $L_2$ produce que cada peso decaiga linealmente a $0$ (i.e. $W = W - \lambda_2 * W$) \cite{li2015cs231n}.
+	
+\hfil
+	
+\textbf{Dropout}
+
+Es un algoritmo extremadamente simple y muy efectivo para lograr la propiedad de generalización sobre redes neuronales \cite{srivastava2014dropout}. A diferencia de las normas $L_1$ y $L_2$ no se basa en modificar la función de costo para penalizarla durante la optimización de la red, sino que consiste en modificar la red para regularizarla y hacerla más robusta a información faltante o corrupta. 
+
+Dado un patrón de entrada en el entrenamiento (ya que nunca se debe usar durante la etapa de prueba o para hacer predicciones), se permite la activación de una neurona con una cierta probabilidad $p$ definida como parámetro, o de lo contrario se le asigna valor 0 a la salida de la misma. Esto provoca que sólo una fracción del total de neuronas produzca una activación en la salida, con lo que el proceso puede entenderse como que en cada iteración de la optimización se toma un muestreo de la red neuronal completa, y se actualizan sólo los parámetros de dicha red muestreada \cite{baldi2014dropout}. Durante la etapa de prueba %, se puede interpretar como que se evalúa una predicción promedio a lo largo de un ensamble de todas las subredes que surgen del muestreo mencionado, y es por ello que 
+no debe aplicarse dropout para que la evaluación sea total en la red. A su vez, en esta etapa es importante realizar un escalado de los pesos en cada capa por $p$ ya que se quiere que las salidas generadas sean idénticas a las salidas esperadas en la etapa de entrenamiento. Para ello, es recomendado hacerlo durante el entrenamiento de forma que el procedimiento para realizar predicciones quede inalterado \cite{li2015cs231n}, por lo que se deben dividir por $p$ las activaciones producidas en cada capa luego de aplicar Dropout. En ese mismo procedimiento se debe retornar además la máscara binaria producida para saber exactamente cuáles fueron las unidades ``tiradas'' con el Dropout, así no se actualizan durante el proceso de optimización. En la Figura \ref{fig:dropout} se puede apreciar gráficamente cómo afecta el Dropout a las conexiones de una red neuronal, y el Algoritmo \ref{alg:dropout} del Apéndice \ref{ap1:algoritmos} refleja el procedimiento a realizar para lograr esto durante el entrenamiento de una red.
+	
+\begin{figure}
+	\centering
+	\subfloat[Red neuronal estándar]{{\includegraphics[width=4cm]
+			{Imagenes/Bitmap/dropout-a} }}%
+	\qquad
+	\subfloat[Luego de aplicar Dropout]{{\includegraphics[width=4cm]
+			{Imagenes/Bitmap/dropout-b} }}%
+	\caption{Figura tomada de , donde se representa la anulación de las salidas de cada neurona donde se aplicó dropout.}%
+	\label{fig:dropout}
+\end{figure}
+	
+	
+\iffalse	
+\begin{algorithm}
+	\caption{Salida de una capa de neuronas a la que se le aplica Dropout}\label{alg:dropout2}
+	\begin{algorithmic}
+		\Require Capa de neuronas $l_{W,b}$.
+		\Function{dropoutput}{$x$, $p$} \Comment{\textit{Parámetros}: patrón de entrada $x$; probabilidad de activación $p \in (0, 1)$.}
+		\State \text{$a = output(l_{W,b}$, $x$) }  \Comment{Computar salida de capa $l_{W,b}$ ante la entrada $x$.}
+		\State \text{$v = random(size(a$))} \Comment{Generar vector del mismo tamaño que $a$, con valores aleatorios entre 0 y 1.}
+		\State \text{$m = v > p$} \Comment{Calcular máscara binaria del vector $v$, donde se asigna 1 a los valores de $v$ mayores a $p$ y 0 al resto.}
+		\State \text{$d = (a \odot m) / p$} \Comment{Aplicar máscara binaria sobre el vector de activaciones, escalando a $p$.}
+		\State \Return{$d, m$}
+		\EndFunction
+	\end{algorithmic}
+\end{algorithm}
+\fi
+
+
+%Citar
+%Hinton, G. E., Srivastava, N., Krizhevsky, A., Sutskever, I., and Salakhutdinov, R. R. (2012b). Improving neural networks by preventing co-adaptation of feature detectors. Technical Report arXiv:1207.0580.
+%Ba, J. and Frey, B. (2013). Adaptive dropout for training deep neural networks. In Advances in Neural Information Processing Systems (NIPS), pages 3084?3092.
+%Baldi, P. and Sadowski, P. (2014). The dropout learning algorithm. Artificial Intelligence, 210C:78?122.
+
+A partir de todas estas técnicas explicadas, se consideran la siguientes recomendaciones prácticas para obtener resultados buenos en la optimización de una red neuronal:
+
+\begin{itemize}
+	\item En la práctica, es mayormente utilizada la regularización mediante la norma $L_2$, aunque se suele incorporar también en menor proporción la norma $L_1$ para lograr también ciertas propiedades de ``raleza'' sobre los pesos sinápticos. Esta combinación constituye lo que se denomina \textit{regularización de red elástica}\cite{zou2005regularization}.
+	
+	\item Como se puede notar, la regularización nunca afecta al vector de sesgo $b$. Esto se debe a que el mismo no interactúa con los datos de forma multiplicativa, y como sólo produce una traslación en el espacio de soluciones no se considera que regularizar dicho vector produzca una moderación importante sobre la solución respecto al ajuste \cite{li2015cs231n}. 
+	
+	\item Por lo general, por cada norma se utiliza la misma constante de penalización $\lambda$ en todas las capas de la red.
+	
+	\item Como regla general, el Dropout se suele aplicar con $p = 0.5$ para todas las capas ocultas, aunque también se puede probar sobre la entrada con $p = 0.2$ \cite{arora2015deep} \cite{hinton2012improving}.
+\end{itemize}
+
+%Batch Normalization. A recently developed technique by Ioffe and Szegedy called Batch Normalization alleviates a lot of headaches with properly initializing neural networks by explicitly forcing the activations throughout a network to take on a unit gaussian distribution at the beginning of the training. The core observation is that this is possible because normalization is a simple differentiable operation. In the implementation, applying this technique usually amounts to insert the BatchNorm layer immediately after fully connected layers (or convolutional layers, as we'll soon see), and before non-linearities. We do not expand on this technique here because it is well described in the linked paper, but note that it has become a very common practice to use Batch Normalization in neural networks. In practice networks that use Batch Normalization are significantly more robust to bad initialization. Additionally, batch normalization can be interpreted as doing preprocessing at every layer of the network, but integrated into the network itself in a differentiably manner. Neat!
+
+	
+%\item Consejo en Quora para saber cuantas capas elegir: \url{https://www.quora.com/Deep-Learning-How-do-I-select-the-optimal-number-of-layers-and-neurons} y el de Hinton en \url{https://www.cs.toronto.edu/~hinton/absps/guideTR.pdf}
+	
+
+%-------------------------------------------------------------------
+\subsection{Aprendizaje no supervisado}
+%-------------------------------------------------------------------
+\label{cap2:subsec:no-supervisado}
+
+En las anteriores secciones, se presentaron técnicas para modelar sistemas con aprendizaje maquinal siguiendo únicamente un enfoque supervisado. A diferencia de ello, el aprendizaje no supervisado busca modelar la función hipótesis basándose únicamente en la entrada, lo cual puede expresarse como $h(x) \approx x$. En el caso de las redes neuronales, se traduce en que no requieren otra información más que el vector de entrada para ajustar los pesos de las conexiones entre neuronas (i.e. se prescinde de entradas etiquetadas). % La red no recibe ninguna información por parte del entorno que indique si la salida generada es o no correcta, asi que existen varias posibilidades en cuanto a la interpretación de la salida de estas redes.
+En algunos casos, la salida representa el grado de similitud entre la información que se le está ingresando y la que ya se le ha mostrado anteriormente. En otro caso podría realizar una codificación de los datos de entrada, generando a la salida una versión codificada de la entrada (e.g. con menos bits, pero manteniendo la información relevante de los datos), y también algunas redes pueden lograr un mapeo de características, obteniéndose en la salida una disposición geométrica o representación topográfica de los datos de entrada \cite{gonzalez1995redes}. 
+
+Como se mencionó al principio del presente capítulo, este enfoque del aprendizaje maquinal se utiliza generalmente en dos tipos de aplicaciones: en \textit{clustering}, y en reducción de dimensiones.
+Para lograr esto último, un método muy popular que se utiliza es el análisis de componentes principales (en inglés, \textit{Principal Component Analysis} o \acs{PCA}) que se basa en proyectar los datos en un espacio de dimensión menor tratando de maximizar la varianza de estos en cada una de las componentes obtenidas \cite{bishop2006pattern}. Dichas componentes resultan de aplicar una descomposición en valores singulares (SVD) a la matriz formada con los datos, y cada componente es un autovector que se caracteriza por la varianza que retiene de la proyección mediante su correspondiente autovalor. Por lo tanto, para lograr la reducción de dimensiones se toman las componentes que mayor varianza producen (ordenadas por autovalor) y además se puede conocer la proporción de varianza que retuvo la reducción mediante la proporción total de autovalores retenidos respecto al total de la proyección. También se utiliza para extracción de características sobre un conjunto de datos, ya que las componentes principales se pueden como los vectores que mayor información proveen sobre dichos datos y por ende aportan mayor discriminación para otros algoritmos clasificadores o de regresión \cite{haykin2004comprehensive}. Cuando se aplica \textit{whitening} a la salida del PCA, cada una de las componentes es escalada al dividir sus dimensiones por el respectivo autovalor, y al resultado de esto se lo suele denominar ZCA \cite{li2015cs231n}. 
+
+
+En los algoritmos de aprendizaje profundo, el enfoque no supervisado es frecuentemente considerado crucial para obtener un buen desempeño con las redes neuronales entrenadas. Esto se debe a que puede ayudar a lograr la generalización buscada en la red, ya que gran parte de la información que definen sus parámetros provienen de modelar los datos de entrada. Luego la información de las etiquetas puede ser usada para ajustar los parámetros obtenidos, los cuales ya descubrieron las características importantes de forma no supervisada.
+
+La ventaja del pre-entrenamiento no supervisado como regularizador respecto a una inicialización aleatoria de parámetros ha sido claramente demostrada en distintas comparaciones estadísticas \cite{erhan2010does} \cite{bengio2009learning} \cite{glorot2010understanding}. De esta forma, las redes pueden aprender a extraer características por sí solas, por lo cual sus entradas suelen ser datos crudos sin mucho pre-procesamiento, y la idea de inyectar una señal de entrenamiento no supervisado por cada capa puede ayudar a guiar a sus respectivos parámetros hacia mejores regiones en el espacio de búsqueda \cite{bengio2009learning}.
+
+
+
+
+%El aprendizaje profundo se trata directamente de aprender representaciones, lo cual implica extraer conceptos intermedios, características o variables latentes que son útiles para capturar las dependencias estadísticas que importan en la tarea que desea realizar. Por ejemplo, el aprendizaje supervisado se suele utilizar para enseñarle a una red neuronal que aprenda conceptos intemedios (como categorías) que son importantes para resolver una tarea de interés en particular. No obstante, se observa que en el proceso además se descubren interesantes conceptos intermedios en las capas de dicha red sin que se fuerce a ello. El aprendizaje no supervisado es similar salvo que se le pide al modelo que capture todas las posibles dependencias entre todas las variables observadas, sin hacer distinción de entradas y salidas entre capas. Para lograr un salto importante en la Inteligencia Artificial con aprendizaje supervisado, probablemente se requiera ``enseñarle'' a la computadora todos los conceptos importantes mostrándole toneladas de ejemplos en donde éstos ocurren. Aunque en muchos casos (como el lenguaje) se suelen adquirir nuevos conceptos mediante ejemplos que los ilustran, el humano no suele aprender de lo que observa mediante ejemplos etiquetados provenientes de su entorno (al menos inicialmente). Por lo general, se extrae la mayor parte de la información mediante simple observación (ya que por ejemplo no es requerido que se explicite qué representa cada punto presente en una imagen, ni todos los objetos contenidos en la misma) y eso es lo que el aprendizaje no supervisado realiza en principio. Lo que se espera es que dicha técnica en aprendizaje profundo sea capaz de descubrir (quizás con una pequeña ayuda de algunos pocos ejemplos etiquetados) todos los conceptos y causas subyacentes que importan para explicar lo que se observa de un entorno. % https://www.quora.com/Why-is-unsupervised-learning-important
+
+
+
+	
+%\item Hablar de las mil pasadas de aprendizaje no supervisado.
+
+
+%\item Usar quizás el review Deep Learning in Neural Networks: An Overview, Jurgen Schmidhuber
+
+
+%-------------------------------------------------------------------
+\subsection{Autocodificadores}
+%-------------------------------------------------------------------
+\label{cap2:subsec:autoencoder}
+
+Un autoasociador o autocodificador (en inglés, conocido como \textit{AutoEncoder} o \acs{AE}) es un tipo de red neuronal de tres capas, donde su entrada y salida tienen igual dimensión y se fuerza a que sean iguales (es decir, que la red aprenda a reconstruir la entrada en la salida). Esto constituye un esquema no supervisado ya que se trata de aproximar la función identidad (i.e. y = x), pero además se imponen ciertas restricciones en la configuración que permiten capturar una estructura de los datos que la ajustan. Estas restricciones se hacen sobre términos que penalicen la red (e.g. normas de regularización) y sobre la dimensión de la capa oculta, que por lo general se dispone que sea distinta a la de entrada.
+
+
+\begin{figure}[t]
+	\begin{center}
+		\includegraphics[width=0.6\textwidth]%
+		{Imagenes/Bitmap/autoencoder_arq}
+		\caption{Arquitectura básica de un autocodificador.}
+		\label{fig:autoencoder_arq}
+	\end{center}
+\end{figure} 
+
+Un autocodificador entonces consiste de dos partes: el codificador, que produce la transformación de la entrada en la dimensión dada por la capa oculta, y el decodificador que vuelve a reconstruir la entrada a partir de la representación codificada. %Sean $W^l$ y $b^l$ los parámetros de la capa \textit{l} (pesos sinápticos y bias, respectivamente), entonces un autocodificador singular está compuesto por el conjunto de parámetros $(W, b) = W^1, b^1, W^2, b^2$. La parte de codificación está compuesta por los parámetros $W^1$ y $b^1$ que conectan la capa de entrada con la capa oculta, mientras que la decodificación se compone de $W^2$ y $b^2$ que representan la conexión entre la capa oculta y la capa de salida.
+Para lograr la reconstrucción, esta red se entrena mediante retropropagación para minimizar el error de reconstrucción (generalmente medido con MSE), por lo cual supone un sistema de regresión. En la Figura \ref{fig:autoencoder_arq} se puede apreciar la arquitectura de un autocodificador tal como fue detallada.
+
+
+Una aplicación muy estudiada de los autocodificadores consiste en la reducción de dimensiones sobre un conjunto de datos. En comparación con PCA, los autocodificadores se asemejan a dicho método cuando la dimensión de salida en la red es menor a la de entrada, pero se diferencian en que la transformación producida es no lineal, lo cual en muchos estudios produce mejores representaciones de los datos a reducir \cite{hinton2006reducing}.  % Hinton et al. defined an autoencoder as a nonlinear generalization of principal components analysis (PCA) which uses an adaptive, multilayer ?encoder? network to transform the high-dimensional input data into a low-dimensional code, while a similar ?decoder? network is able to recover the data from the code (Hinton & Salakhutdinov, 2006). That is, an autoencoder network with the same number of hidden units as input and output units would be a (linear) PCA model.
+
+
+%Hay otras formas en las que se puede prevenir que un autocodificador sobre-completo aprenda la función identidad, capturando una representación útil de la entrada. 
+
+
+Existen ciertas formas de extender el diseño de un autocodificador para asegurar que capture una representación útil de la entrada. Una es agregar ``raleza'' (en inglés, \textit{sparsity}) que significa forzar a que muchas unidades ocultas sean iguales o cercanas a cero, lo cual ha sido explotado en muchas aplicaciones exitosas \cite{marc2007efficient}. Otra forma es agregar aleatoriedad en la codificación de la entrada a reconstruir, como en los \textit{denoising autoencoders} que adicionan ruido a la entrada para que la red aprenda a anularlo o limpiarlo en la salida \cite{vincent2008extracting}. También existe un enfoque distinto definido por \textit{variational autoencoders}, en el que la representación latente aprendida compone un modelo generativo con el cual se puede realizar un muestreo a partir de una entrada dada \cite{kingma2013auto}.
+
+ 
+\iffalse
+-----------------------------------
+Deep learning via  sparse autoencoders for automated voxel
+
+
+Optimizar los pesos sinápticos de un autocodificador es una tarea desafiante. Pesos grandes iniciales conducen a un mínimo local pobre, mientras que pesos chicos iniciales resultan en gradientes muy pequeños que dificultan el uso en redes profundas (vanish gradient) (Hinton \& Salakhutdinov, 2006). Para ello, se considera una técnica efectiva de pre-entrenamiento la del "greedy layer-wise"(Hinton \& Salakhutdinov, 2006).
+
+-----------------
+Learning deep architectures for AI
+
+Si la capa oculta produce una transformación no lineal, el autocodificador se comporta diferente al PCA ya que es capaz de capturar aspectos multi-modales de la distribución de entrada (Japkowicz et al., 2000).
+
+Un problema de los autocodificadores es que, sin alguna restricción o penalización debida en sus parámetros, con una entrada n-dimensional y una dimensión de la capa oculta de al menos n puede conllevar a sólo aprender la función identidad. Esto supone que el autocodificar sólamente aprende a copiar la entrada en una dimensión igual o mayor, lo cual se vuelve poco útil para redes profundas. No obstante, experimentos reportados sugieren que en la práctica, cuando se entrena mediante SGD, los autocodificadores no lineales con más unidades en la capa oculta que en la capa de entrada (llamados ``sobre-completos''?) conllevan a representaciones de los datos que son útiles en términos de extracción de características para otra red logrando bajo error en la tarea asignada. [Bengio07]. 
+
+
+A simple
+explanation is based on the observation that stochastic gradient descent with early stopping is similar to an
+l 2 regularization of the parameters (Zinkevich, 2003; Collobert \& Bengio, 2004). To achieve perfect re-
+construction of continuous inputs, a one-hidden layer auto-encoder with non-linear hidden units needs very
+small weights in the first layer (to bring the non-linearity of the hidden units in their linear regime) and very arge weights in the second layer. With binary inputs, very large weights are also needed to completely
+minimize the reconstruction error. Since the implicit or explicit regularization makes it difficult to reach
+large-weight solutions, the optimization algorithm finds encodings which only work well for examples simi-
+lar to those in the training set, which is what we want. It means that the representation is exploiting statistical
+regularities present in the training set, rather than learning to replicate the identity function. 
+
+---------------
+From https://arxiv.org/pdf/1404.7828v4.pdf
+
+La idea de este tipos de redes con aprendizaje no supervisado fue concebida en 1987, donde también se trataba de mapear la entrada a una capa oculta pero mediante un algoritmo diferente al de retropropagación (que era más rápido pero no buscaba profundidad en la arquitectura para la extracción de características).
+
+
+1987: UL Through Autoencoder (AE) Hierarchies (Compare Sec. 5.15)
+Perhaps the first work to study potential benefits of UL-based pre-training was published in 1987. It
+proposed unsupervised AE hierarchies (Ballard, 1987), closely related to certain post-2000 feedforward
+Deep Learners based on UL (Sec. 5.15). The lowest-level AE NN with a single hidden layer is
+trained to map input patterns to themselves. Its hidden layer codes are then fed into a higher-level AE
+of the same type, and so on. The hope is that the codes in the hidden AE layers have properties that
+facilitate subsequent learning. In one experiment, a particular AE-specific learning algorithm (different
+from traditional BP of Sec. 5.5.1) was used to learn a mapping in an AE stack pre-trained by
+this type of UL (Ballard, 1987). This was faster than learning an equivalent mapping by BP through
+a single deeper AE without pre-training. On the other hand, the task did not really require a deep
+AE, that is, the benefits of UL were not that obvious from this experiment. Compare an early survey
+(Hinton, 1989) and the somewhat related Recursive Auto-Associative Memory (RAAM) (Pollack,
+1988, 1990; Melnik et al., 2000), originally used to encode sequential linguistic structures of arbitrary
+size through a fixed number of hidden units. More recently, RAAMs were also used as unsupervised
+pre-processors to facilitate deep credit assignment for RL (Gisslen et al., 2011) (Sec. 6.4).
+In principle, many UL methods (Sec. 5.6.4) could be stacked like the AEs above, the historycompressing
+RNNs of Sec. 5.10, the Restricted Boltzmann Machines (RBMs) of Sec. 5.15, or hierarchical
+Kohonen nets (Sec. 5.6.4), to facilitate subsequent SL. Compare Stacked Generalization
+(Wolpert, 1992; Ting and Witten, 1997), and FNNs that profit from pre-training by competitive
+UL (e.g., Rumelhart and Zipser, 1986) prior to BP-based fine-tuning (Maclin and Shavlik, 1995). See
+also more recent methods using UL to improve subsequent SL (e.g., Behnke, 1999, 2003a; EscalanteB.
+and Wiskott, 2013).
+
+
+
+
+---------------
+- Explicar concepto de greedy layer-wise 
+- Mencionar brevemente otras técnicas relacionadas que se derivan? (deep autoencoders, denoising autoencoders, sparse autoencoder, variational autoencoders)
+- Mencionar comparación con RBMs? debería..
+
+
+$\hat{x}$
+
+\fi
+
+\hfil
+
+\textbf{Autocodificadores apilados}
+
+%-------------------------------------------------------------------
+%\subsection{Autocodificadores apilados}
+%-------------------------------------------------------------------
+%\label{cap2:subsec:stacked-autoencoder}
+
+
+\begin{figure}[t]
+	\begin{center}
+		\includegraphics[width=0.6\textwidth]%
+		{Imagenes/Bitmap/SAE-mql5}
+		\caption{Construcción de un autocodificador apilado.}
+		\label{fig:stacked-autoencoder}
+	\end{center}
+\end{figure}
+
+Una vez que el autocodificador se entrenó de forma no supervisada, se pueden utilizar las características que aprendió (i.e. la codificación de la entrada) para realizar una tarea supervisada de regresión o clasificación. En ese caso, suele resultar conveniente ajustar la red ya entrenada utilizando patrones etiquetados de datos para mejorar el desempeño en dicha tarea. De esta forma, el entrenamiento de una red neuronal se puede componer en dos etapas: 
+
+\begin{enumerate}[a)]
+	\item Un \textit{pre-entrenamiento} de forma no supervisada, para extraer características de los datos y obtener una representación codificada de ellos.
+	
+	\item Un \textit{ajuste fino} de forma supervisada, para modificar los parámetros de forma que mejore la tarea asignada a la red en base a ello.
+\end{enumerate}
+
+
+Para extraer distintos niveles de representación sobre los datos, los AEs son combinados en otro tipo de red denominada ``autocodificador apilado'' (más conocida en inglés como \textit{Stacked AutoEncoder} o \acs{SAE}). A partir de ello es que se pueden construir redes neuronales profundas, compuestas de múltiples capas para extraer características de distintos niveles sobre los datos.
+
+%Para entender la estructura de un autocodificador apilado, primero se procede a detallar la arquitectura de un autoencoder singular como el que se aprecia en la Figura \ref{fig:autoencoder_arq}. Sean $W^l$ y $b^l$ los parámetros de la capa \textit{l} (pesos sinápticos y bias, respectivamente), entonces un autocodificador singular está compuesto por el conjunto de parámetros $(W, b) = W^1, b^1, W^2, b^2$. La parte de codificación está compuesta por los parámetros $W^1$ y $b^1$ que conectan la capa de entrada con la capa oculta, mientras que la decodificación se compone de $W^2$ y $b^2$ que representan la conexión entre la capa oculta y la capa de salida. 
+
+Dado un autocodificador ya entrenado, se puede apilar éste con otro para conformar un autocodificador apilado. No obstante, no se utiliza en su totalidad sino que se aprovecha sólo la parte de codificación. Es decir que la activación producida en la capa oculta de un autocodificador (i.e. las características detectadas) alimentan la entrada del autocodificador siguiente que es agregado a la pila, como se esquematiza en la Figura \ref{fig:stacked-autoencoder}. Esto quiere decir que cada AE de esta pila trata de reconstruir la salida producida por el AE precedente, y a partir de ello las representaciones de los datos adquieren distintos niveles a lo largo de esta estructura. A este proceso de entrenar un autocodificador a partir del otro se lo suele denominar en inglés como \textit{greedy layer-wise}, y se considera crucial para pre-entrenar redes profundas de forma no supervisada asegurando que cada nivel de las mismas reciba actualizaciones adecuadas durante la optimización \cite{bengio2009learning}.
+
+Una vez ejecutado el pre-entrenamiento de un SAE, se puede realizar el ajuste fino mencionado con datos etiquetados en forma supervisada. Esto equivale a inicializar los parámetros de un perceptrón multicapa en forma no supervisada, lo cual mejora importantemente el desempeño del modelo en muchas aplicaciones estudiadas respecto a la inicialización estándar \cite{bengio2009learning}. Con ello se procede a ajustar el modelo para una tarea en particular, y la combinación de estas dos etapas es muy explotada en diversas aplicaciones de aprendizaje profundo para obtener modelos con buen desempeño en tareas de gran complejidad.
+
+
+
+\iffalse
+------------------------------------
+
+JAIIO45
+
+Para extraer abstracciones de alto nivel sobre los datos, los AEs son combinados en una red formando un Stacked Auto-Encoder (SAE). De esta forma,se busca capturar una representacion interna de los datos en una red neuronal cuyos parámetros (pesos sinápticos y bias) se inicializan mejor que de forma estocástica. Entrenar redes profundas con esta técnica consta de dos etapas:
+
+1. Pre-entrenamiento: El SAE se entrena de forma no supervisada secuencialmente, de forma que la salida de un AE es la entrada para entrenar el siguiente. Luego, la capa oculta de cada autoasociador se utiliza para inicializar las de una red neuronal estándar.
+2. Ajuste fino: Una vez formada la red neuronal con sus parámetros inicializados, se sigue su entrenamiento supervisado convencionalmente. Se supone que con un buen pre-entrenamiento, el siguiente ajuste fino lleva poco tiempo para lograr valores óptimos en la salida.
+
+En la Figura 2 se presenta la estructura de un AE y cómo se utiliza para
+construir SAEs. Es preciso destacar que la capa de salida sólo se entrena en la etapa de ajuste fino, y la misma puede ser de clasificación o regresión dependiendo de la tarea asignada para la red.
+
+
+CITAS?
+\fi
+
+
+% Variable local para emacs, para  que encuentre el fichero maestro de
+% compilación y funcionen mejor algunas teclas rápidas de AucTeX
+%%%
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: "../Tesis.tex"
+%%% End:

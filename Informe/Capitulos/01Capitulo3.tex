@@ -1,0 +1,444 @@
+%---------------------------------------------------------------------
+%
+%                          Capítulo 3
+%
+%---------------------------------------------------------------------
+
+\chapter{Cómputo distribuido}
+
+\begin{FraseCelebre}
+\begin{Frase}
+Divide las dificultades que examinas en tantas partes como sea posible \\para su mejor solución.
+\end{Frase}
+\begin{Fuente}
+René Descartes
+\end{Fuente}
+\end{FraseCelebre}
+
+\begin{resumen}
+En este capítulo se detalla todo el contenido del proyecto relacionado a sus propiedades de distribución del cómputo. Se introduce la noción de un sistema distribuido, sus antecedentes desde el origen del concepto hasta las tecnologías actuales, y además se profundiza sobre la tecnología utilizada en este proyecto para adquirir esta propiedad de cómputo. Por último se muestran aplicaciones de ello en aprendizaje profundo, detallando el esquema que utilizan para explotar dicha propiedad.
+
+\end{resumen}
+
+%-------------------------------------------------------------------
+\section{Introducción}
+%-------------------------------------------------------------------
+\label{cap3:sec:intro}
+
+La computación distribuida es un modelo para resolver problemas de cómputo en paralelo mediante una colección de ordenadores pertenecientes a distintos dominios de administración, sobre una red distribuida. En ello interviene un sistema distribuido, cuya idea fundamental constituye una combinación de computadoras y sistemas de transmisión de mensajes bajo un solo punto de vista lógico, a través del cual los elementos de cómputo resuelven tareas en forma colaborativa. Dicho sistema es visto por los usuarios como una única entidad capaz de proporcionar facilidades de computación. Por lo tanto el programador accede a los componentes de software remotos de la misma manera en que accedería a componentes locales, lo cual se posibilita mediante un grupo de computadoras que utilizan un \textit{middleware} para conseguir la comunicación \cite{coulourisdistributed}. Esta colección de computadoras básicamente lo que hace es dividirse el trabajo a realizar en pequeñas tareas individuales: cada una recibe los datos necesarios para su ejecución, y al ser realizadas se unifican sus salidas en un resultado final. A su vez, el sistema distribuido se caracteriza por su heterogeneidad, por lo que cada computadora posee sus componentes de software y hardware que el usuario percibe como un solo sistema. 
+
+Actualmente la informática contribuye en gran medida a la solución de problemas en diferentes ámbitos y disciplinas, volviéndose una fuente de recursos imprescindible.  Con ello surge la creciente necesidad de almacenamiento y procesamiento de datos que se requiere en ambiciosos proyectos de investigación científica, así como simulaciones a gran escala y la toma de decisiones a partir de grandes volúmenes de información, donde es conveniente recurrir a sistemas distribuidos. Los requisitos de dichas aplicaciones incluyen un alto nivel de fiabilidad, seguridad contra interferencias externas y privacidad de la información que el sistema mantiene \cite{rojo2003introduccion}.
+
+%-------------------------------------------------------------------
+\subsection{Características}
+%-------------------------------------------------------------------
+\label{cap3:subsec:caracteristicas}
+
+Frecuentemente, se suele confundir el cómputo paralelo con el distribuido por lo cual es conveniente realizar las debidas distinciones. El concepto de \textit{paralelismo} es generalmente percibido como explotar simultáneamente múltiples hilos de ejecución o procesadores de forma interna, para poder computar un determinado resultado lo más rápido posible. La escala de los procesadores puede ir desde múltiples unidades aritméticas dentro de un procesador único, a múltiples procesadores compartiendo memoria, hasta la distribución del cómputo en muchas computadoras.
+%Concurrency is the study of computations with multiple threads of computation. Concurrency tends to come from the architecture of the software rather than from the architecture of the hardware. Software may be written to use concurrency in order to exploit hardware parallelism, but often the need is inherent in the software's behavior, to react to different asynchronous events (e.g. a computation thread that works independently of a user interface thread, or a program that reacts to hardware interrupts by switching to an interrupt handler thread).
+En cambio, el cómputo distribuido estudia procesadores separados que se comunican por enlaces de red. Mientras que los modelos de procesamiento en paralelo a menudo asumen memoria compartida, los sistemas distribuidos se basan fundamentalmente en el intercambio de mensajes. Las características más destacadas de los sistemas distribuidos son \cite{rojo2003introduccion} \cite{coulourisdistributed}:
+\begin{itemize}
+	\item \textbf{Recursos compartidos}
+	
+	Los recursos en un sistema distribuido (e.g. discos, bases de datos, etc) están físicamente alojados en algún ordenador y sólo pueden ser accedidos por otros mediante las comunicaciones en la red. Para que compartan recursos efectivamente, debe existir un gestor de recursos que actúe como interfaz de comunicación permitiendo que cada recurso sea accedido, manipulado y actualizado de una manera fiable y consistente. %Un sistema distribuido puede verse de manera abstracta como un conjunto de gestores de recursos y un conjunto de programas que usan los recursos. Los usuarios de los recursos se comunican con los gestores de los recursos para acceder a los recursos compartidos del sistema. Esta perspectiva nos lleva a dos modelos de sistemas distribuidos: el modelo cliente-servidor y el modelo basado en objetos.
+	
+	\item \textbf{Apertura}
+	
+	Un sistema informático es abierto si puede ser extendido de diversas maneras respecto a hardware (e.g. añadir periféricos, memoria o discos, interfaces de comunicación, etc.) o software (e.g. añadir características al sistema operativo, protocolos de comunicación, programas o entornos virtuales, etc.). La apertura de los sistemas distribuidos se determina primariamente por el grado en el que nuevos servicios para compartir recursos se pueden añadir sin perjudicar ni duplicar a los ya existentes. %Básicamente los sistemas distribuidos cumplen una serie de características: 	Los interfaces software clave del sistema están claramente especificados y se ponen a disposición de los desarrolladores. En una palabra, los interfaces se hacen públicos. 	Los sistema distribuidos abiertos se basan en la provisión de un mecanismo uniforme de comunicación entre procesos e interfaces publicados para acceder a recursos compartidos. 	Los sistema distribuidos abiertos pueden construirse a partir de hardware y software heterogéneo, posiblemente proveniente de vendedores diferentes. Pero la conformidad de cada componente con el estándar publicado debe ser cuidadosamente comprobada y certificada si se quiere evitar tener problemas de integración.
+	
+	\item \textbf{Concurrencia} 
+	
+	Dos o más procesos son concurrentes o paralelos cuando son procesados al mismo tiempo, por lo que para ejecutar uno de ellos no hace falta que se haya terminado la ejecución del otro.
+	En sistemas multiprocesador podría conseguirse asignando un procesador a cada proceso, mientras que cuando existe sólo un solo procesador se producirá un intercalado de las instrucciones de los procesos, en forma de lograr la sensación de que hay un paralelismo en el sistema. 
+	%Ahora bien, está claro que en esto tenemos que tener en cuenta que mientras un proceso está escribiendo unvalor en una variable determinada, puede darse el caso que otro proceso que es concurrente al primero vaya aleer o escribir en esa misma variable, entonces habráque estudiar el caso en el que un proceso haga unaoperación sobre una variable (o recurso en general) yotro proceso concurrente a él realice otra operación detal forma que no se realice correctamente.
+	En un sistema distribuido que está basado en el modelo de compartición de recursos, la posibilidad de ejecución paralela ocurre por dos razones: 
+	
+	a) Muchos usuarios interactuan simultáneamente con programas de aplicación, lo cual es menos conflictivo ya que normalmente las aplicaciones interactivas se ejecutan aisladamente en la estación de trabajo de cada usuario en particular.
+	
+	b) Muchos procesos servidores se ejecutan concurrentemente, cada uno respondiendo a diferentes peticiones de los procesos clientes. Dichas peticiones para acceder a recursos pueden ser encoladas en el servidor y procesarse secuencialmente o bien pueden tratarse concurrentemente por múltiples instancias del proceso gestor de recursos. En ese caso se debe asegurar la sincronización de las acciones para evitar conflictos, lo cual es importante en el sistema para no perder los beneficios de la concurrencia.
+	
+	\item \textbf{Escalabilidad} 
+	
+	Los sistemas distribuidos operan de manera efectiva y eficiente a muchas escalas diferentes. La escala más pequeña consiste en dos estaciones de trabajo y un servidor de ficheros, mientras que un sistema distribuido construido alrededor de una red de área local simple podría contener varios cientos de estaciones de trabajo, varios servidores de ficheros, servidores de impresión y otros servidores de propósito especifico. A menudo se conectan varias redes de área local para formar \textit{internetworks} o redes de Internet que contengan miles de ordenadores formando un único sistema distribuido, y permitiendo que los recursos sean compartidos entre todos ellos. Tanto el software de sistema como el de aplicación no deberían cambiar cuando la escala del sistema se incrementa. La necesidad de escalabilidad no es sólo un problema de prestaciones respecto a la red o hardware, sino que esta íntimamente ligada con el diseño y arquitectura de los sistemas distribuidos. %La demanda de escalabilidad en los sistemas distribuidos ha conducido a una filosofía de diseño en que cualquier recurso simple -hardware o software- puede extenderse para proporcionar servicio a tantos usuarios como se quiera. Esto es, si la demanda de un recurso crece, debería ser posible extender el sistema para darla servicio,. Por ejemplo, la frecuencia con la que se accede a los ficheros crece cuando se incrementa el numero de usuarios y estaciones de trabajo en un sistema distribuido. Entonces, debe ser posible añadir ordenadores servidores para evitar el cuello de botella que se produciría si un solo servidor de ficheros tuviera que manejar todas las peticiones de acceso a los ficheros. En este caso el sistema deberá estar diseñado de manera que permita trabajar con ficheros replicados en distintos servidores, con las consideraciones de consistencias que ello conlleva. Cuando el tamaño y complejidad de las redes de ordenadores crece, es un objetivo primordial diseñar software de sistema distribuido que seguirá siendo eficiente y útil con esas nuevas configuraciones de la red. Resumiendo, el trabajo necesario para procesar una petición simple para acceder a un recurso compartido debería ser prácticamente independiente del tamaño de la red. Las técnicas necesarias para conseguir estos objetivos incluyen el uso de datos replicados, la técnica asociada de caching, y el uso de múltiples servidores para manejar ciertas tareas, aprovechando la concurrencia para permitir una mayor productividad. Una explicación completa de estas técnicas puede encontrarse en [ Colouris 1994 ].
+	
+	\item \textbf{Tolerancia a fallos} 
+	
+	Cuando se producen fallos en el software o en el hardware, los programas podrían producir resultados incorrectos o bien pararse antes de terminar el cómputo que estaban realizando. El diseño de sistemas tolerantes a fallos se basa en dos cuestiones, complementarias entre sí: 
+	
+	a) \textit{Redundancia del hardware}: mediante el uso de componentes redundantes, como replicando los servidores individuales que son esenciales para la operación continuada de aplicaciones críticas.
+	
+	b) \textit{Recuperación del software}: que tiene relación con el diseño para que sea capaz de recuperar (roll-back) el estado de los datos permanentes antes de que se produjera el fallo.
+	
+	Los sistemas distribuidos también proveen un alto grado de disponibilidad en la vertiente de fallos hardware. Un fallo simple en una máquina multiusuario resulta en la no disponibilidad del sistema para todos los usuarios, mientras que el fallo de algún componente de un sistema distribuido sólo afecta al trabajo que estaba realizando dicho componente averiado, con lo cual un usuario podría desplazarse a otra estación de trabajo o un proceso servidor podría ejecutarse en otra máquina.
+	
+	\item \textbf{Transparencia}
+	Se basa en ocultar al usuario y al programador la estructuración de los componentes del sistema distribuido, de manera que el mismo se percibe como un todo en lugar de una colección de componentes independientes. La transparencia ejerce una gran influencia en el diseño del software de sistema y además provee un grado similar de anonimato en los recursos al que se encuentra en los sistemas centralizados.
+	
+\end{itemize}
+
+%-------------------------------------------------------------------
+\subsection{Infraestructura}
+%-------------------------------------------------------------------
+\label{cap3:subsec:infraestructura}
+
+Para poder implementar un sistema distribuido, se debe contar con una adecuada organización física de recursos o ``infraestructura''. Esto es indispensable para que las aplicaciones tengan un buen desempeño, ya que para poder explotar sus propiedades de cómputo dependen del soporte que tengan para ello. La elección del tipo de infraestructura queda determinada por factores como el tipo de sistemas que debe manejar, los costos de implementación (e.g. hardware, redes/comunicaciones, integración de software, etc) y los riesgos implicados en términos de seguridad, complejidad de mantenimiento, etc. Actualmente se distinguen las siguientes categorías: grilla, clúster y nube.
+ 
+\begin{table}[h!]
+	\begin{center}
+		\caption{Grilla vs clúster vs nube.}
+		\label{tab:infraestructura}
+		\begin{adjustbox}{max width=\textwidth}
+		\begin{tabular}{|l|c|c|c|}
+			\hline
+			\textbf{Categoría} & \textbf{Grilla} & \textbf{HPC/Clúster} & \textbf{Nube}\\
+			\hline
+			
+			\textbf{Tamaño} & Grande & Pequeño a mediano & Pequeño a grande
+			\\
+			\hline
+			
+			\begin{tabular}{@{}c@{}}\textbf{Tipo de} \\ \textbf{recursos} \end{tabular} &
+			
+			Heterogéneos & Homogéneos & Heterogéneos
+			
+			\\
+			\hline
+			
+			\begin{tabular}{@{}c@{}}\textbf{Inversión}\\ \textbf{inicial} \end{tabular} &
+			
+			Alta & Muy alta & Muy baja
+			
+			\\
+			\hline
+			
+			\textbf{ROI típico} & Intermedio & Muy alto & Alto
+			
+			\\
+			\hline
+			
+			\textbf{Tipo de red} & 
+			
+			\begin{tabular}{@{}c@{}}Privada \\ basada en Ethernet \end{tabular} &
+			
+			\begin{tabular}{@{}c@{}}Privada \\ IB o propietaria \end{tabular} &
+			
+			\begin{tabular}{@{}c@{}}Pública de Internet \\ basada en Ethernet \end{tabular} 
+			
+			\\
+			\hline
+			
+			\begin{tabular}{@{}c@{}}\textbf{Hardware} \\ \textbf{típico} \end{tabular} &
+			Caro & 
+			
+			\begin{tabular}{@{}c@{}}Muy caro  \\ Alta gama \end{tabular} & 
+			
+			VMs encima del hardware
+			
+			\\
+			\hline
+			
+			\textbf{Denominación} & 
+			
+			\begin{tabular}{@{}c@{}}``Estaciones de  \\ trabajo rápidas'' \end{tabular} 	  
+			
+			& ``Súper computadora'' & ``Puñado de VMs''
+			
+			\\
+			\hline
+			
+			\begin{tabular}{@{}c@{}}\textbf{Requisitos de} \\ \textbf{seguridad} \end{tabular} &
+			
+			Altos & Muy bajos & Bajos
+			
+			\\
+			\hline
+			
+		\end{tabular}
+		\end{adjustbox}
+	\end{center}
+\end{table}
+
+Un clúster consiste en un conjunto de nodos o computadoras interconectadas mediante redes locales de alta velocidad, que actúan concurrentemente en conjunto para ejecutar las tareas asignadas por un programa determinado. Además se caracterizan por mostrarse ante clientes y aplicaciones como un solo sistema.
+
+La computación por grilla es la segregación de recursos provenientes de múltiples sitios, generalmente conjuntos de clústeres heterogéneos y dispersos geográficamente, que son manejados conjuntamente para resolver un problema que no puede tratarse con una única computadora o servidor \cite{kaur2014comparative}.
+
+La ``nube'' es un nuevo paradigma de computación en el cual se provee una gran pila de recursos virtuales y dinámicamente escalables a demanda. El principio fundamental de este modelo es ofrecer cómputo, almacenamiento y software como servicio, donde mediante Internet un usuario paga sólo por la cantidad de recursos solicitados y su tiempo de uso. 
+
+
+En la Tabla \ref{tab:infraestructura} \footnote{Adaptación de tabla original en \url{http://www.devx.com/architect/Article/45576}} se realiza una comparación breve entre las categorías tratadas, lo cual resulta útil en la elección de una infraestructura a implementar en una organización.
+
+
+
+
+
+
+%Finally, Grid and Cloud computing are both subset of distributed computing. The grid computing paradigm emerged as a new field distinguished from traditional distributed computing because of its focus on large-scale resource sharing and innovative high-performance applications. Resources being shared, usually belong to multiple, different administrative domains (so-called Virtual Organizations). Grid Computing, while being heavily used by scientists in the last decade, is traditionally difficult for ordinary users. Cloud computing tries to bridge the gap, by allowing ordinary users to exploit easily multiple machines, which are co-located in the same data center and not geographically distributed, through the use of Virtual Machines that can be assembled by the users to run their applications. Owing to the hardware, in particular the usual lack of an high-performance network interconnect (such as Infiniband etc), clouds are not targeted for running parallel MPI applications. Distributed applications running on clouds are usually implemented to exploit the Map/Reduce paradigm. By the way, many people think of Map/reduce as a parallel data flow model.
+
+%-------------------------------------------------------------------
+\section{Antecedentes}
+%-------------------------------------------------------------------
+\label{cap3:sec:antecedentes}
+
+El desarrollo de los sistemas distribuidos vino de la mano de las redes locales de alta velocidad a principios de 1970. Más recientemente, la disponibilidad de computadoras personales de altas prestaciones, estaciones de trabajo y ordenadores servidores ha resultado en un mayor desplazamiento hacia los sistemas distribuidos en detrimento de los ordenadores centralizados multiusuario. Esta tendencia se ha acelerado por el desarrollo de software para sistemas distribuidos, diseñado para soportar el desarrollo de aplicaciones distribuidas. Dicho software permite a los ordenadores coordinar sus actividades y compartir los recursos del sistema -- hardware, software y datos.
+
+La creciente necesidad de almacenamiento y procesamiento de datos que se requiere en ambiciosos proyectos de investigación científica, así como simulaciones a gran escala y la toma de decisiones a partir de grandes volúmenes de información es claramente un problema a tener en cuenta. Es por ello que en los últimos años existe una gran tendencia a originar proyectos de software que ofrezcan soluciones escalables con buenas propiedades de cómputo distribuido, los cuales son imprescindibles para cualquier organización que maneja una gran cantidad de información en sus sistemas.
+
+\begin{figure}[t]
+	\begin{center}
+		\includegraphics[width=\textwidth]%
+		{Imagenes/Bitmap/google_production_stack}
+		\caption{Pila de producción usada por Google aprox. en 2015.}
+		\label{fig:google-stack}
+	\end{center}
+\end{figure}
+
+En la Figura \ref{fig:google-stack} se puede apreciar la gama de tecnologías que aprovecha Google para conformar su pila de producción con la que ofrece soluciones relacionadas a procesamiento de datos. 
+Dicha pila comprende tecnologías que utilizan cómputo distribuido para desempeñar sus respectivas tareas, con lo cual se asegura un sistema escalable para el tratamiento de los datos.
+
+%\textbf{MPI} Si?
+
+
+%-------------------------------------------------------------------
+\subsection{MapReduce}
+%-------------------------------------------------------------------
+\label{cap3:subsec:mapreduce}
+
+% Usando explicaciones de Deeplearning4j y Wikipedia
+
+MapReduce es una técnica o modelo de programación para procesar grandes cantidades de datos simultáneamente sobre muchos núcleos. El nombre se debe a que implementa dos métodos derivados de la programación funcional: el \textit{map} que realiza el mismo cómputo o función a cada elemento de una lista, produciendo una nueva lista de valores; el \textit{reduce} que aplica una función de agregación sobre una lista de valores, combinándolos en un único resultado. Estas funciones pueden entenderse con un simple ejemplo de conteo de palabras en un texto: \textit{map} transforma cada una de las palabras en tuplas con la palabra correspondiente y un valor 1, y \textit{reduce} agrega esa lista de tuplas al sumar el segundo campo de cada tupla asociando por palabras iguales, para así lograr el conteo final de cada palabra. 
+
+Jeff Dean de Google introdujo el método en una publicación del 2004  \cite{dean2008mapreduce}, y Doug Cutting implementó una estructura similar un año después en Yahoo (el cual eventualmente se volvería Apache Hadoop). Conceptualmente, existen enfoques similares que han sido muy conocidos desde 1995 con el estándar Message Passing Interface (MPI) teniendo operaciones de \textit{reduce} y \textit{scatter} \cite{snir1998mpi}. 
+
+MapReduce como sistema (también llamado ``infraestructura'' o ``framework'') organiza el procesamiento ordenando los servidores distribuidos, corriendo las distintas tareas en paralelo, gestionando todas las comunicaciones y las transferencias de datos entre las diferentes partes del sistema, y proporcionando redundancia y tolerancia a fallos.
+
+MapReduce opera en una larga escala. La operación \textit{map} parte un gran trabajo mediante la distribución de los datos en muchos núcleos, y corre la misma operación/es en esos fragmentos de datos. En cuanto a la función \textit{reduce}, consolida todos esos fragmentos transformados en un solo conjunto, recolectando todo el trabajo en un lugar y aplicando una operación adicional.
+
+Las principales contribuciones del framework MapReduce no son las funciones \textit{map} y \textit{reduce}, sino la escalabilidad y la tolerancia a fallos lograda para una variedad de aplicaciones optimizando el motor de ejecución una vez. Como tal, una implementación sin paralelización de MapReduce no va a ser más rápida que una tradicional sin este esquema, ya que cualquier beneficio es usualmente sólo percibido en implementaciones con múltiples hilos de ejecución. 
+
+El uso de este modelo beneficia únicamente cuando entran en juego dos características: la función optimizada de \textit{shuffle} (i.e. mezclar los fragmentos de datos distribuidos, para reducir costo de comunicación en la red) y la tolerancia a fallos en caso de que se caigan nodos de cómputo. Optimizar el costo de comunicación es esencial para tener un buen algoritmo de MapReduce.
+
+Las bibliotecas de MapReduce han sido escritas en muchos lenguajes de programación y con diferentes niveles de optimización. Una implementación popular de código abierto que tiene soporte para \textit{shuffles} distribuidos es parte de Apache Hadoop, y MapReduce se considera el corazón de este software ya que le permite escalar masivamente a lo largo de una gran cantidad de servidores en un clúster Hadoop.
+%-------------------------------------------------------------------
+\subsection{Apache Hadoop}
+%-------------------------------------------------------------------
+\label{cap3:subsec:hadoop}
+
+Hadoop es un framework o infraestructura digital de desarrollo creado en código abierto bajo licencia Apache, utilizado para escribir fácilmente aplicaciones que procesan grandes cantidades de datos en forma paralela sobre clústeres de servidores básicos. Está diseñado para extender un sistema de servidor único a miles de máquinas, con un muy alto grado de tolerancia a las fallas. En lugar de depender del hardware de alta gama, la fortaleza de estos clústeres se debe a la capacidad que tiene el software para detectar y manejar fallas al nivel de las aplicaciones \cite{white2012hadoop}. 
+
+El proyecto fue desarrollado por Doug Cutting mientras estaba en Yahoo! (empresa que mayor contribuyó a Hadoop), inspirándose principalmente en tecnologías liberadas por Google, concretamente MapReduce y Google File System (GFS). Un trabajo en MapReduce usualmente parte un conjunto de datos en fragmentos independientes que son procesados por funciones de \textit{map} en forma paralela. El framework ordena las salidas de cada \textit{map}, que pasan a ser la entrada de las tareas de \textit{reduce}. A su vez, el framework asume la planificación de las tareas, su monitoreo y re-ejecución de aquellas que fallen.
+
+Los dos pilares más importantes que estructuran la plataforma son:
+\begin{itemize}
+	\item \textbf{YARN} - Yet Another Resource Negotiator (YARN) que asigna CPU, memoria y almacenamiento a las aplicaciones que se ejecutan en un clúster Hadoop organizando sus nodos disponibles. YARN permite que otros marcos de aplicaciones (como Apache Spark) también puedan ejecutarse en Hadoop, lo cual agrega potencia y flexibilidad a la plataforma.
+	
+	\item \textbf{HDFS} - Hadoop Distributed File System (HDFS) es un sistema de archivos que abarca todos los nodos de un clúster Hadoop para el almacenamiento de datos. Enlaza entre sí los sistemas de archivos de muchos nodos locales para convertirlos en un único gran sistema de archivos.
+\end{itemize}
+
+% En https://www-01.ibm.com/software/cl/data/infosphere/hadoop/que-es.html
+La principal característica que se destaca en Hadoop es que cambia la economía y la dinámica de la computación a gran escala, y su impacto puede sintetizarse en cuatro características \footnote{Explicación provista por IBM, otro gran contribuyente a Hadoop: \url{https://www-01.ibm.com/software/cl/data/infosphere/hadoop/que-es.html}}:
+\begin{itemize}
+	\item \textbf{Redimensionable:} Pueden agregarse tantos nuevos nodos como sea necesario, sin tener que cambiar el formato de los datos ni la forma en que se cargan los datos o en que se escriben las aplicaciones que están encima.
+	
+	\item \textbf{Rentable:} Hadoop incorpora masivamente la computación paralela a los servidores básicos, con lo cual se obtiene una marcada reducción del costo de almacenamiento, que a su vez abarata el modelado de datos.
+	
+	\item \textbf{Flexible:} Hadoop funciona sin esquema y puede absorber cualquier tipo de datos, estructurados o no, provenientes de un número cualquiera de fuentes. Los datos de diversas fuentes pueden agruparse de manera arbitraria y así permitir análisis más profundos que los proporcionados por cualquier otro sistema.
+	
+	\item \textbf{Tolerancia a fallas:} Si se pierde un nodo, el sistema redirige el trabajo a otra localización de los datos y continúa procesando sin perder el ritmo.
+\end{itemize}
+
+
+%-------------------------------------------------------------------
+\section{Apache Spark}
+%-------------------------------------------------------------------
+\label{cap3:sec:spark}
+
+Apache Spark es una plataforma de cómputo escalable que se ha vuelto una de las herramientas más utilizadas en sistemas distribuidos, siendo construida por programadores de casi 200 empresas (principalmente Databricks, Yahoo! e Intel) y teniendo contribuciones de más de 1000 desarrolladores. 
+
+Spark comenzó en 2009 como un proyecto de investigación del AMPLab \footnote{Sitio Web de AMPLab: \url{https://amplab.cs.berkeley.edu/}} en la Universidad de California en Berkeley. Los investigadores de dicho laboratorio habían estado trabajando con Hadoop MapReduce, y observaron que era ineficiente para aplicaciones de múltiples pasos que requieren distribuir datos con baja latencia sobre operaciones paralelas. Estas aplicaciones son muy comunes en sistemas para análisis de datos, donde se incluyen algoritmos iterativos, usos de aprendizaje maquinal, y minería de datos interactiva, entre otras. 
+
+Es por ello que, desde el inicio, Spark fue diseñado para ser rápido en consultas interactivas y algoritmos iterativos, mediante características como una eficiente recuperación de fallos y soporte para almacenamiento y procesamiento en memoria. En Marzo del 2010, Spark se convirtió en un proyecto de código abierto, y fue transferido a la Fundación de Software Apache en Junio del 2013, donde se continúa actualmente como uno de los proyectos más importantes.
+
+%By supporting these workloads in the same engine, Spark makes it easy and inexpensive to combine different processing types, which is often necessary in production data analysis pipelines. In addition, it reduces the management burden of maintaining separate tools. Spark is designed to be highly accessible, offering simple APIs in Python, Java, Scala, and SQL, and rich built-in libraries. It also integrates closely with other Big Data tools. In particular, Spark can run in Hadoop clusters and access any Hadoop data source, including Cassandra.
+
+%Ver http://www.slideshare.net/databricks/large-scalesparktalk
+% PAPERS: http://spark.apache.org/research.html
+
+Spark ofrece tres beneficios principales \cite{karau2015learning}:
+\begin{itemize}
+	\item \textbf{Fácil de usar}: Se pueden desarrollar aplicaciones en una laptop, y está hecho en el lenguaje Scala aunque también se proveen APIs de alto nivel (en lenguajes como Python o R) que permiten enfocarse en el contenido del cómputo y no en cómo distribuirlo.
+	\item \textbf{Propósito general}: Spark es un motor de propósito general que permite combinar múltiples tipos de cómputo (e.g. consultas SQL, procesamiento de texto y aprendizaje maquinal) que por lo general requieren de diferentes motores o tecnologías.
+	\item \textbf{Rápido}: Extiende y generaliza el popular modelo MapReduce, incluyendo consultas interactivas y procesamiento de flujo, y además ofrece la capacidad de realizar cálculos computacionales en memoria e incluso en disco de forma más eficiente y rápida que MapReduce para aplicaciones complejas.
+\end{itemize}
+
+%-------------------------------------------------------------------
+\subsection{Funcionalidades}
+%-------------------------------------------------------------------
+\label{cap3:subsec:spark-funcionalidades}
+
+Se puede encontrar una buena descripción de las funcionalidades de Spark en la guía de programación disponible en su sitio web \footnote{\url{https://spark.apache.org/docs/latest/programming-guide.html}}, pero a fin de destacar las particularidades relevantes en este trabajo se describen algunos conceptos fundamentales.
+
+A grandes rasgos, una aplicación en Spark consiste de un programa \textit{driver} que ejecuta varias operaciones en paralelo sobre un clúster a partir de una función definida por el usuario. Para el manejo de datos se provee una abstracción denominada ``conjunto de datos distribuidos resistente'' o \textit{resilient distributed dataset} (RDD), que consiste en una colección de elementos repartidos sobre los nodos de la infraestructura y que pueden ser operados en forma paralela. Estos RDDs tienen la particularidad de poder ser persistidos en memoria para ser eficientemente reutilizados en distintas operaciones, y además se recuperan automáticamente de cualquier fallo ocurrido en los nodos.
+
+\hfil
+
+\textbf{Operaciones en RDDs}
+
+Los RDDs soportan dos tipos de operaciones, que definen el tipo de procesamiento general que se puede realizar en Spark:
+
+\begin{itemize}
+	\item \textbf{Transformaciones:} Dado un RDD, el resultado es otro RDD en donde cada uno de los elementos del original son alterados mediante una función determinada. En Spark todas las transformaciones se realizan de forma \textit{lazy}, es decir que no se computa el resultado hasta no ser requerido. Esto incrementa la eficiencia del procesamiento ya que se va a retornar sólo el valor necesitado y no todos los elementos procesados previamente. Ejemplos de transformaciones son los conocidos \textit{map} y \textit{filter} del paradigma funcional. 
+	
+	\item \textbf{Acciones:} Resulta en un valor singular producido por una función de agregación entre todos los elementos del RDD en cuestión. Por esta razón, la cadena de transformaciones previas se deben ejecutar para poder computar este resultado único. Ejemplos de acciones son el \textit{reduce} que produce la agregación en base a una función definida (e.g. suma, concatenación, etc) y el \textit{count} que resulta en una cuenta de todos los elementos de un RDD.
+\end{itemize}
+
+Por defecto, cada RDD transformado es recomputado cada vez que una acción se ejecuta sobre este. No obstante, se puede además persistir un RDD en memoria y/o disco para que Spark mantenga los elementos en los nodos de forma que se agilice el acceso a los mismos.
+
+\hfil
+
+\textbf{Variables compartidas}
+
+Otra abstracción que provee Spark es el de variables compartidas que pueden utilizarse en operaciones paralelas. Por defecto, cuando Spark ejecuta una serie de tareas en diferentes nodos, se envía una copia de cada variable usada por cada tarea en dichos nodos. Esto puede ser ineficiente en casos que las mismas se necesiten para múltiples operaciones (sobre todo si una variable posee un gran tamaño como para ser transmitida varias veces). En estos casos que una variable necesita ser compartida entre tareas y operaciones, se pueden aprovechar dos tipos de variables compartidas que Spark provee: las de \textit{broadcast} que pueden ser usadas para mantener un elemento en memoria sobre todos los nodos, y las de \textit{accumulator} que sirven para fines de agregación entre operaciones.
+
+Las variables \textit{broadcast} permiten al programa enviar un valor de sólo lectura a todos los nodos en cuestión para que puedan usarlo en una o más operaciones de Spark. Con las variables \textit{broadcast}, se pueden transferir copias de un elemento grande (como un conjunto de datos) de forma eficiente, ya que además Spark intenta distribuir dicha variable usando algoritmos eficientes de broadcast para reducir el costo de comunicación. Es importante mencionar que el valor almacenado en la variable no puede ser modificado luego de transferirse, de forma que se asegure que todos los nodos obtengan el mismo valor para operar consistentemente \cite{karau2015learning}.
+
+Las variables \textit{accumulator} proveen una sintáxis simple para agregar valores arrojados por los nodos hacia el programa en el driver. Para ello se basan en una operación que deber ser conmutativa y asociativa, la cual desempeña la acumulación o agregación de los valores eficientemente de forma paralela. Los nodos no pueden acceder a su valor ya que esta variable es de sólo escritura para ellos y únicamente puede ser accedida por el programa en el driver, lo cual permite que el esquema sea eficiente al ahorrar costos de comunicación por cada actualización que ocurra. 
+
+%-------------------------------------------------------------------
+\subsection{Integridad de tecnologías}
+%-------------------------------------------------------------------
+\label{cap3:subsec:spark-tecnologias}
+
+La plataforma provee además una pila de librerías que pueden ser combinadas indistintamente sobre una misma aplicación, conforme a la característica de propósito general mencionada anteriormente. Dichas librerías actualmente son:
+\begin{itemize}
+	\item \textbf{Spark SQL:} Módulo que permite trabajar con datos estructurados en forma escalable, mediante una interfaz de DataFrames que soporta consultas SQL e integración con otras tecnologías relacionadas.
+	\item \textbf{Spark Streaming:} Soporte para procesamiento de flujos que permite escribir aplicaciones en tiempo real.
+	\item \textbf{GraphX:} Interfaz para procesamiento de grafos de forma paralelizada, incluyendo algoritmos para minarlos de manera eficiente.
+	\item \textbf{MLlib:} Librería de aprendizaje maquinal, que incluye los algoritmos más populares desarrollados de forma escalable para aplicaciones distribuidas. 
+\end{itemize}
+
+Además ofrece soporte de forma nativa para integrarse con otras tecnologías distribuidas, como YARN y Mesos para manejo de clústeres, y Cassandra, HBase y Hive para bases de datos. Estas características le permiten ser fácilmente acoplable con cualquier aplicación de cómputo distribuido, y es por ello que la mayor parte de grandes organizaciones contienen a Spark en su pila de producción para manejo de datos.
+
+Dado que actualmente se considera a Spark como una de las más importantes tecnologías para procesamiento de datos, en el presente proyecto se consideró adecuado integrarla para lograr una aplicación de aprendizaje profundo que soporte cómputo distribuido, y que además constituya un producto de software avalado por una tecnología novedosa y popular.
+
+%-------------------------------------------------------------------
+\section{Aplicaciones en aprendizaje profundo}
+%-------------------------------------------------------------------
+\label{cap3:sec:aplicaciones-distribuido}
+
+Como se mencionó anteriormente en la Sección \ref{cap2:sec:deeplearning}, utilizando aprendizaje profundo se logran modelos más precisos que con otras técnicas de aprendizaje maquinal aunque involucrando un mayor costo computacional. Se ha observado que incrementando su escala, en cuanto a los datos de entrenamiento y/o número de párametros del modelo, se puede mejorar drásticamente el desempeño en las tareas asignadas. Estos resultados han despertado el interés en intensificar el entrenamiento de los modelos así como enriquecer los algoritmos y procedimientos utilizados para optimizarlos \cite{dean2012large}. %Las sugerencias existentes para escalar el aprendizaje profundo incluyen el uso de granja de GPUs para entrenar una colección de muchos modelos pequeños y luego promediar sus predicciones, así como modificar la forma de construir redes neuronales profundas para hacerlas inherentemente más paralelizables \cite{deng2012scalable}.
+
+Actualmente, la mayor parte de las redes neuronales profundas son entrenadas usando GPUs debido a la enorma cantidad de cómputos en paralelo que realizan. Sin estas mejoras de desempeño, las redes profundas podrían tomar días o incluso semanas en entrenarse sobre una sóla máquina. No obstante, usar GPUs puede ser inconveniente por las siguiente razones:
+
+\begin{itemize}
+	\item Son costosas, tanto en la compra como en el alquiler.
+	
+	\item Muchas de ellas sólo pueden mantener en memoria una relativamente pequeña porción de datos.
+	
+	\item La transferencia de CPU a GPU es muy lenta, lo cual en algunas aplicaciones puede hasta contrarrestar la mejora que provee usar GPUs.
+\end{itemize}
+
+Es por ello que en los últimos años se están desarrollando herramientas relacionadas a aprendizaje maquinal en general con soporte para distribuir el cómputo involucrado sobre una infraestructura como un clúster. En este campo, se destacan las siguientes formas de implementar el paralelismo:
+
+\begin{enumerate}[a)]
+	\item \underline{Paralelismo de las tareas}: Aquí se cubre la ejecución de programas a lo largo de múltiples hilos en una o más máquinas. Se enfoca en ejecutar diferentes operaciones en paralelo para utilizar completamente los recursos de cómputo disponibles en forma de procesadores y memoria.
+	
+	%Some of Big Data frameworks that utilize task parallelism are Apache Storm and Apache YARN (it supports more of hybrid parallelism providing both task and data parallelism).
+	
+	\item \underline{Paralelismo de los datos}: Aquí el foco es distribuir los conjuntos de datos a lo largo de múltiples programas computacionales, con lo cual las mismas operaciones son realizadas en diferentes procesadores sobre el mismo conjunto de datos distribuido.
+	
+	%Some of Big Data frameworks that utilize data parallelism are Apache Spark, Apache MapReduce and Apache YARN (it supports more of hybrid parallelism providing both task and data parallelism).
+	
+	
+	\item \underline{Híbrido}: En un mismo programa se pueden implementar los dos paradigmas anteriores, donde lo que se busca es ejecutar concurrentemente distintas tareas sobre datos que se encuentran a su vez distribuidos en una infraestructura
+\end{enumerate}
+
+
+Específicamente, estas maneras de utilizar el paralelismo son aplicadas en el aprendizaje profundo para llevar a cabo principalmente dos tipos de tareas: el procesamiento de los datos con los cuales se realiza el modelado, y la optimización de los parámetros que definen el modelo en sí.
+
+
+%-------------------------------------------------------------------
+\subsection{Procesamiento de datos}
+%-------------------------------------------------------------------
+\label{cap3:subsec:paralel-datos}
+
+Cuando se manejan datos de gran dimensión (sobre todo en problemas relacionados a Big Data), es crucial que el pre-procesamiento de los datos a utilizar en el modelado se realice con un soporte a la gran magnitud tratada. Por ello resulta factible que dicha tarea se ejecute de forma paralelizada, sobre todo si los datos son tan grandes que no pueden almacenarse en una única computadora y se deben distribuir en una red de ellas. 
+
+Dado que actualmente las aplicaciones en las que se suele recurrir a utilizar aprendizaje maquinal (principalmente \textit{deep learning}) comprenden datos con esta propiedad mencionada (e.g. grandes conjuntos de imágenes con alta resolución, muestras largas de señales de voz con alta frecuencia de muestreo, etc), es muy común que la etapa de pre-procesamiento previa al modelado se agilice mediante cómputo paralelo/distribuido.
+
+Existen algoritmos utilizados para pre-procesar datos que tienen una versión paralelizada y/o escalable, desde algo básico como el proceso de estructurar y normalizar los datos o como un análisis estadístico, hasta algoritmos más sofisticados para reducir dimensiones o bien un \textit{clustering} para el etiquetado.
+
+
+
+%-------------------------------------------------------------------
+\subsection{Optimización de modelos}
+%-------------------------------------------------------------------
+\label{cap3:subsec:paralel-modelos}
+% Usando el review de  http://sebastianruder.com/optimizing-gradient-descent/
+
+Dado que una etapa crucial en la construcción de redes neuronales profundas es su optimización, resulta factible que el poder computacional se concentre en mejorar dicho proceso. Por lo general, para ello se utilizan algoritmos basados en actualizaciones de gradientes, y ya que principalmente el más utilizado es el gradiente descendiente estocástico (SGD), que ya fue explicado en la Sección \ref{cap2:subsec:optimizacion}, existen diversos trabajos enfocados en ofrecer una versión paralelizada de este procedimiento cuya naturaleza es iterativa. A continuación, se detallan breventes algunos de ellos:
+
+%\hfil
+
+\textbf{Downpour SGD}
+
+Una variante asíncrona del SGD es propuesta en el algoritmo \textit{Downpour SGD}, el cual es usado en el framework \textit{DistBelief} desarrollado por Google \cite{dean2012large}. El mismo ajusta múltiples réplicas de un modelo en paralelo sobre subconjuntos obtenidos del conjunto de entrenamiento. Estos modelos envían sus actualizaciones a un servidor de parámetros, que también está distribuido en distintas máquinas. Cada máquina es responsable de almacenar y actualizar una fracción de los parámetros del modelo final. No obstante, dado que las réplicas no se comunican entre sí (i.e. compartiendo pesos sinápticos o actualizaciones), sus parámetros están continuamente en riesgo de diverger, dificultando la convergencia de la solución.
+
+TensorFlow, un reciente framework de código abierto desarrollado por Google %\cite{abadi2016tensorflow}
+que sirve para implementar y desplegar modelos de aprendizaje maquinal en larga escala, está basado en la experiencia de desarrollar \textit{DistBelief} por lo que internamente utiliza \textit{Downpour SGD} para incluir procesamiento distribuido.
+
+%https://databricks.com/blog/2016/01/25/deep-learning-with-apache-spark-and-tensorflow.html
+
+\iffalse
+\textbf{Delay-tolerant Algorithms for SGD}
+
+McMahan and Streeter [12] extend AdaGrad to the parallel setting by developing delay-tolerant algorithms that not only adapt to past gradients, but also to the update delays. This has been shown to work well in practice.
+\fi
+
+%\hfil
+
+
+\textbf{Hogwild!}
+
+Una solución llamada HOGWILD! \cite{recht2011hogwild} presenta un esquema que permite desempeñar las actualizaciones de parámetros con SGD de forma paralela en CPUs. Básicamente, dicho algoritmo sigue un esquema de memoria compartida donde por cada iteración del SGD todos los nodos disponibles utilizan subconjuntos separados de un conjunto de datos para entrenar modelos independientes. Estos últimos luego contribuyen a la actualización del gradiente de forma asíncrona, donde dichas contribuciones son promediadas para ser incorporadas al gradiente general. Además, los nodos tienen permitido acceder a la memoria compartida sin bloquear los parámetros (i.e. pueden hacerse lecturas y escrituras simultáneamente sin interrumpir el trabajo de los demás nodos). No obstante, esto sólo funciona si los datos de entrada se estructuran de forma ``rala'', tal que cada actualización sólo modifique una fracción de todos los parámetros. Este algoritmo es actualmente implementado por H2O para el entrenamiento de sus redes neuronales \cite{arora2015deep}.
+
+%Ver Dogwild! ? Distributed Hogwild for CPU  \& GPU
+
+%\hfil
+
+
+\textbf{Iterative MapReduce}
+
+Mientras que una simple pasada de MapReduce se desempeña bien para muchos casos de uso, es insuficiente para utilizarse en aprendizaje maquinal y aprendizaje profundo, ya que por naturalzeza requieren métodos iterativos dado que un modelo aprende mediante un algoritmo de optimización que lo lleva a un punto de error mínimo a través de muchos pasos.
+
+Un método propuesto para lidiar con esto, que es utilizado en el framework Deeplearning4j, se llama Iterative MapReduce 
+\footnote{Fuente: \url{http://deeplearning4j.org/iterativereduce.html}.} 
+y puede entenderse como una secuencia de operaciones \textit{map-reduce} con múltiples pasadas sobre los datos, donde la salida de una tarea MapReduce se vuelve la entrada de una consecuente tarea MapReduce y así sucesivamente. 
+
+Para el caso de una red neuronal que se debe entrenar con un conjunto de datos, la función \textit{Map} ubica todas las operaciones en cada nodo del sistema distribuido, y así reparte los ``batches'' del conjunto de entrada sobre estos nodos. En cada uno de ellos, un modelo es entrenado con la correspondiente entrada que recibe, y finalmente la función \textit{Reduce} toma todos estos modelos y promedia sus parámetros, agregando todo en un nuevo modelo que envía hacia cada nodo para la próxima iteración. Este procedimiento iterativo se hace tantas veces hasta alcanzar un criterio de corte establecido sobre el error de entrenamiento. Es importante notar que este esquema implementa paralelismo tanto de las tareas (en el ajuste de los modelos instanciados en cada nodo) como de los datos (al repartir los datos sobre todos los nodos disponibles).
+
+La Figura \ref{fig:mapreduce-vs-iterative} \footnote{Fuente: \url{http://www.slideshare.net/cloudera/strata-hadoop-world-2012-knitting-boar}} muestra la comparación entre un esquema convencional de MapReduce y el iterativo explicado. Notar que cada \textit{Processor} corresponde a un modelo de red neuronal a entrenar sobre un batch de datos asignados, y cada \textit{Superstep} implica una etapa de promediado sobre los parámetros de cada \textit{Processor} para obtener un modelo único, que luego se redistribuye por el resto del clúster para continuar el procedimiento.
+
+
+\begin{figure}[t]
+	\begin{center}
+		\includegraphics[width=0.75\textwidth]%
+		{Imagenes/Bitmap/mapreduce_v_iterative}
+		\caption{Comparación de esquema convencional MapReduce con su versión iterativa implementada en Iterative MapReduce.}
+		\label{fig:mapreduce-vs-iterative}
+	\end{center}
+\end{figure}
+
+%Estos usan DistBelief con Spark 
+%http://deepdist.com/
+%https://github.com/guoding83128/OpenDL
+
+%Acá hay una revisión de las versiones paralelizadas de los algoritmos de optimiz: http://sebastianruder.com/optimizing-gradient-descent/
+
+
+% Variable local para emacs, para  que encuentre el fichero maestro de
+% compilación y funcionen mejor algunas teclas rápidas de AucTeX
+%%%
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: "../Tesis.tex"
+%%% End:

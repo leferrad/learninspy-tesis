@@ -1,0 +1,69 @@
+% -*- latex -*-
+% $Id: glosstex.ins,v 1.13 1997/11/15 17:39:59 volkan Exp $
+
+\def\batchfile{glosstex.ins}
+\input docstrip.tex
+\askforoverwritefalse
+\keepsilent
+
+\preamble
+
+   GlossTeX, a tool for the automatic preparation of glossaries.
+   Copyright (C) 1997 Volkan Yavuz
+
+   This program is free software; you can redistribute it and/or
+   modify it under the terms of the GNU General Public License
+   as published by the Free Software Foundation; either version 2
+   of the License, or (at your option) any later version.
+
+   This program is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+   GNU General Public License for more details.
+
+   You should have received a copy of the GNU General Public License
+   along with this program; if not, write to the Free Software
+   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+
+   Volkan Yavuz, yavuzv@rumms.uni-mannheim.de
+
+   Please note, that if you modify these files, do NOT distribute them
+   unless you have renamed the files and clearly stated, WHO has
+   modified the file and WHAT was modified.
+   
+   You are explicitly allowed to modify the file "`glosstex.std"' to
+   incorporate site-specific modifications. But do NOT distribute that
+   file unless you have renamed it and clearly stated, WHO has
+   modified the file and WHAT was modified.
+
+\endpreamble
+
+\generate{%
+  \file{glosstex.sty}{\from{glosstex.dtx}{package}}
+  \file{glosstex.std}{\from{glosstex.dtx}{std}}
+  \file{glosstex.ist}{\from{glosstex.dtx}{ist}}
+  \file{glosstex.gdf}{\from{glosstex.dtx}{gdf}}
+  \file{glosstex.cfg}{\from{glosstex.dtx}{cfg}}
+  }
+
+\Msg{**********************************************************************}
+\Msg{*}
+\Msg{* You will find the documentation in glosstex.dvi. You may remake it}
+\Msg{* by running latex on glosstex.dtx or invoking `make doc'}
+\Msg{*}
+\Msg{* To finish the installation you have to move the following}
+\Msg{* files (according to TDS):}
+\Msg{*}
+\Msg{* glosstex.sty to texmf/tex/latex/glosstex}
+\Msg{* glosstex.std to texmf/tex/latex/glosstex}
+\Msg{* glosstex.ist to texmf/makeindex}
+\Msg{*}
+\Msg{* and your own .gdf-files to texmf/glosstex.}
+\Msg{*}
+\Msg{* The files `glosstex.gdf' and `glosstex.cfg` are meant just for}
+\Msg{* this document, so you won't want to install them, normally.}
+\Msg{*}
+\Msg{* Happy TeXing!}
+\Msg{**********************************************************************}
+
+\endinput

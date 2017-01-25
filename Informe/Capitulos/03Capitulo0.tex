@@ -1,0 +1,90 @@
+%---------------------------------------------------------------------
+%
+%                          Capítulo 6
+%
+%---------------------------------------------------------------------
+
+\chapter{Electroencefalografía}
+
+\begin{FraseCelebre}
+\begin{Frase}
+Todo hombre puede ser, si se lo propone, escultor de su propio cerebro.
+\end{Frase}
+\begin{Fuente}
+Santiago Ramón y Cajal
+\end{Fuente}
+\end{FraseCelebre}
+
+\begin{resumen}
+Este capítulo pretende introducir brevemente los conceptos manejados en cada caso de aplicación realizado. Específicamente, se puntualiza sobre la electroencefalografía y su uso para construir interfaces cerebro-humano, destacando así la motivación principal para llevar a cabo las aplicaciones del presente trabajo de tesis.
+\end{resumen}
+
+
+%-------------------------------------------------------------------
+\section{Señales de electroencefalograma}
+%-------------------------------------------------------------------
+\label{cap6:sec:eeg}
+
+La electroencefalografía (\acs{EEG}) consiste en el registro de la actividad cerebral de un individuo, la cual es captada mediante electrodos como señales eléctricas producidas por un conjunto de neuronas en un período de tiempo. El primer registro de actividad espontánea cerebral fue realizado en 1875 por Richard Canton, quien mediante un galvanómetro pudo observar impulsos eléctricos medidos sobre la superficie del cerebro de un animal. En 1924, Hans Berger registra el primer electroencefalograma de un humano mediante el uso de tiras metálicas pegadas sobre el cuero cabelludo y utilizando también un galvanómetro como elemento de medida. Durante dicho procedimiento pudo medir el patrón irregular y de poca amplitud de la señal de electroencefalograma, generando las bases para el desarrollo de la electroencefalografía \cite{coretto2016imaginada}.
+
+Existen dos modalidades en que se puede registrar la actividad del cerebro, según la técnica utilizada para la medición: invasiva y no invasiva \cite{abaitua2012procesado}. Las técnicas invasivas, como el electrocortigrama (ECoG), utilizan micro electrodos implantados en el cerebro que miden la actividad de las neuronas, individualmente consideradas. En cambio, la electroencefalografía es una técnica no invasiva que indica la actividad eléctrica del cerebro medida con electrodos superficiales colocados sobre el cuero cabelludo, con lo cual se proporciona información detallada sobre la actividad local de pequeñas regiones cerebrales. Se caracteriza por captar señales de pequeñísima amplitud y de gran variabilidad en el tiempo, así como por tener un valor pobre de relación señal/ruido o \ac{SNR}, y su instrumentación de adquisición es de fácil colocación y bajo costo.
+
+Generalmente el conjunto de electrodos que registran la señal de EEG se ubica en forma directa sobre el cuero cabelludo siguiendo el sistema internacional 10-20, denominado así porque los electrodos están espaciados entre el 10\% y el 20\% de la distancia total entre puntos reconocibles del cráneo. Actualmente se utilizan unos gorros que llevan incorporados los electrodos, a cada uno de los cuales se les introduce un gel conductor que facilita la recepción de la señal a través del cuero cabelludo. Los electrodos se unen en un conector
+y éste se conecta con el cabezal del EEG, lugar donde se recoge toda la actividad eléctrica y se envía al sistema de amplificadores para su trascripción a datos digitales.
+
+
+%-------------------------------------------------------------------
+\section{Interfaces Cerebro-Computadora}
+%-------------------------------------------------------------------
+\label{cap6:sec:icc}
+
+%Se puede usar esto http://www.ncbi.nlm.nih.gov/pmc/articles/PMC3304110/
+
+Una interfaz cerebro-computadora o ICC (en inglés, conocida como \textit{Brain Computer Interface} o \acs{BCI}) es un sistema que permite a una persona la comunicación y control de su entorno sin necesidad de usar nervios o músculos. Esta registra la actividad cerebral de un sujeto para traducirla en comandos sobre una computadora. Es por ello que tiene gran utilidad en aplicaciones de robótica, videojuegos, y especialmente en salud neurológica al ser la única posibilidad de comunicarse para personas con discapacidades motrices. En cuanto a la toma de datos, los métodos no invasivos son más atractivos ya que son más fáciles de implementar en pacientes y además han demostrado tener efectividad comparable a la de aquellas interfaces con electrodos implantados cuando se utilizan algoritmos apropiados de aprendizaje maquinal \cite{wolpaw2004control}.
+
+Los sistemas \acs{BCI} no son lectores de mente. Están diseñados para reconocer patrones en datos extraídos del cerebro (e.g. pensamientos o estados mentales) y asociarlos con comandos, pero eso no significa que sea capaz de leer una mente. Según Forslund \cite{forslund2003neural}, no existe forma de que un sistema técnico pueda actualmente informar \textit{qué piensa una persona}, y hay varias razones para ello:
+\begin{enumerate}
+	\item Las técnicas de sensado que se usan para extraer información del cerebro son imprecisas, y pueden representar sólo una microscópica fracción del total de actividad cerebral.
+	\item Incluso si fuera posible extraer los estados de todas las células en el cerebro, esa información sería muy compleja de manejar, aún para la más poderosa súper computadora.
+	\item Los cerebros son únicos e individuales. Aunque dos personas piensen exactamente lo mismo, la actividad cerebral que se manifiesta es completamente diferente. 
+\end{enumerate}
+
+Aclarado esto, se puede entender a un sistema BCI como un traductor de actividad cerebral en ciertos comandos definidos, por lo cual se compone de los siguientes módulos:
+\begin{itemize}
+	\item Sensado de datos cerebrales en el sujeto y filtrado o mejora de la calidad de las señales.
+	\item Extracción de características relevantes para la tarea del sistema.
+	\item Clasificación del fenómeno registrado desde el cerebro.
+	\item Traducción en movimiento o control de un dispositivo, y retroalimentación al sujeto en cuestión.
+\end{itemize}
+
+\begin{figure}[t]
+	\begin{center}
+		\includegraphics[width=\textwidth]%
+		{Imagenes/Bitmap/diagrama-bci}
+		\caption{Diagrama en bloques del funcionamiento de un BCI.}
+		\label{fig:bci-neural}
+	\end{center}
+\end{figure}
+
+En la Figura \ref{fig:bci-neural} se puede visualizar el diagrama en bloques descripto. Dado que en este trabajo los modelos se basan en redes neuronales profundas, se propone como parte de un único bloque a las tareas de extracción de características y clasificación, ya que este tipo de modelo se encargaría de todo esto tal como se ha anticipado en la Sección \ref{cap2:sec:deeplearning}. Es por ello que para los casos de aplicación tratados se propuso como alcance que los experimentos se realicen sobre datos crudos de electroencefalografía, sin ninguna extracción de características previa. Con ello se sigue la idea de otros trabajos en aprendizaje profundo \cite{bengio2009learning}\cite{le2013building}\cite{erhan2010does}, en donde se espera que la red neuronal sea capaz de aprender a extraer las características sobre la entrada. %(feature learning)
+% https://en.wikipedia.org/wiki/Feature_learning
+
+Por lo tanto, para estas aplicaciones se pretende probar el desempeño de los modelos construidos mediante el framework desarrollado, y así corroborar la aptitud para facilitar o resolver problemas complejos como el comprendido en construir sistemas BCI mediante electroencefalografía.
+
+
+\iffalse
+
+ DE FONSOFT:
+
+Actualmente para la construcción de ICC se invierte mucho tiempo y recursos en el procesamiento e interpretación de las señales electroencefalográficas, que luego es difícil de llevar a dispositivos para traducir dichas señales en comandos con la precisión requerida y en tiempo real. La ventaja de modelar ICC con redes neuronales profundas es que, una vez encontrado el mejor modelo, es muy sencillo trasladarlo a un dispositivo (mediante chips electrónicos, o de forma más sencilla con Arduino) y el funcionamiento en tiempo real que logra hace posible maximizar la tasa de transferencia de información entre este y el usuario
+
+
+\fi
+
+% Variable local para emacs, para  que encuentre el fichero maestro de
+% compilación y funcionen mejor algunas teclas rápidas de AucTeX
+%%%
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: "../Tesis.tex"
+%%% End:

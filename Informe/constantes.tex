@@ -1,0 +1,51 @@
+%---------------------------------------------------------------------
+%
+%                          constantes.tex
+%
+%---------------------------------------------------------------------
+%
+% Fichero que  declara nuevos comandos LaTeX  sencillos realizados por
+% comodidad en la escritura de determinadas palabras
+%
+%---------------------------------------------------------------------
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Comando: 
+%
+%       \titulo
+%
+% Resultado: 
+%
+% Escribe el título del documento.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\def\titulo{Proyecto Final de Ingeniería en Informática}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Comando: 
+%
+%       \autor
+%
+% Resultado: 
+%
+% Escribe el autor del documento.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\def\autor{Leandro Ferrado}
+\def\director{Hugo Leonardo Rufiner}
+\def\codirector{Iván Gareis}
+\def\spark{Apache Spark\texttrademark}
+\def\learninspyversion{1.0}
+
+
+% Para package {algorithm}
+\makeatletter
+\def\BState{\State\hskip-\ALG@thistlm}
+\makeatother
+
+% Variable local para emacs, para  que encuentre el fichero maestro de
+% compilación y funcionen mejor algunas teclas rápidas de AucTeX
+
+%%%
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: "tesis.tex"
+%%% End:

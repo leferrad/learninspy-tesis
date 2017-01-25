@@ -1,0 +1,77 @@
+$Id: README.m4,v 1.5 1997/11/15 14:55:30 volkan Exp $
+
+
+* Introduction
+
+GlossTeX is a tool for the automatic preparation of glossaries, lists
+of acronyms and sorted lists in general for use with LaTeX and
+MakeIndex. In order to build GlossTeX, you need an ANSI C
+compiler.
+
+GlossTeX in some kind combines the functionality of acronym, nomencl
+and GloTeX. Like GloTeX, it uses the same format glossary definition
+files. GlossTeX can be used together with nomencl, nevertheless.
+
+A term consists of a label which is used to identify it, an optional
+typeset representation, an optional long-form (e.g. when it's an
+acronym) and the actual text describing it. These elements can all be
+accessed in several ways within the document. It is also possible to
+place cross-references from one term to another and include
+page-references into the produced lists. You can produce as many
+independent lists as you like.
+
+The most recent official release can always be found on
+CTAN:/support/glosstex. Inofficial development releases may be found
+on my homepage at http://webrum.uni-mannheim.de/ba/yavuzv/.
+
+GlossTeX comes with absolutely no warranty and is covered by the GNU
+General Public License (see the file COPYING).
+
+		   Copyright (C) 1997 Volkan Yavuz
+
+
+* Usage
+
+In your LaTeX-source, type:
+
+
+	\documentclass{article}
+	\usepackage{glosstex}
+	\begin{document}
+
+	\printglosstex(acr)
+	This document is typeset using \gls{LaTeX}.
+
+	The database file\glosstex{gdf-file} for use with
+	\gls{GlossTeX} is a flat \ac{ASCII} file.
+
+	\printglosstex(glo)
+	\end{document}
+
+You need a .gdf-file that contains the definitions of the terms you
+want to appear in the glossary. For example:
+
+	@entry{LaTeX, \LaTeX{}} \LaTeX{} is a \TeX{}-format.
+
+	@entry{ASCII, ASCII, American Standard Code for Information
+	Interchange} ASCII is a character encoding. See also
+	\glxref{EBCDIC}.
+
+
+You then run latex, glosstex, makeindex and latex again to build the
+glossary. It may be necessary to use up to 4 iterations until all
+references are resolved.
+
+
+* Documentation
+
+Complete installation instructions and the user manual
+can be found in glosstex.dvi.
+	
+
+* Comments
+
+If you have any comments, suggestions, mail me at
+	
+
+	yavuzv@rumms.uni-mannheim.de 

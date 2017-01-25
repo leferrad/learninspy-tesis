@@ -1,0 +1,481 @@
+%---------------------------------------------------------------------
+%
+%                          Capítulo 7
+%
+%---------------------------------------------------------------------
+
+\chapter{Potencial P300}
+
+\begin{FraseCelebre}
+\begin{Frase}
+Entre estímulo y respuesta, hay un espacio donde elegimos nuestra respuesta.
+\end{Frase}
+\begin{Fuente}
+Stephen Covey
+\end{Fuente}
+\end{FraseCelebre}
+
+\begin{resumen}
+
+En este capítulo se dan a conocer todos los contenidos referidos al estudio del potencial P300 y el enfoque utilizado para detectar su presencia en señales de \acs{EEG}. A su vez, se explica en detalle el conjunto de datos utilizados para tratar este caso de aplicación y la metodología implementada en este proyecto para llevar a cabo la experimentación. Finalmente, se comunican los resultados obtenidos en comparación a distintos enfoques, incluyendo el del trabajo original de referencia.
+\end{resumen}
+
+Como primer caso de aplicación se escogió el de detección de P300 en señales de EEG, ya que hasta la actualidad se mantiene como uno de los principales paradigmas para construir sistemas BCI. Esto se debe a que constituyen sistemas rápidos, efectivos y prácticamente no requieren de entrenamiento para casi cualquier usuario. Recientes trabajos muestran que los sistemas BCI basados en P300 pueden ser empleados para una gran variedad de funciones, incluso sobre usuarios con discapacidad, por lo cual en este trabajo se propuso recurrir a esta aplicación utilizando aprendizaje profundo.
+
+%-------------------------------------------------------------------
+\section{Conceptos básicos}
+%-------------------------------------------------------------------
+\label{cap7:sec:conceptos}
+
+La onda P300 se caracteriza por producir un pico positivo en una señal de \acs{EEG} humano, aproximadamente luego de 300 ms desde la presentación de un estímulo externo significativo para el sujeto en cuestión, por lo cual se provoca en ella un cambio que se denomina ``potencial relacionado a eventos'' (en inglés, conocido como \textit{event-related potential} o \acs{ERP}) \cite{farwell1988talking}. Dicho estímulo externo puede ser de cualquier naturaleza, y de ello depende esencialmente la técnica para detectar un P300 en una señal de \acs{EEG}. Un procedimiento típico para evocar esta onda es el paradigma \textit{oddball}, donde dos estímulos se presentan en orden aleatorio y uno tiene mayor probabilidad de ocurrencia que el otro. Se describen algunas técnicas para la presentación de estímulos:
+\begin{itemize}
+	\item \underline{Sistema deletreador}: Farwell y Donchin \cite{farwell1988talking} fueron los primeros en emplear el potencial P300 como señal de control en un \acs{BCI}. Con el sistema que crearon, los sujetos podían deletrear palabras eligiendo secuencialmente los caracteres de un alfabeto que se presentaba en pantalla mediante una matriz de 6x6 (como letras y otros símbolos). Las filas y columnas de esa matriz se iluminan con destellos en forma aleatoria, y si alguna de ellas contiene el símbolo deseado por el sujeto entonces se evoca un P300 en la señal de \acs{EEG}. Así, mediante un algoritmo simple, durante la toma de datos se clasifica en cada registro del \acs{EEG} la presencia o no de un P300 en base a las filas y columnas iluminadas que corresponden a cada caracter deletreado por el sujeto en cuestión.  
+	
+	\item \underline{Prueba del conocimiento culpable}: Conocido como GKT (en inglés, \textit{Guilty Knowledge Test}) es un protocolo donde se realizan preguntas hacia un individuo, y cuando se presenta el ítem significativo de cada pregunta se registra una onda P300 con características en su forma distintas a las de los demás ítems. Diversos estudios, incluyendo los de Farwell y Donchin \cite{farwell1991truth}, muestran niveles altos de exactitud en la clasificación de los sujetos como culpables o inocentes valiéndose de la onda P300 mediante este protocolo.
+	
+	\item \underline{Multiple choice}: Procedimiento similar al sistema deletreador, sólo que en lugar de una matriz de letras y/o símbolos lo que se presenta en pantalla al sujeto es un conjunto de ítems (e.g. imágenes, palabras, etc.) que están relacionados a la tarea perseguida por el sistema BCI. Éstos también se iluminan de forma aleatoria, esperando que se produzca el P300 en el momento que se ilumine aquel ítem de interés para el sujeto.
+
+\end{itemize}
+
+Uno de los principales desafíos en la clasificación de P300 es lidiar con la baja relación señal/ruido o SNR. Dado que la señal de \acs{EEG} registrada desde el cuero cabelludo contiene mucho ruido debido al resto de la actividad eléctrica en el cerébro, es difícil aislar una onda P300 de la señal ruidosa resultante. El problema de la baja SNR es usualmente manejado mediante el promediado de varias épocas de registro consecutivas, lo cual logra cancelar gran parte del ruido en la señal y con ello se facilita la detección de la P300. No obstante, este enfoque conlleva el costo de reducir la tasa de comunicación que impacta directamente en el desempeño de un sistema \acs{BCI}. En la Figura \ref{fig:p300-wave} se visualiza el resultado de promediar épocas del registro en un EEG para resaltar la onda P300 y se puede observar que, tal como se dijo antes, normalmente se presenta cerca de los 300 ms luego del estímulo, aunque para algunos sujetos con discapacidad puede aumentar esta latencia (a 500 ms) y disminuir la amplitud del pico \cite{hoffmann2008efficient}.
+
+Farwell y Donchin reportaron en su trabajo pionero que es necesario promediar entre 20 y 40 épocas para lograr una exactitud mayor al 80\%, con una tasa de comunicación alrededor de 12 bits por minuto \cite{farwell1988talking}. Aunque este trabajo estableció la factibilidad de un sistema BCI deletreador basado en P300, la tasa de comunicación era demasiado baja como para llegar a un uso práctico. A partir de ello surgió mucho trabajo en las últimas décadas que se enfocó en mejorar la exactitud y la velocidad de comunicación de sistemas \acs{BCI} basados en P300, y aunque está ampliamente demostrado que promediando épocas se estabiliza la amplitud de la onda P300, el desafío sigue siendo mejorar el desempeño de la detección en única época o \textit{single trial} (i.e. sin ningún promediado).
+
+\begin{figure}
+	\centering
+	\begin{minipage}{.4\textwidth}
+		\centering
+		\includegraphics[width=0.95\linewidth]{Imagenes/Bitmap/P300/p300-8electrodos}
+		\captionof{figure}{Configuración de 8 electrodos elegida para los experimentos en P300}
+		\label{fig:p300-8electrodos}
+	\end{minipage}%
+	\hfill
+	\begin{minipage}{.52\textwidth}
+		\centering
+		\includegraphics[width=\linewidth]{Imagenes/Bitmap/P300/p300-wave}
+		\captionof{figure}{Promediado de las ondas del electrodo Pz. Arriba, para los sujetos con discapacidad (S1-S4). Abajo, sujetos sin discapacidad (S6-S9)}
+		\label{fig:p300-wave}
+	\end{minipage}
+\end{figure}
+
+%-------------------------------------------------------------------
+\section{Corpus de datos}
+%-------------------------------------------------------------------
+\label{cap7:sec:datos}
+
+Los datos de \acs{EEG} utilizados fueron adquiridos en forma gratuita desde el sitio web del Grupo de Procesamiento de Señales Multimedia perteneciente al Instituto de Tecnología Suizo Federal (EPFL)\footnote{Repositorio en: \url{http://mmspg.epfl.ch/BCI_datasets}}. Dicho corpus fue creado para realizar una publicación referida a construcción de sistemas \acs{BCI} para personas discapacitadas \cite{hoffmann2008efficient}. El mismo se encuentra almacenado en formato MATLAB, y además contiene los scripts utilizados en el paper para realizar el pre-procesamiento.
+
+
+\begin{figure}[t]
+	\begin{center}
+		\includegraphics[width=0.6\textwidth]%
+		{Imagenes/Bitmap/P300/images-p300}
+		\caption{Imagenes usadas para evocar el potencial P300 durante el registro de señales de EEG.}
+		\label{fig:images-p300}
+	\end{center}
+\end{figure}
+
+%-------------------------------------------------------------------
+\subsection{Registro}
+%-------------------------------------------------------------------
+\label{cap7:subsec:registro}
+
+%[DONE]
+
+Las señales de EEG fueron registradas con una frecuencia de muestreo de 2048 Hz, mediante 32 electrodos ubicados según el sistema internacional 10-20 y utilizando un equipo Biosemi Active Two para la amplificación y conversión analógica a digital de las señales. Para la toma de datos, se utilizó un procedimiento de \textit{multiple choice} con seis imágenes que pueden verse en la Figura \ref{fig:images-p300}, usando una población de cinco sujetos discapacitados y cuatro sin discapacidad. Particularmente, en este trabajo se optó por utilizar los datos provenientes de los primeros 4 sujetos con discapacidad (del Sujeto 1 al Sujeto 4). El protocolo constó de cuatro sesiones por sujeto, con una corrida para cada una de las seis imágenes en donde se pedía al sujeto que cuente en silencio cuántas veces la imagen que fue designada era iluminada por destellos. Luego las imágenes eran presentadas en pantalla y las mismas se iluminaban en forma de destellos de manera aleatoria después de que suene un tono de alerta. Al final de la corrida se les preguntaba a los sujetos el resultado de la cuenta para corroborar su desempeño. En total se obtuvo en promedio 810 ejemplos por sesión, lo que hace un total de 3240 ejemplos por sujeto también en promedio. Para mayor detalle del protocolo de adquisición de datos, remitirse a la publicación citada.
+
+
+
+
+\iffalse
+\begin{figure}[t]
+	\begin{center}
+		\includegraphics[width=0.3\textwidth]%
+		{Imagenes/Bitmap/P300/p300-8electrodos}
+		\caption{Selección de 8 electrodos para los experimentos en P300.}
+		\label{fig:p300-8electrodos_}
+	\end{center}
+\end{figure}
+
+\begin{figure}[t]
+	\begin{center}
+		\includegraphics[width=0.4\textwidth]%
+		{Imagenes/Bitmap/P300/p300-wave}
+		\caption{Onda P300.}
+		\label{fig:p300-wave_}
+	\end{center}
+\end{figure}
+\fi
+
+%-------------------------------------------------------------------
+\subsection{Procesamiento de datos}
+%-------------------------------------------------------------------
+\label{cap7:subsec:procesamiento}
+
+Los siguientes pasos de pre-procesamiento fueron aplicados sobre los datos registrados, por lo cual se parte sobre el resultado de los mismos para el tratamiento realizado en esta tesis sobre esta aplicación:
+
+\begin{enumerate}
+	\item \textit{Referencia:} Se usa como referencia la señal promediada que proviene de los dos electrodos mastoidales.
+	
+	\item \textit{Filtrado:} Se utilizó un filtro pasabandas Butterworth de sexto orden (forward-backward), cuyas frecuencias de corte fueron de 1 Hz y 12 Hz.  
+	
+	\item \textit{Submuestreo:} La frecuencia de muestreo de las señales extraídas del EEG fue bajada de 2048 Hz a 32 Hz mediante decimación.
+	
+	\item \textit{Extracción de single trial:} Se extrajeron los ejemplos de 1000 ms que comenzaban con la intensificación de una imagen. Debido al intervalo de 400 ms entre cada estímulo, se permitió un solapamiento de 600 ms entre estímulos contiguos.
+	
+	\item \textit{Remoción de artefactos:} Dado que los parpadeos, movimientos oculares y movimientos o cualquier actividad muscular puede causar artefactos que contaminen el EEG, manifestándose como amplitudes grandes, se procedió a removerlos mediante \textit{winsorizing} reemplazando las muestras de cada electrodo por percentiles calculados. Los valores de amplitud que estaban por debajo del percentil 10 o por arriba del percentil 90, fueron reemplazados por el percentil 10 o el 90 respectivamente.
+	
+	\item \textit{Escalado:} Las muestras de cada electrodo fueron escaladas al intervalo $[-1, 1]$. 
+	
+	\item \textit{Selección de electrodos:} Para el presente trabajo se eligió la Configuración II de 8 electrodos que se muestra en la Figura \ref{fig:p300-8electrodos}, ya que con ella se obtuvo los mejores resultados en el trabajo original de referencia. 
+	
+	\item \textit{Construcción del vector de características:} Se concatenaron las muestras de cada electrodo consecutivamente para formar un vector de características unidimensional. 
+	
+\end{enumerate}
+
+A partir de lo obtenido en el procedimiento anterior, se dispuso lo siguiente:
+
+\begin{itemize}
+	
+	\item Por cada uno de los 4 sujetos tratados, se dividió el total de datos en conjuntos de entrenamiento (70\% del total), validación (20\%) y prueba (10\% restante), lo cual es reflejado en la Tabla \ref{tab:dimension-datos-p300}.
+	
+	% \item StandardScaler? No se si se necesita 
+	
+	\item Cada entrada del conjunto de datos corresponde a una época única (\textit{single trial}), por lo cual no se realizó ningún promediado de épocas para limpiar las señales de EEG.
+\end{itemize}
+
+\begin{table}[htp]
+	\centering
+	\footnotesize\setlength{\tabcolsep}{20pt}
+	\caption{Descripción básica de los conjuntos de datos utilizados para obtener el modelo clasificador de P300.}
+	\label{tab:dimension-datos-p300}
+		\begin{tabular} {|l *{3}{|c}|}
+			\hline
+			\bfseries
+			 & \textbf{P300} & \textbf{NoP300} & \textbf{Total} 
+			\\
+			\hline
+			S1  & 557 &	2784 & \textbf{3341} 	
+			
+			\\
+			\hline
+			S2 & 554 & 2769 & \textbf{3323} 
+			
+			\\
+			\hline
+			S3 & 557 &	2784 &	\textbf{3341}
+			
+			\\
+			\hline
+			S4 & 553 &	2764 &	\textbf{3317}
+			
+			\\
+			\hline
+			
+		\end{tabular}
+\end{table}
+
+
+%-------------------------------------------------------------------
+\section{Experimentos}
+%-------------------------------------------------------------------
+\label{cap7:sec:experimentos}
+
+% Usar esto http://homepages.uni-paderborn.de/busarobi/PDFs/BaBuKe09.pdf
+% que cita a esto http://ijcai.org/Proceedings/95-1/Papers/068.pdf
+% Muy similar a este https://gbiomed.kuleuven.be/english/research/50000666/50000669/50488669/neuro_research/neuro_research_mvanhulle/comp_pdf/ICAISC2012.pdf
+% TESIS:
+% http://www.cs.colostate.edu/eeg/publications/sharma_thesis.pdf
+
+Para definir la metodología a utilizar en la experimentación, se tuvieron en cuenta las siguientes particularidades del problema tratado:
+
+\begin{itemize}
+	\item La clasificación a realizar es binaria, donde se predice la presencia o ausencia de un fenómeno (i.e. clase ``P300'' vs clase ``NoP300'').
+	
+	\item Dicho fenómeno se puede interpretar como una ``anomalía'' en la señal del EEG, que debido a la baja \acs{SNR} de la misma se mezcla con el resto de la actividad cerebral presente y por ende no es fácil de percibir. 
+	
+	\item Los datos se encuentran desbalanceados en cuanto a clases, ya que la clase ``NoP300'' normalmente dispone de más ejemplos que la clase ``P300'' debido a la menor prevalencia de este último tipo de evento en una señal de EEG registrada.
+	
+\end{itemize}
+
+Es por ello que para diseñar un clasificador de la ocurrencia o no de la onda P300 en una señal de EEG se vio como factible contemplar esa diferencia para definir el proceso de aprendizaje del modelo, el cual debe ser capaz de reconocer internamente las características necesarias para lograr esa distinción a partir de una entrada cruda. Por lo tanto, se dispuso construir un Stacked AutoEncoder para modelar el clasificador que incluya las siguientes cuestiones en su diseño: %(empirico?)
+
+\begin{enumerate}
+	\item \textbf{Pre-entrenamiento}: Se pretende que la red capte de forma no supervisada una representación interna de aquellos datos que no presentan ondas P300 (clase ``NoP300''), lo cual define para la detección deseada una línea base o \textit{baseline} de la actividad cerebral sin potenciales evocados. Para ello, se realiza lo siguiente:
+	\begin{itemize}
+		\item Esta etapa sigue un enfoque de clasificación con única clase (en inglés, One-Class Classification u \acs{OCC}), por lo cual el modelo es ajustado con datos de una sola clase para identificarla sobre el resto posible en las predicciones \cite{khan2009survey}.
+		
+		\item Se utilizan los datos de todos los sujetos, de forma que se pueda correlacionar de distintas fuentes las características del \textit{baseline} deseado. %(transfer learning?)
+	\end{itemize}
+	
+	\item \textbf{Ajuste fino}: Una vez construida esta red neuronal con sus parámetros inicializados mediante el pre-entrenamiento, se sigue su entrenamiento supervisado convencionalmente. Esto se lleva a cabo según lo siguiente:
+		\begin{itemize}
+			\item Se realiza sobre los datos de un sujeto en particular, de forma que se refine el \textit{baseline} sobre las características propias de los datos registrados sobre un sujeto dado. Por lo tanto se obtiene un clasificador por cada sujeto tratado.
+			
+			\item Se utilizan datos de ambas clases para adiestrar al clasificador en forma más precisa al incorporar características de los potenciales evocados sobre el \textit{baseline} ya modelado, y con ello obtener una clasificación binaria de los datos.
+		\end{itemize}
+	
+\end{enumerate}
+
+
+En cuanto a la configuración de la red, se eligió una arquitectura de 6 niveles compuestos por las siguientes dimensiones: 256, 100, 80, 60, 40, 20, 2. Se utilizó una tangente hiperbólica como función de activación en las capas de cada autocodificador, ya que su imagen cae en el rango $[-1,1]$ al igual que los valores que toman los datos de EEG luego del escalado aplicado. No se recurrió al algoritmo DropOut para regularizar las capas ya que no mejoraba los resultados, aunque para lograr generalización en el desempeño de la red se utilizaron normas L1 y L2 ponderadas por los valores 5e-7 y 3e-4 respectivamente. 
+
+Respecto a la configuración de la optimización, se utilizó el algoritmo Adadelta siguiendo como criterio de corte un máximo de 20 iteraciones en forma local y de 100 iteraciones en forma global. La función de consenso para la mezcla de modelos en el entrenamiento distribuido sigue una ponderación lineal (denominada ``w\_avg'' en Learninspy) sobre los valores obtenidos en la función de costo. Para el ajuste fino se utilizó una optimización menos intensiva basada en un gradiente descendiente del tipo NAG con baja tasa de aprendizaje.
+
+Para tener otra referencia de comparación en términos de clasificación distinta a la del trabajo original citado, se modelaron tres clasificadores más:
+
+\begin{itemize}
+	\item \textbf{Regresión logística}: Para determinar una línea base de resultados para la clasificación, se recurrió a un método básico de regresión logística como el explicado en la Sección \ref{cap2:subsec:reg-clasif}, utilizando la implementación que provee la librería MLlib de \spark.
+	\item \textbf{SAE sin OCC}: A fines de justificar la metodología explicada como una mejora, se implementó un Stacked AutoEncoder convencional sin seguir el enfoque OCC definido. De esta forma se puede comparar la diferencia obtenida con la metodología propuesta, en términos de desempeño para la clasificación, respecto al diseño estándar de SAEs.
+	\item \textbf{DNN}: Se modeló también una red neuronal profunda clásica para conocer el desempeño obtenido sin recurrir al pre-entrenamiento de forma no supervisada que implementa un SAE.
+\end{itemize}
+
+Es preciso aclarar que todas estas redes neuronales se construyeron con la misma arquitectura y optimizaron de igual forma, diferenciándose únicamente en la implementación de la etapa pre-entrenamiento, de manera que la comparación pueda ser más apropiada. Además, todas las clasificaciones se basaron en regresiones logísticas salvando que en el caso de las redes neuronales se realizaban sobre la salida producidas por las capas intermedias en lugar de aplicarse directamente sobre los datos de entrada.
+
+
+%-------------------------------------------------------------------
+\section{Resultados}
+%-------------------------------------------------------------------
+\label{cap7:sec:resultados}
+
+Para medir el desempeño de los modelos a comparar, se utilizaron las métricas de clasificación binaria descriptas en la Sección \ref{cap2:subsec:metricas}, mientras que el ajuste de cada autocodificador de un SAE sobre los datos se evaluó con métricas de regresión como corresponde. Es preciso aclarar que en el trabajo original se utilizó para clasificar tanto el método Bayesian Linear Discriminant Analysis (BLDA) como Fisher's Linear Discriminant Linear (FLDA) \cite{hoffmann2008efficient}. 
+% Opcion 1:
+Mediante los scripts adjuntos con la base de datos se replicaron los experimentos con BLDA, y la exactitud de los resultados reportados mediante validación cruzada para los sujetos 1 a 4 tratados en este trabajo eran correspondientemente los siguientes (con enfoque \textit{single trial}): 0.5675, 0.5988, 0.6717 y 0.6329. %Como se dijo antes, en este trabajo sólo se evaluó la clasificación mediante época única de las entradas y sin realizar promediado de ejemplos.
+% Opcion 2:
+%No obstante, los resultados reportados son referidos a la exactitud de la clasificación de caracteres del P300 speller y no del carácter binario como se trata en este trabajo, por lo cual se decidió no realizar comparación con ello sino entre los modelos explicados. 
+
+
+En los experimentos de este trabajo, se observó que los autocodificadores comprendidos en el modelo SAE usando el enfoque OCC obtenían un buen ajuste sobre el conjunto de validación, dado por un coeficiente $R^2$ de entre 0.75 y 0.9 aproximadamente. Además, al evaluar los resultados de dicho modelo luego de ser pre-entrenado, se obtenía en promedio para todos los sujetos una clasificación con exactitud cercana al 85\% y un F1-Score de aproximadamente 0.65. No obstante la exhaustividad de la detección de P300 era prácticamente nula (i.e. casi todo se clasificaba como ``NoP300''), lo cual se corresponde con lo mencionado en la Sección \ref{cap2:subsec:metricas} respecto a que la interpretación del desempeño debe contemplar diversas métricas. En base a estos resultados, se consideró que el ajuste fino resultaba indispensable para obtener una clasificación correcta. 
+
+En la Tabla \ref{tab:sae-p300-occ} se presentan los resultados de ejecutar la etapa de ajuste fino  para el SAE con OCC sobre los datos de cada sujeto, y en la Figura \ref{fig:fitting-sae_ftS4} se visualiza la evolución del ajuste fino sobre un sujeto en particular (gráfico obtenido mediante una funcionalidad de Learninspy).
+
+
+\begin{table}[h!]
+	\begin{center}
+		\caption{Resultados obtenidos por cada sujeto al modelar un SAE con OCC, discriminando por clase en cada métrica utilizada.}
+		\label{tab:sae-p300-occ}
+		\begin{adjustbox}{max width=\textwidth}
+			\begin{tabular}{|c|c|c|c|c|c|c|}
+				\hline
+				\textbf{Sujeto} & $P_{P300}$ & $R_{P300}$ & $Acc_{P300}$ & $P_{NoP300}$ & $R_{NoP300}$ & $Acc_{NoP300}$  \\
+				\hline
+				
+				
+				\textbf{S1} & 
+				% keep_best=True
+				% 
+				% keep_best=False
+				0.3461 & 0.4909 & 0.2547 & 0.8906 & 0.8172 & 0.7426
+				
+				\\
+				\hline
+				
+				
+				\textbf{S2} & 
+				% keep_best=True
+				% 	
+				% keep_best=False
+				0.3402 & 0.5892 & 0.2750 & 0.9021 & 0.7681 & 0.7090
+				
+				\\
+				\hline
+				
+				\textbf{S3} & 
+				% keep_best=True
+				% 
+				% keep_best=False
+				0.6000 & 0.8500 & 0.5425 & 0.9638 & 0.8759 & 0.8480
+				
+				\\
+				\hline
+				
+				\textbf{S4} & 
+				% keep_best=True
+				% 
+				% keep_best=False
+				0.5287 & 0.7796 & 0.4600 & 0.9467 & 0.8492 & 0.8105
+				\\
+				\hline
+				
+				
+			\end{tabular}
+		\end{adjustbox}
+	\end{center}
+\end{table}
+
+
+
+\begin{table}[h!]
+	\begin{center}
+		\caption{Resultados obtenidos por cada sujeto utilizando distintos modelos.}
+		\label{tab:p300-clasificacion}
+		\scalebox{0.88}{
+			\begin{tabular}{|c|c|c|c|c|c|c|c|c|}
+				\hline
+				&
+				%\begin{tabular}{@{}c@{}} Modelo \\ 19-10 \end{tabular} &
+				\multicolumn{2}{c|}{\textbf{RegLog}}& 
+				\multicolumn{2}{c|}{\textbf{DNN}}& 
+				\multicolumn{2}{c|}{\textbf{SAE}}& 
+				\multicolumn{2}{c|}{\textbf{SAE-OCC}} 
+				
+				\\
+				
+				&
+				Acc & F1 & 
+				Acc & F1 & 
+				Acc & F1 & 
+				Acc & F1 
+				\\
+				\hline
+				
+				\textbf{S1} &
+				% -- RegLog -- 
+				0.7754  & 0.6006 & 
+				% -- DNN -- 
+				% keep_best=False
+				\textbf{0.7844}  & 0.6249 & % ADADELTA
+				% 0.7724 & 0.6679 & % GD 
+				% -- SAE -- 
+				% keep_best=False
+				% 0.7455  & 0.6340 & % ADADELTA
+				0.7395 & 0.6195 & % GD 
+				% -- SAE con OCC -- 
+				% keep_best=True
+				% 
+				% keep_best=False 
+				0.7634 & \textbf{0.6357}
+				
+				\\
+				\hline
+				\textbf{S2} & 
+				% -- RegLog -- 
+				0.7168  & 0.6042 &  
+				% -- DNN -- 
+				% keep_best=False				
+				\textbf{0.7771} & \textbf{0.6653} & % ADADELTA
+				% 0.7530 & 0.6224 & % GD 
+				% -- SAE -- 
+				% keep_best=False				
+				% 0.7349 & 0.6313 & % ADADELTA
+				0.7710 & 0.6355 & % GD
+				% -- SAE con OCC -- 
+				% keep_best=True
+				% 
+				% keep_best=False
+				0.7379 & 0.6486
+				
+				\\
+				\hline
+				\textbf{S3} & 
+				% -- RegLog -- 
+				0.8413  & 0.7684 & 
+				% -- DNN -- 
+				% keep_best=False
+				0.8802 & \textbf{0.8259} & % ADADELTA
+				% 0.9012 & 0.8456 & % GD 
+				% -- SAE -- 
+				% keep_best=False
+				% 0.8712 & 0.8171 & % ADADELTA
+				\textbf{0.8862} & 0.8070 & % GD 
+				% -- SAE con OCC -- 
+				% keep_best=True
+				% 
+				% keep_best=False
+				0.8712 & 0.8204
+				
+				\\
+				\hline
+				\textbf{S4} & 
+				% -- RegLog -- 
+				0.7703  & 0.6571 & 
+				% -- DNN -- 
+				% keep_best=False
+				0.8308 & 0.7265 & % ADADELTA
+				% 0.8398 & 0.7395 & % GD
+				% -- SAE -- 
+				% keep_best=False
+				% 0.8308 & 0.7574 & % ADADELTA
+				0.8066 & 0.7000 & % GD 
+				% -- SAE con OCC -- 
+				% keep_best=True
+				% 
+				% keep_best=False
+				\textbf{0.8368} & \textbf{0.7741}
+				
+				\\
+				\hline
+				\hline
+				
+				\textbf{Avg} & 
+				% -- RegLog -- 
+				0.7759  & 0.6725 & 
+				% -- DNN -- 
+				\textbf{0.8030} &  0.7106 & % ADADELTA
+				% 0.8166 & 0.7188 &  % GD
+				% -- SAE -- 
+				% keep_best=False
+				0.8008 & 0.6905 & 
+				% -- SAE con OCC -- 
+				% keep_best=True
+				% 
+				% keep_best=False 
+				0.8023 & \textbf{0.7197} % GD
+				
+				\\
+				\hline
+			\end{tabular}
+		}
+	\end{center}
+\end{table}
+
+
+\begin{figure}[t]
+	\begin{center}
+		\includegraphics[width=0.8\textwidth]%
+		{Imagenes/Bitmap/P300/fitting_sae_ftS4}
+		\caption{Ajuste fino del modelo SAE con OCC sobre el Sujeto 4, en términos de la medida F1-Score.}
+		\label{fig:fitting-sae_ftS4}
+	\end{center}
+\end{figure}
+
+Finalmente, en la Tabla \ref{tab:p300-clasificacion} se realiza la comparación de los clasificadores respecto a los resultados obtenidos por cada sujeto. Se puede apreciar que el modelo SAE con OCC es el que mejor se desempeña en promedio respecto a la medida de F1-Score (apropiada para tener en cuenta el balance de clases en la clasificación). Además,  aproxima bastante al desempeño del modelo DNN en términos de exactitud, el cual obtuvo los mejores resultados respecto a dicha medida. Por último, es preciso notar que en general el desempeño presentado por cada sujeto es similar al reportado en el trabajo original, siendo el Sujeto 3 aquel con el que se obtuvieron mejores resultados para todos los modelos. 
+
+\iffalse
+Visualizaciones:
+\begin{itemize}
+	\item Progreso de fit (train vs valid) (SI)
+	\item Max activacion en pretrain y fine-tune (NO)
+	\item Max activacion promediada (ver si se resalta un p300) (NO)
+	\item Ponderación de p300 para resaltar la onda (NO)
+	\item Matrices de pesos (NO)
+\end{itemize}
+\fi
+
+
+%-------------------------------------------------------------------
+\section{Conclusiones}
+%-------------------------------------------------------------------
+\label{cap7:sec:conclusiones}
+
+Luego de ejecutar la experimentación explicada sobre este primer caso de aplicación, se considera en base a los resultados que puede ser factible utilizar aprendizaje profundo para construir sistemas BCI basados en detección de P300. Particularmente en base a la Tabla \ref{tab:sae-p300-occ}, como justificación se destaca lo siguiente:
+
+\begin{itemize}
+	\item Los elevados valores de \textit{precision} y \textit{recall} para la clase ``NoP300'' indican que las predicciones de dicha clase podría tener pocos falsos negativos (i.e. no se indicarían como correspondientes a un P300). Esto es bueno para un sistema BCI ya que en su operar no ejecutaría de forma seguida comandos no deseados por clasificar erróneamente un estado sin potencial evocado. 
+	\item El valor de \textit{precision} obtenido para la clase ``P300'' en promedio es menor a 0.5, lo cual indica que probablemente el sistema BCI arroje falsos positivos a la hora de detectar P300. No obstante, el valor de \textit{recall} obtenido para la clase P300 en promedio es mayor a 0.5, lo cual indica que se tiende a lograr exhaustividad en dicha clasificación de forma tal que en un sistema BCI se llegue a captar la mayoría de los comandos ingresados por potenciales evocados.
+	
+\end{itemize}
+
+En particular, el enfoque propuesto para entrenar Stacked AutoEncoders basado en OCC se condice con lo esperado respecto a mejorar el balance de clases en las predicciones, lo cual se denota por un valor de F1-Score que fue el mejor de todos los modelos y además por una exactitud aproximada a la máxima lograda. No obstante, el desempeño de todas las redes neuronales en general es bueno respecto a la publicación de referencia (mejores resultados, sin utilizar los mismos conjuntos de prueba) y además presenta mejoras en la clasificación de una regresión logística, logrando representaciones más adecuadas para desempeñar dicha tarea. Por lo tanto se encuentra viable aplicar las metodologías de aprendizaje profundo explicadas de una forma más sofisticada para construir el tipo de BCI tratado siguiendo un enfoque \textit{single trial}.
+
+
+% Mirar bien esto http://www.cs.colostate.edu/~anderson/cs645/index.html/doku.php?id=schedule
+
+
+% Variable local para emacs, para  que encuentre el fichero maestro de
+% compilación y funcionen mejor algunas teclas rápidas de AucTeX
+%%%
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: "../Tesis.tex"
+%%% End:
